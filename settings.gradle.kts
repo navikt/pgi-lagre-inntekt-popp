@@ -1,0 +1,1 @@
+rootProject.name = "pgi-lagre-inntekt-popp"
