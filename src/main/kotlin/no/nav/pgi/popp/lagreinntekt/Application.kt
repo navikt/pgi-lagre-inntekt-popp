@@ -8,9 +8,7 @@ import no.nav.pensjon.samhandling.metrics.metrics
 
 
 fun main() {
-    createApplication().apply {
-        start(wait = false)
-    }
+    createApplication().start(wait = false)
 }
 
 internal fun createApplication(serverPort: Int = 8080) =

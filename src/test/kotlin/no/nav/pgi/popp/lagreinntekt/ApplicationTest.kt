@@ -1,16 +1,11 @@
 package no.nav.pgi.popp.lagreinntekt
 
-import io.ktor.http.*
-import no.nav.pensjon.samhandling.liveness.IS_ALIVE_PATH
-import no.nav.pensjon.samhandling.liveness.IS_READY_PATH
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse.BodyHandlers.ofString
 
 private const val SERVER_PORT = 8080
 private const val HOST = "http://localhost:$SERVER_PORT"
@@ -18,27 +13,30 @@ private const val HOST = "http://localhost:$SERVER_PORT"
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ApplicationTest {
     private val application = createApplication()
-    private val client = HttpClient.newHttpClient()
+    private val kafkaTestEnvironment = KafkaTestEnvironment()
+    private val kafkaConfig = KafkaConfig(kafkaTestEnvironment.testConfiguration())
+    private val inntektConsumer = InntektConsumer(kafkaConfig)
 
     @BeforeAll
     fun init() {
         application.start()
     }
 
-    @Test
-    fun isAlive() {
-        val response = client.send(createGetRequest(IS_ALIVE_PATH), ofString())
-        assertEquals(HttpStatusCode.OK.value, response.statusCode())
+    @AfterAll
+    fun tearDown() {
+        application.stop(100, 100)
+        kafkaTestEnvironment.tearDown()
     }
 
     @Test
-    fun isReady() {
-        val response = client.send(createGetRequest(IS_READY_PATH), ofString())
-        assertEquals(HttpStatusCode.OK.value, response.statusCode())
+    fun `validate consuming from kafka topic`() {
+        kafkaTestEnvironment.produceToInntektTopic("morradi", "10000")
+        val inntekter = inntektConsumer.getInntekter()
+
+        assertTrue(inntekter.isNotEmpty())
+        assertEquals("10000", inntekter[0].value())
+        assertEquals(1, inntekter.size)
     }
 
-    private fun createGetRequest(path: String): HttpRequest = HttpRequest.newBuilder()
-            .uri(URI.create("$HOST/$path"))
-            .GET()
-            .build()
+
 }
