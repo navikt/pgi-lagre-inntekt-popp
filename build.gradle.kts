@@ -10,7 +10,10 @@ val log4jVersion = "2.13.3"
 val wiremockVersion = "2.27.1"
 
 val kafkaVersion = "2.5.0"
+val confluentVersion = "5.5.1"
 val kafkaEmbeddedEnvVersion = "2.5.0"
+
+val pgiSchemaVersion = "0.0.1"
 
 group = "no.nav.pgi"
 
@@ -30,6 +33,12 @@ repositories {
             password = System.getenv("GITHUB_TOKEN")
         }
     }
+    maven("https://maven.pkg.github.com/navikt/pgi-schema") {
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {
@@ -40,8 +49,10 @@ dependencies {
     implementation("no.nav.pensjonsamhandling:pensjon-samhandling-ktor-support:$ktorSupportVersion")
 
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
+    implementation("no.nav.pensjonsamhandling:pgi-schema:$pgiSchemaVersion")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+    implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
 
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
