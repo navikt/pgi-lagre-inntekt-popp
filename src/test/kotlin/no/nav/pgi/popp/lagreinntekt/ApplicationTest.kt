@@ -9,9 +9,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
-private const val SERVER_PORT = 8080
-private const val HOST = "http://localhost:$SERVER_PORT"
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ApplicationTest {
     private val application = createApplication()
@@ -37,7 +34,6 @@ internal class ApplicationTest {
         kafkaTestEnvironment.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
 
         val inntekter = inntektConsumer.getInntekter()
-
 
         assertTrue(inntekter.isNotEmpty())
         assertEquals(1, inntekter.size)
