@@ -17,7 +17,7 @@ const val KAFKA_TEST_PASSWORD = "opensourcedPassword"
 class KafkaTestEnvironment {
     private val kafkaTestEnvironment: KafkaEnvironment = KafkaEnvironment(
             withSchemaRegistry = true,
-            topicNames = listOf(KafkaConfig.PGI_INNTEKT_TOPIC)
+            topicNames = listOf(PGI_INNTEKT_TOPIC, PGI_HENDELSE_TOPIC)
     )
     private val hendelseTestProducer = inntektTestProducer()
 
@@ -31,11 +31,8 @@ class KafkaTestEnvironment {
     internal fun tearDown() = kafkaTestEnvironment.tearDown()
 
     internal fun testConfiguration() = mapOf(
-            KafkaConfig.BOOTSTRAP_SERVERS_ENV_KEY to kafkaTestEnvironment.brokersURL,
-            KafkaConfig.SCHEMA_REGISTRY_URL_ENV_KEY to schemaRegistryUrl,
-            KafkaConfig.USERNAME_ENV_KEY to KAFKA_TEST_USERNAME,
-            KafkaConfig.PASSWORD_ENV_KEY to KAFKA_TEST_PASSWORD,
-            KafkaConfig.SECURITY_PROTOCOL_ENV_KEY to SecurityProtocol.PLAINTEXT.name
+            KafkaConfig.EnvironmentKeys.BOOTSTRAP_SERVERS to kafkaTestEnvironment.brokersURL,
+            KafkaConfig.EnvironmentKeys.SCHEMA_REGISTRY_URL to schemaRegistryUrl,
     )
 
     private fun inntektTestProducer() = KafkaProducer<HendelseKey, PensjonsgivendeInntekt>(inntektTestProducerConfig())
@@ -50,7 +47,7 @@ class KafkaTestEnvironment {
     )
 
     internal fun produceToInntektTopic(hendelseKey: HendelseKey, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
-        val record = ProducerRecord(KafkaConfig.PGI_INNTEKT_TOPIC, hendelseKey, pensjonsgivendeInntekt)
+        val record = ProducerRecord(PGI_INNTEKT_TOPIC, hendelseKey, pensjonsgivendeInntekt)
         hendelseTestProducer.send(record)
         hendelseTestProducer.flush()
     }

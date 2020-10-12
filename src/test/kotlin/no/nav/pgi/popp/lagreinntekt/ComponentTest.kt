@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class ApplicationTest {
+internal class ComponentTest {
     private val application = createApplication()
     private val kafkaTestEnvironment = KafkaTestEnvironment()
-    private val kafkaConfig = KafkaConfig(kafkaTestEnvironment.testConfiguration())
+    private val kafkaConfig = KafkaConfig(kafkaTestEnvironment.testConfiguration(), PlaintextStrategy())
     private val inntektConsumer = PensjonsgivendeInntektConsumer(kafkaConfig)
 
     @BeforeAll
@@ -28,14 +28,14 @@ internal class ApplicationTest {
     }
 
     @Test
-    fun `validate consuming from kafka topic`() {
+    fun `consume from inntekt topic`() {
         val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
         val hendelseKey = HendelseKey("1234", "2018")
         kafkaTestEnvironment.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
 
-        val inntekter = inntektConsumer.getInntekter()
+        val inntektRecord = inntektConsumer.getInntekter()
 
-        assertTrue(inntekter.isNotEmpty())
-        assertEquals(1, inntekter.size)
+        assertEquals(hendelseKey, inntektRecord[0].key())
+        assertEquals(pensjonsgivendeInntekt, inntektRecord[0].value())
     }
 }
