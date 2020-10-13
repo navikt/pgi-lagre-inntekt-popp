@@ -11,15 +11,25 @@ fun main() {
     createApplication().start(wait = false)
 }
 
-internal fun createApplication(serverPort: Int = 8080) =
-        embeddedServer(Netty, createApplicationEnvironment(serverPort))
+internal fun createApplication(serverPort: Int = 8080, kafkaConfig: KafkaConfig = KafkaConfig()) =
+        embeddedServer(Netty, createApplicationEnvironment(serverPort, kafkaConfig))
 
-private fun createApplicationEnvironment(serverPort: Int) =
+private fun createApplicationEnvironment(serverPort: Int, kafkaConfig: KafkaConfig) =
         applicationEngineEnvironment {
             connector { port = serverPort }
             module {
                 isAlive()
                 isReady()
                 metrics()
+                connectAndConsumeFromKafka(kafkaConfig)
             }
         }
+
+internal fun connectAndConsumeFromKafka(kafkaConfig: KafkaConfig) {
+    val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
+    while (true) {
+        val inntekter = consumer.getInntekter()
+        println("Inntekter fetched: $inntekter.size")
+        Thread.sleep(5000)
+    }
+}
