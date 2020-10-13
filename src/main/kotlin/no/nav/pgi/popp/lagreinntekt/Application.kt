@@ -29,7 +29,7 @@ internal fun connectAndConsumeFromKafka(kafkaConfig: KafkaConfig) {
     val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
     while (true) {
         val inntekter = consumer.getInntekter()
-        println("Inntekter fetched: $inntekter.size")
+        println("Inntekter fetched: ${inntekter.size}")
         Thread.sleep(5000)
     }
 }
