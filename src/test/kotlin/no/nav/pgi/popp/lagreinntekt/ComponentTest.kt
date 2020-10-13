@@ -11,19 +11,12 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ComponentTest {
-    private val application = createApplication()
     private val kafkaTestEnvironment = KafkaTestEnvironment()
     private val kafkaConfig = KafkaConfig(kafkaTestEnvironment.testConfiguration(), PlaintextStrategy())
     private val inntektConsumer = PensjonsgivendeInntektConsumer(kafkaConfig)
 
-    @BeforeAll
-    fun init() {
-        application.start()
-    }
-
     @AfterAll
     fun tearDown() {
-        application.stop(100, 100)
         kafkaTestEnvironment.tearDown()
     }
 
