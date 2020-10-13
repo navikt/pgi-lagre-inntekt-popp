@@ -31,9 +31,9 @@ internal class SslStrategy(environment: Map<String, String> = System.getenv()) :
     )
 
     private object EnvironmentKeys {
-        const val SSL_TRUSTSTORE_LOCATION = "TRUSTSTORE_PATH"
-        const val SSL_TRUSTSTORE_PASSWORD = "TRUSTSTORE_PASS"
-        const val SSL_KEYSTORE_LOCATION = "KEYSTORE_PATH"
-        const val SSL_KEYSTORE_PASSWORD = "KEYSTORE_PASS"
+        const val SSL_TRUSTSTORE_LOCATION = "KAFKA_TRUSTSTORE_PATH"
+        const val SSL_TRUSTSTORE_PASSWORD = "KAFKA_CREDSTORE_PASSWORD"
+        const val SSL_KEYSTORE_LOCATION = "KAFKA_KEYSTORE_PATH"
+        const val SSL_KEYSTORE_PASSWORD = "KAFKA_CREDSTORE_PASSWORD"
     }
 }
