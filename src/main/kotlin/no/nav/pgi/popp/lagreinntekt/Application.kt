@@ -5,6 +5,7 @@ import io.ktor.server.netty.*
 import no.nav.pensjon.samhandling.liveness.isAlive
 import no.nav.pensjon.samhandling.liveness.isReady
 import no.nav.pensjon.samhandling.metrics.metrics
+import java.lang.Exception
 
 
 fun main() {
@@ -28,8 +29,14 @@ private fun createApplicationEnvironment(serverPort: Int, kafkaConfig: KafkaConf
 internal fun connectAndConsumeFromKafka(kafkaConfig: KafkaConfig) {
     val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
     while (true) {
-        val inntekter = consumer.getInntekter()
-        println("Inntekter fetched: ${inntekter.size}")
-        Thread.sleep(5000)
+        try {
+            val inntekter = consumer.getInntekter()
+            println("Inntekter fetched: ${inntekter.size}")
+            Thread.sleep(5000)
+        } catch (e: Exception) {
+            println(e.message)
+            e.printStackTrace()
+            Thread.sleep(5000)
+        }
     }
 }
