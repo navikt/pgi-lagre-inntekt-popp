@@ -3,10 +3,6 @@ package no.nav.pgi.popp.lagreinntekt
 import io.ktor.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.pensjon.samhandling.liveness.isAlive
-import no.nav.pensjon.samhandling.liveness.isReady
-import no.nav.pensjon.samhandling.metrics.metrics
-import java.lang.Exception
 
 
 fun main() {
@@ -20,9 +16,7 @@ private fun createApplicationEnvironment(serverPort: Int, kafkaConfig: KafkaConf
         applicationEngineEnvironment {
             connector { port = serverPort }
             module {
-                isAlive()
-                isReady()
-                metrics()
+                liveness()
                 connectAndConsumeFromKafka(kafkaConfig)
             }
         }
