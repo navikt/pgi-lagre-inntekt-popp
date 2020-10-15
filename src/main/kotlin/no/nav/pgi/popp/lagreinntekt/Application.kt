@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import io.ktor.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import no.nav.pensjon.samhandling.liveness.isAlive
@@ -26,17 +27,16 @@ private fun createApplicationEnvironment(serverPort: Int, kafkaConfig: KafkaConf
             }
         }
 
-internal fun connectAndConsumeFromKafka(kafkaConfig: KafkaConfig) {
+internal fun Application.connectAndConsumeFromKafka(kafkaConfig: KafkaConfig) {
     val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
     while (true) {
         try {
             val inntekter = consumer.getInntekter()
             println("Inntekter fetched: ${inntekter.size}")
-            Thread.sleep(5000)
-        } catch (e: Exception) {
+            Thread.sleep(1000)
+        } catch (e: Throwable) {
             println(e.message)
             e.printStackTrace()
-            Thread.sleep(5000)
         }
     }
 }
