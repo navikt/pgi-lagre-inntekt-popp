@@ -23,7 +23,7 @@ private fun createApplicationEnvironment(serverPort: Int, kafkaConfig: KafkaConf
                 isAlive()
                 isReady()
                 metrics()
-                connectAndConsumeFromKafka(kafkaConfig)
+                //connectAndConsumeFromKafka(kafkaConfig)
             }
         }
 
