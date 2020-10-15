@@ -12,7 +12,6 @@ private const val JAVA_KEYSTORE = "jks"
 private const val PKCS12 = "PKCS12"
 
 internal class SslStrategy(environment: Map<String, String> = System.getenv()) : KafkaConfig.SecurityStrategy {
-
     private val sslKeystoreLocation = environment.getVal(SSL_KEYSTORE_LOCATION)
     private val sslKeystorePassword = environment.getVal(SSL_KEYSTORE_PASSWORD)
     private val sslTruststoreLocation = environment.getVal(SSL_TRUSTSTORE_LOCATION)

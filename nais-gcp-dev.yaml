@@ -14,12 +14,10 @@ spec:
   liveness:
     path: isAlive
     initialDelay: 30
-    periodSeconds: 1
     failureThreshold: 60
   readiness:
     path: isReady
     initialDelay: 30
-    periodSeconds: 1
     failureThreshold: 60
   replicas:
     min: 1
