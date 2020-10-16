@@ -13,14 +13,10 @@ spec:
     pool: nav-prod
   liveness:
     path: isAlive
-    initialDelay: 30
-    periodSeconds: 1
-    failureThreshold: 60
+    initialDelay: 5
   readiness:
     path: isReady
-    initialDelay: 30
-    periodSeconds: 1
-    failureThreshold: 60
+    initialDelay: 5
   replicas:
     min: 1
     max: 1

@@ -8,7 +8,7 @@ import no.nav.pensjon.samhandling.metrics.metrics
 
 
 fun main() {
-    val application = Application(KafkaConfig())
+    val application = Application()
     application.connectAndConsumeFromKafka()
 }
 
