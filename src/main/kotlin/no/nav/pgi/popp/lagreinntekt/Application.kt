@@ -2,21 +2,24 @@ package no.nav.pgi.popp.lagreinntekt
 
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pensjon.samhandling.liveness.isAlive
 import no.nav.pensjon.samhandling.liveness.isReady
 import no.nav.pensjon.samhandling.metrics.metrics
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import kotlin.system.exitProcess
 
 
 fun main() {
     val application = Application()
-    application.connectAndConsumeFromKafka()
+    application.storePensjonsgivendeInntekterInPopp()
 }
 
 internal class Application(private val kafkaConfig: KafkaConfig = KafkaConfig()) {
+    private val server = embeddedServer(Netty, createApplicationEnvironment())
 
     init {
-        val server = embeddedServer(Netty, createApplicationEnvironment())
+        server.addShutdownHook { stopServer() }
         server.start(wait = false)
     }
 
@@ -30,17 +33,23 @@ internal class Application(private val kafkaConfig: KafkaConfig = KafkaConfig())
                 }
             }
 
-    internal fun connectAndConsumeFromKafka() {
+    internal fun storePensjonsgivendeInntekterInPopp(env: Map<String, String> = System.getenv(), loopForever: Boolean = true) {
         val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
-        while (true) {
-            try {
-                val inntekter = consumer.getInntekter()
-                println("Inntekter fetched: ${inntekter.size}")
-                Thread.sleep(1000)
-            } catch (e: Throwable) {
-                println(e.message)
-                e.printStackTrace()
-            }
-        }
+        val producer = HendelseProducer(kafkaConfig)
+        val poppClient = PoppClient(env.getVal("POPP_URL"))
+
+        do try {
+            val inntekter = consumer.getInntekter()
+            println("Inntekter polled from topic: {$inntekter.size}")
+            //poppClient.storePensjonsgivendeInntekter(inntekter)
+        } catch (e: Exception) {
+            println(e.message)
+            e.printStackTrace()
+            exitProcess(1)
+        } while (loopForever)
+    }
+
+    internal fun stopServer() {
+        server.stop(100, 100)
     }
 }

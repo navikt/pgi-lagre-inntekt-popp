@@ -9,11 +9,8 @@ import no.nav.pgi.popp.lagreinntekt.kafka.KafkaTestEnvironment
 import no.nav.pgi.popp.lagreinntekt.kafka.PlaintextStrategy
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 private const val POPP_PORT = 1080
 private const val POPP_PATH = "/pgi/lagreinntekt"
@@ -32,7 +29,7 @@ internal class ComponentTest {
     @BeforeAll
     fun setUp() {
         poppApiServer.start()
-        mockHttpResponse500()
+        mockHttpResponse500FromPopp()
     }
 
     @AfterAll
@@ -53,8 +50,23 @@ internal class ComponentTest {
         assertEquals(pensjonsgivendeInntekt, inntektRecord[0].value())
     }
 
+    @Disabled("Under construction")
     @Test
-    fun `when call to lagreInntekt fails then republish to hendelse topic`() {
+    fun `application gets inntekter and sends them to popp`() {
+        mockHttpResponse200FromPopp()
+        val application = Application(kafkaConfig)
+        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
+        val hendelseKey = HendelseKey("1234", "2018")
+        inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
+
+        application.storePensjonsgivendeInntekterInPopp(mapOf("POPP_URL" to POPP_URL), loopForever = false)
+
+        //assertEquals(null, )
+    }
+
+
+    @Test
+    fun `application gets inntekter, fails to send them to popp, therefore republishes the inntekt hendelse`() {
         val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
         val hendelseKey = HendelseKey("1234", "2018")
 
@@ -65,7 +77,7 @@ internal class ComponentTest {
         assertEquals(pensjonsgivendeInntekt, inntektRecordList[0].value())
 
         val poppClient = PoppClient(POPP_URL)
-        val response = poppClient.lagreInntekt(inntektRecordList[0].value())
+        val response = poppClient.storePensjonsgivendeInntekter(inntektRecordList[0].value())
         assertEquals(500, response.statusCode)
 
         hendelseProducer.rePublishHendelse(hendelseKey)
@@ -73,9 +85,15 @@ internal class ComponentTest {
         assertEquals(hendelseKey, hendelseTestConsumer.getFirstHendelseRecord().key())
     }
 
-    private fun mockHttpResponse500() {
+    private fun mockHttpResponse500FromPopp() {
         poppApiServer.stubFor(
                 WireMock.post(WireMock.urlPathEqualTo(POPP_PATH))
                         .willReturn(WireMock.serverError()))
+    }
+
+    private fun mockHttpResponse200FromPopp() {
+        poppApiServer.stubFor(
+                WireMock.post(WireMock.urlPathEqualTo(POPP_PATH))
+                        .willReturn(WireMock.okJson("{}")))
     }
 }
