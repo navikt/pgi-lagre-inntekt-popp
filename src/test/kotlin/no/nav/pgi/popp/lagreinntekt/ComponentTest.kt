@@ -63,8 +63,8 @@ internal class ComponentTest {
         assertEquals(pensjonsgivendeInntekt, inntektRecordList[0].value())
 
         val poppClient = PoppClient(POPP_URL)
-        //val response = poppClient.lagreInntekt(inntektRecordList[0].value())
-        //assertEquals("500", response.statusCode)
+        val response = poppClient.lagreInntekt(inntektRecordList[0].value())
+        assertEquals(500, response.statusCode)
 
         hendelseProducer.rePublishHendelse(hendelseKey)
 
@@ -73,7 +73,7 @@ internal class ComponentTest {
 
     private fun mockHttpResponse500() {
         poppApiServer.stubFor(
-                WireMock.get(WireMock.urlPathEqualTo(POPP_PATH))
+                WireMock.post(WireMock.urlPathEqualTo(POPP_PATH))
                         .willReturn(WireMock.serverError()))
     }
 }
