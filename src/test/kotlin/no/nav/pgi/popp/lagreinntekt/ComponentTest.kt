@@ -2,10 +2,11 @@ package no.nav.pgi.popp.lagreinntekt
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import no.nav.pgi.popp.lagreinntekt.kafkatestenv.HendelseTestConsumer
-import no.nav.pgi.popp.lagreinntekt.kafkatestenv.InntektTestProducer
-import no.nav.pgi.popp.lagreinntekt.kafkatestenv.KafkaTestEnvironment
-import no.nav.pgi.popp.lagreinntekt.kafkatestenv.PlaintextStrategy
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.HendelseTestConsumer
+import no.nav.pgi.popp.lagreinntekt.kafka.InntektTestProducer
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaTestEnvironment
+import no.nav.pgi.popp.lagreinntekt.kafka.PlaintextStrategy
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.junit.jupiter.api.AfterAll

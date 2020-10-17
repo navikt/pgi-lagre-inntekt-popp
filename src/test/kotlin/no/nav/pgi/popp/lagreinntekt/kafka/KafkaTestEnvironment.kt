@@ -1,10 +1,7 @@
-package no.nav.pgi.popp.lagreinntekt.kafkatestenv
+package no.nav.pgi.popp.lagreinntekt.kafka
 
 
 import no.nav.common.KafkaEnvironment
-import no.nav.pgi.popp.lagreinntekt.KafkaConfig
-import no.nav.pgi.popp.lagreinntekt.PGI_HENDELSE_TOPIC
-import no.nav.pgi.popp.lagreinntekt.PGI_INNTEKT_TOPIC
 import org.apache.kafka.clients.CommonClientConfigs
 
 class KafkaTestEnvironment {

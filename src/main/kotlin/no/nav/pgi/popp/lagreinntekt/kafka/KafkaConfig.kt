@@ -1,5 +1,6 @@
-package no.nav.pgi.popp.lagreinntekt
+package no.nav.pgi.popp.lagreinntekt.kafka
 
+import no.nav.pensjon.samhandling.env.getVal
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 
 internal const val GROUP_ID = "pgi-lagre-inntekt-consumer-group"

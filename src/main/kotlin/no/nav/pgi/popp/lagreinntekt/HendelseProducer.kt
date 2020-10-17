@@ -1,6 +1,8 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
 import no.nav.samordning.pgi.schema.Hendelse
 import no.nav.samordning.pgi.schema.HendelseKey
 import org.apache.kafka.clients.producer.KafkaProducer

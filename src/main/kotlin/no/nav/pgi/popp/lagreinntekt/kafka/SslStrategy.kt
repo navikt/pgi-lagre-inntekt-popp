@@ -1,9 +1,10 @@
-package no.nav.pgi.popp.lagreinntekt
+package no.nav.pgi.popp.lagreinntekt.kafka
 
-import no.nav.pgi.popp.lagreinntekt.SslStrategy.EnvironmentKeys.SSL_KEYSTORE_LOCATION
-import no.nav.pgi.popp.lagreinntekt.SslStrategy.EnvironmentKeys.SSL_KEYSTORE_PASSWORD
-import no.nav.pgi.popp.lagreinntekt.SslStrategy.EnvironmentKeys.SSL_TRUSTSTORE_LOCATION
-import no.nav.pgi.popp.lagreinntekt.SslStrategy.EnvironmentKeys.SSL_TRUSTSTORE_PASSWORD
+import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pgi.popp.lagreinntekt.kafka.SslStrategy.EnvironmentKeys.SSL_KEYSTORE_LOCATION
+import no.nav.pgi.popp.lagreinntekt.kafka.SslStrategy.EnvironmentKeys.SSL_KEYSTORE_PASSWORD
+import no.nav.pgi.popp.lagreinntekt.kafka.SslStrategy.EnvironmentKeys.SSL_TRUSTSTORE_LOCATION
+import no.nav.pgi.popp.lagreinntekt.kafka.SslStrategy.EnvironmentKeys.SSL_TRUSTSTORE_PASSWORD
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.security.auth.SecurityProtocol
