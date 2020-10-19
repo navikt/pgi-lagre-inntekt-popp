@@ -41,7 +41,14 @@ internal class Application(private val kafkaConfig: KafkaConfig = KafkaConfig())
         do try {
             val inntekter = consumer.getInntekter()
             println("Inntekter polled from topic: {$inntekter.size}")
-            //poppClient.storePensjonsgivendeInntekter(inntekter)
+            inntekter.forEach { inntekt ->
+                val response = poppClient.storePensjonsgivendeInntekter(inntekt)
+                if (response.statusCode() != 200) {
+                    println("Feil i lagring to POPP. Republish ")
+                    producer.rePublishHendelse(inntekt.key())
+                }
+            }
+
         } catch (e: Exception) {
             println(e.message)
             e.printStackTrace()
