@@ -10,9 +10,9 @@ internal class PensjonsgivendeInntektMapperTest {
     @Test
     fun `pensjonsgivende inntekt mapped to json`() {
         val pensjongivendeInntekt = PensjonsgivendeInntekt(INDENTIFIKATOR, INNTEKTSAAR)
-        val expectedJson = "\"{\\\"identifikator\\\": \\\"12345678901\\\", \\\"inntektsAar\\\": \\\"2020\\\"}\""
+        val expectedJson = "\"{\\\"identifikator\\\": \\\"$INDENTIFIKATOR\\\", \\\"inntektsAar\\\": \\\"$INNTEKTSAAR\\\"}\""
 
-        assertEquals(expectedJson, PensjonsgivendeInntektMapper.toJson(pensjongivendeInntekt))
+        assertEquals(expectedJson, pensjongivendeInntekt.toJson())
     }
 
     companion object {
