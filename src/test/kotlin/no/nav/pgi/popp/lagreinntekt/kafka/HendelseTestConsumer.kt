@@ -17,6 +17,10 @@ internal class HendelseTestConsumer(commonKafkaConfig: Map<String, String>) {
         hendelseTestConsumer.subscribe(listOf(PGI_HENDELSE_TOPIC))
     }
 
+    internal fun close() {
+        hendelseTestConsumer.close()
+    }
+
     private fun hendelseTestConsumerConfig() = mapOf(
             KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
@@ -26,8 +30,9 @@ internal class HendelseTestConsumer(commonKafkaConfig: Map<String, String>) {
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest"
     )
 
-    fun getFirstHendelseRecord() : ConsumerRecord<HendelseKey, Hendelse>? {
+    internal fun getFirstHendelseRecord(): ConsumerRecord<HendelseKey, Hendelse>? {
         val hendelseRecords = hendelseTestConsumer.poll(Duration.ofSeconds(4)).records(PGI_HENDELSE_TOPIC).toList()
+        hendelseTestConsumer.commitSync()
         if (hendelseRecords.isEmpty()) return null
         else return hendelseRecords[0]
     }
