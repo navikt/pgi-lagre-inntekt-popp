@@ -5,6 +5,8 @@ val junitJupiterVersion = "5.6.0"
 val ktorVersion = "1.3.2-1.4.0-rc"
 val ktorSupportVersion = "0.0.6"
 val micrometerVersion = "1.3.5"
+val logbackClassicVersion = "1.2.3"
+val logstashLogbackEncoder = "5.2"
 val slf4jVersion = "1.7.30"
 val log4jVersion = "2.13.3"
 val wiremockVersion = "2.27.1"
@@ -54,10 +56,13 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
 
+    implementation("ch.qos.logback:logback-classic:$logbackClassicVersion")
+    implementation("net.logstash.logback", "logstash-logback-encoder:$logstashLogbackEncoder")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
+
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")

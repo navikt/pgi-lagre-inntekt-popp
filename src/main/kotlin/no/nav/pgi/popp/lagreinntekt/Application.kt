@@ -7,6 +7,8 @@ import no.nav.pensjon.samhandling.liveness.isAlive
 import no.nav.pensjon.samhandling.liveness.isReady
 import no.nav.pensjon.samhandling.metrics.metrics
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
+import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 
@@ -21,6 +23,7 @@ internal class Application(private val kafkaConfig: KafkaConfig = KafkaConfig())
     init {
         server.addShutdownHook { stopServer() }
         server.start(wait = false)
+
     }
 
     private fun createApplicationEnvironment(serverPort: Int = 8080) =
@@ -40,23 +43,28 @@ internal class Application(private val kafkaConfig: KafkaConfig = KafkaConfig())
 
         do try {
             val inntekter = consumer.getInntekter()
-            println("Inntekter polled from topic: {$inntekter.size}")
+            log.debug("Inntekter polled from topic: {$inntekter.size}")
+
             inntekter.forEach { inntekt ->
                 val response = poppClient.storePensjonsgivendeInntekter(inntekt)
                 if (response.statusCode() != 200) {
-                    println("Feil i lagring to POPP. Republish ")
+                    log.warn("Feil ved lagring av inntekt til POPP. Republiserer hendelse til topic $PGI_HENDELSE_TOPIC")
                     producer.rePublishHendelse(inntekt.key())
                 }
             }
 
         } catch (e: Exception) {
-            println(e.message)
+            log.error(e.message)
             e.printStackTrace()
             exitProcess(1)
         } while (loopForever)
     }
 
-    internal fun stopServer() {
+    private fun stopServer() {
         server.stop(100, 100)
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(Application::class.java)
     }
 }
