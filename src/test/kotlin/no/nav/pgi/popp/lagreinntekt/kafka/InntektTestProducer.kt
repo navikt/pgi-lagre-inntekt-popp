@@ -16,6 +16,10 @@ internal class InntektTestProducer(commonKafkaConfig: Map<String, String>) {
         inntektTestProducer.send(record).get()
     }
 
+    internal fun close() {
+        inntektTestProducer.close()
+    }
+
     private fun inntektTestProducerConfig() = mapOf(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
