@@ -1,17 +1,13 @@
 package no.nav.pgi.popp.lagreinntekt
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.HendelseTestConsumer
-import no.nav.pgi.popp.lagreinntekt.kafka.InntektTestProducer
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaTestEnvironment
-import no.nav.pgi.popp.lagreinntekt.kafka.PlaintextStrategy
+import no.nav.pgi.popp.lagreinntekt.kafka.*
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
 private const val POPP_PORT = 1080
 private const val POPP_PATH = "/pgi/lagreinntekt"
@@ -21,33 +17,21 @@ private const val POPP_URL = "http://localhost:$POPP_PORT$POPP_PATH"
 internal class ComponentTest {
     private val kafkaTestEnvironment = KafkaTestEnvironment()
     private val kafkaConfig = KafkaConfig(kafkaTestEnvironment.testEnvironment(), PlaintextStrategy())
-    private val inntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
+    private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
     private val hendelseTestConsumer = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
-    private val inntektConsumer = PensjonsgivendeInntektConsumer(kafkaConfig)
-    private val hendelseProducer = HendelseProducer(kafkaConfig)
     private val poppMockServer = PoppMockServer()
+    private val application = Application(kafkaConfig)
 
     @AfterAll
     fun tearDown() {
         kafkaTestEnvironment.tearDown()
         poppMockServer.stop()
-    }
-
-    @Test
-    fun `consume from inntekt topic`() {
-        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
-        val hendelseKey = HendelseKey("1234", "2018")
-        inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
-
-        val inntektRecord = inntektConsumer.getInntekter()
-
-        assertEquals(hendelseKey, inntektRecord[0].key())
-        assertEquals(pensjonsgivendeInntekt, inntektRecord[0].value())
+        inntektTestProducer.close()
+        hendelseTestConsumer.close()
     }
 
     @Test
     fun `application gets inntekter and sends them to popp`() {
-        val application = Application(kafkaConfig)
         val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
         val hendelseKey = HendelseKey("1234", "2018")
         inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
@@ -60,7 +44,6 @@ internal class ComponentTest {
 
     @Test
     fun `republish when POPP returns 500 Internal Server Error`() {
-        val application = Application(kafkaConfig)
         val pensjonsgivendeInntekt = PensjonsgivendeInntekt("2345", "2018")
         val hendelseKey = HendelseKey("2345", "2018")
         inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
