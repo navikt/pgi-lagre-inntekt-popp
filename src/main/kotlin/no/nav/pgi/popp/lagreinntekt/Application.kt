@@ -3,39 +3,56 @@ package no.nav.pgi.popp.lagreinntekt
 import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
+import no.nav.samordning.pgi.schema.HendelseKey
+import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
-
 
 fun main() {
     ReadinessServer.start()
     Application().storePensjonsgivendeInntekterInPopp()
 }
 
-internal class Application(private val kafkaConfig: KafkaConfig = KafkaConfig()) {
+internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(),
+                           env: Map<String, String> = System.getenv()) {
 
-    internal fun storePensjonsgivendeInntekterInPopp(env: Map<String, String> = System.getenv(), loopForever: Boolean = true) {
-        val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
-        val producer = HendelseProducer(kafkaConfig)
-        val poppClient = PoppClient(env.getVal("POPP_URL"))
+    private val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
+    private val producerRepubliserHendelser = HendelseProducer(kafkaConfig)
+    private val poppClient = PoppClient(env.getVal("POPP_URL"))
+
+    internal fun storePensjonsgivendeInntekterInPopp(loopForever: Boolean = true) {
 
         do try {
-            val inntekter = consumer.getInntekter()
-            log.debug("Antall ConsumerRecords polled from topic: ${inntekter.size}")
-
-            inntekter.forEach { inntekt ->
-                val response = poppClient.storePensjonsgivendeInntekter(inntekt)
-                if (response.statusCode() != 200) {
-                    log.warn("Feil ved lagring av inntekt til POPP. Republiserer hendelse til topic $PGI_HENDELSE_TOPIC")
-                    producer.rePublishHendelse(inntekt.key())
-                }
-            }
+            consumer.getInntekter()
+                    .also { log.debug("Antall ConsumerRecords polled from topic: ${it.size}") }
+                    .let { lagrePensjonsgivendeInntekterTilPopp(it) }
+                    .let { republiserHendelser(it) }
 
         } catch (e: Exception) {
             log.error(e.message)
             e.printStackTrace()
             exitProcess(1)
         } while (loopForever)
+    }
+
+    private fun republiserHendelser(inntekterFeiletTilPopp: MutableList<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
+        inntekterFeiletTilPopp.forEach {
+            producerRepubliserHendelser.rePublishHendelse(it.key())
+        }.also { log.warn("Republiserer hendelse til topic $PGI_HENDELSE_TOPIC.") }
+    }
+
+    private fun lagrePensjonsgivendeInntekterTilPopp(inntekter: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>): MutableList<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> {
+        val inntekterFeiletTilPopp = mutableListOf<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>()
+        inntekter.forEach { inntekt ->
+            val response = poppClient.storePensjonsgivendeInntekter(inntekt)
+            if (response.statusCode() != 201) {
+                log.warn("Feil ved lagring av inntekt til POPP.")
+                inntekterFeiletTilPopp.add(inntekt)
+
+            }
+        }
+        return inntekterFeiletTilPopp
     }
 
     companion object {
