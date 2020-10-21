@@ -35,7 +35,7 @@ internal class PoppClientTest {
     }
 
     @Test
-    fun `assert POST 200 OK`() {
+    fun `assert POST response, Http status code 201 Created`() {
         val poppClient = PoppClient(POPP_URL)
         val hendelseKey = HendelseKey("1234", "2018")
         val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
@@ -43,7 +43,7 @@ internal class PoppClientTest {
 
         val response = poppClient.storePensjonsgivendeInntekter(consumerRecord)
 
-        assertEquals(200, response.statusCode())
+        assertEquals(201, response.statusCode())
     }
 
     @Test
