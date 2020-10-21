@@ -11,15 +11,15 @@ import java.net.http.HttpResponse
 internal class PoppClient(private val url: String) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
 
-    internal fun <T> send(httpRequest: HttpRequest, responseBodyHandler: HttpResponse.BodyHandler<T>): HttpResponse<T> =
-            httpClient.send(httpRequest, responseBodyHandler)
-
     internal fun storePensjonsgivendeInntekter(inntekt : ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>): HttpResponse<String> {
         val pensjonsgivendeInntekt = inntekt.value()
         val request = createPostRequest(url, pensjonsgivendeInntekt.toJson())
         return this.send(request, HttpResponse.BodyHandlers.ofString())
 
     }
+
+    private fun <T> send(httpRequest: HttpRequest, responseBodyHandler: HttpResponse.BodyHandler<T>): HttpResponse<T> =
+            httpClient.send(httpRequest, responseBodyHandler)
 }
 
 internal fun createPostRequest(url: String, body: String) = HttpRequest.newBuilder()
