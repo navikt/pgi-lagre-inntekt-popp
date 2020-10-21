@@ -37,6 +37,6 @@ internal class PoppMockServer {
                 WireMock.post(WireMock.urlPathEqualTo(POPP_PATH))
                         .withRequestBody(
                                 equalToJson(requestBodyJson,false, false))
-                        .willReturn(WireMock.ok()))
+                        .willReturn(WireMock.created()))
     }
 }
