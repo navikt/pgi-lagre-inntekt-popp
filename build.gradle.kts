@@ -57,7 +57,7 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackClassicVersion")
-    implementation("net.logstash.logback", "logstash-logback-encoder:$logstashLogbackEncoder")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoder")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
