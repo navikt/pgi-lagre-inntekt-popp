@@ -1,6 +1,7 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pensjon.samhandling.naisserver.naisServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
 import no.nav.samordning.pgi.schema.HendelseKey
@@ -10,13 +11,16 @@ import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 fun main() {
-    ReadinessServer.start()
-    Application().storePensjonsgivendeInntekterInPopp()
+    val naisServer = naisServer().start()
+    try {
+        Application().storePensjonsgivendeInntekterInPopp()
+    } catch (e: Exception) {
+        naisServer.stop(100,100)
+    }
 }
 
 internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(),
                            env: Map<String, String> = System.getenv()) {
-
     private val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
     private val producerRepubliserHendelser = HendelseProducer(kafkaConfig)
     private val poppClient = PoppClient(env.getVal("POPP_URL"))

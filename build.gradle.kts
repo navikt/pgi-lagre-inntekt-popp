@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.6.0"
 val ktorVersion = "1.3.2-1.4.0-rc"
-val ktorSupportVersion = "0.0.6"
+val ktorSupportVersion = "0.0.7"
 val micrometerVersion = "1.3.5"
 val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoder = "5.2"
