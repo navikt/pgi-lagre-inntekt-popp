@@ -22,6 +22,9 @@ internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
 
     internal fun getInntekter() = consumer.poll(TIMEOUT_DURATION).records(PGI_INNTEKT_TOPIC).toList()
 
+    internal fun commit() {
+        consumer.commitSync()
+    }
     private fun inntektConsumerConfig() = mapOf(
             KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,

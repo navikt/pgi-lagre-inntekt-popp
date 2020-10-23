@@ -31,7 +31,12 @@ internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(),
             consumer.getInntekter()
                     .also { log.debug("Antall ConsumerRecords polled from topic: ${it.size}") }
                     .let { lagrePensjonsgivendeInntekterTilPopp(it) }
-                    .let { republiserHendelser(it) }
+                    .also {
+                        republiserHendelser(it) }
+                    .also {
+                        log.debug("Commit consumer")
+                        consumer.commit()
+                    }
 
         } catch (e: Exception) {
             log.error(e.message)
@@ -43,7 +48,7 @@ internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(),
     private fun republiserHendelser(inntekterFeiletTilPopp: MutableList<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
         inntekterFeiletTilPopp.forEach {
             producerRepubliserHendelser.rePublishHendelse(it.key())
-        }.also { log.warn("Republiserer hendelse til topic $PGI_HENDELSE_TOPIC.") }
+        }.also { log.warn("Republiserer ${inntekterFeiletTilPopp.size} hendelse(r) til topic $PGI_HENDELSE_TOPIC.") }
     }
 
     private fun lagrePensjonsgivendeInntekterTilPopp(inntekter: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>): MutableList<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> {
