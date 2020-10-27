@@ -37,8 +37,8 @@ internal class PoppClientTest {
     @Test
     fun `assert POST response, Http status code 201 Created`() {
         val poppClient = PoppClient(POPP_URL)
-        val hendelseKey = HendelseKey("1234", "2018")
-        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
+        val hendelseKey = HendelseKey("1000", "2018")
+        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1000", "2018")
         val consumerRecord = ConsumerRecord("topic", 0, 1, hendelseKey, pensjonsgivendeInntekt)
 
         val response = poppClient.storePensjonsgivendeInntekter(consumerRecord)
@@ -48,8 +48,8 @@ internal class PoppClientTest {
 
     @Test
     fun `application gets inntekter, fails to send them to popp, therefore republishes the inntekt hendelse`() {
-        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("2345", "2018")
-        val hendelseKey = HendelseKey("2345", "2018")
+        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("2222", "2018")
+        val hendelseKey = HendelseKey("2222", "2018")
         inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
         val inntektRecordList = inntektConsumer.getInntekter()
 
