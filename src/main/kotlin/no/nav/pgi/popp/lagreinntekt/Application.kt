@@ -4,6 +4,7 @@ import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pensjon.samhandling.naisserver.naisServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -29,7 +30,10 @@ internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(),
 
         do try {
             consumer.getInntekter()
-                    .also { log.debug("Antall ConsumerRecords polled from topic: ${it.size}") }
+                    .also { consumerRecords ->
+                        log.debug("Antall ConsumerRecords polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
+                        consumerRecords.forEach{ log.debug("key ${it.key()} - value ${it.value()}")}
+                    }
                     .let { lagrePensjonsgivendeInntekterTilPopp(it) }
                     .also {
                         republiserHendelser(it) }
