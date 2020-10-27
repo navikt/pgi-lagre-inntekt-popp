@@ -32,8 +32,10 @@ internal class HendelseTestConsumer(commonKafkaConfig: Map<String, String>) {
 
     internal fun getFirstHendelseRecord(): ConsumerRecord<HendelseKey, Hendelse>? {
         val hendelseRecords = hendelseTestConsumer.poll(Duration.ofSeconds(4)).records(PGI_HENDELSE_TOPIC).toList()
-        hendelseTestConsumer.commitSync()
-        if (hendelseRecords.isEmpty()) return null
-        else return hendelseRecords[0]
+        return if (hendelseRecords.isEmpty()) null
+           else hendelseRecords[0]
     }
+
+    internal fun getRecords(): List<ConsumerRecord<HendelseKey,Hendelse>> =
+            hendelseTestConsumer.poll(Duration.ofSeconds(4)).records(PGI_HENDELSE_TOPIC).toList()
 }
