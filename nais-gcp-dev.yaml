@@ -9,6 +9,8 @@ spec:
   image: {{ image }}
   team: pensjonsamhandling
   port: 8080
+  envFrom:
+    - secret: pgi-lagre-inntekt-popp-secrets
   kafka:
     pool: nav-dev
   liveness:
