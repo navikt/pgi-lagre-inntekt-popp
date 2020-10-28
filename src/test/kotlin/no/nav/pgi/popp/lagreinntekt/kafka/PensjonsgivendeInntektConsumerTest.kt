@@ -1,9 +1,8 @@
-package no.nav.pgi.popp.lagreinntekt
+package no.nav.pgi.popp.lagreinntekt.kafka
 
-import no.nav.pgi.popp.lagreinntekt.kafka.InntektTestProducer
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaTestEnvironment
-import no.nav.pgi.popp.lagreinntekt.kafka.PlaintextStrategy
+import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.InntektTestProducer
+import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.KafkaTestEnvironment
+import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.PlaintextStrategy
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.junit.jupiter.api.AfterAll

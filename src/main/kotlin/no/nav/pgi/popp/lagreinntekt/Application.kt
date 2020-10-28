@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 fun main() {
     val application = Application()
     try {
-        application.startPgiLagreInntektPopp()
+        application.startLagreInntektPopp()
     } catch (e: Exception) {
         application.stop()
     }
@@ -15,14 +15,14 @@ fun main() {
 
 internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(), env: Map<String, String> = System.getenv()) {
     private val naisServer = naisServer()
-    private val pgiLagreInntektPopp = PgiLagreInntektPopp(kafkaConfig, env)
+    private val lagreInntektPopp = LagreInntektPopp(kafkaConfig, env)
 
     init {
         naisServer.start()
     }
 
-    internal fun startPgiLagreInntektPopp(loopForever: Boolean = true) {
-        pgiLagreInntektPopp.start(loopForever)
+    internal fun startLagreInntektPopp(loopForever: Boolean = true) {
+        lagreInntektPopp.start(loopForever)
     }
 
     internal fun stop() {

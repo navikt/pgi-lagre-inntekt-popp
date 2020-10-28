@@ -1,7 +1,8 @@
-package no.nav.pgi.popp.lagreinntekt.kafka
+package no.nav.pgi.popp.lagreinntekt.kafka.testenvironment
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
 import no.nav.samordning.pgi.schema.Hendelse
 import no.nav.samordning.pgi.schema.HendelseKey
 import org.apache.kafka.clients.consumer.ConsumerConfig

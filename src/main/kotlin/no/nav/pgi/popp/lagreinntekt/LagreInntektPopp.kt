@@ -1,12 +1,15 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pgi.popp.lagreinntekt.kafka.HendelseProducer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
+import no.nav.pgi.popp.lagreinntekt.kafka.PensjonsgivendeInntektConsumer
+import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
-internal class PgiLagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: Map<String, String> = System.getenv()) {
+internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: Map<String, String> = System.getenv()) {
     private val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
     private val producerRepubliserHendelser = HendelseProducer(kafkaConfig)
     private val poppClient = PoppClient(env.getVal("POPP_URL"))
@@ -36,6 +39,6 @@ internal class PgiLagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(PgiLagreInntektPopp::class.java)
+        private val log = LoggerFactory.getLogger(LagreInntektPopp::class.java)
     }
 }

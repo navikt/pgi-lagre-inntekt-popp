@@ -1,6 +1,7 @@
-package no.nav.pgi.popp.lagreinntekt.kafka
+package no.nav.pgi.popp.lagreinntekt.kafka.testenvironment
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.producer.KafkaProducer

@@ -1,4 +1,4 @@
-package no.nav.pgi.popp.lagreinntekt
+package no.nav.pgi.popp.lagreinntekt.mock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder

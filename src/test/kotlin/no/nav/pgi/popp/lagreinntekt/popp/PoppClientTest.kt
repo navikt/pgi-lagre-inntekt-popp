@@ -1,9 +1,10 @@
-package no.nav.pgi.popp.lagreinntekt
+package no.nav.pgi.popp.lagreinntekt.popp
 
 
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaTestEnvironment
-import no.nav.pgi.popp.lagreinntekt.kafka.PlaintextStrategy
+import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.KafkaTestEnvironment
+import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.PlaintextStrategy
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerRecord

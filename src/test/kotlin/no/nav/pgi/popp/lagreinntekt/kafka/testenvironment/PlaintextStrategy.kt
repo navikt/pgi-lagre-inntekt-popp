@@ -1,5 +1,6 @@
-package no.nav.pgi.popp.lagreinntekt.kafka
+package no.nav.pgi.popp.lagreinntekt.kafka.testenvironment
 
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.common.security.auth.SecurityProtocol
 

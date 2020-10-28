@@ -1,5 +1,6 @@
-package no.nav.pgi.popp.lagreinntekt
+package no.nav.pgi.popp.lagreinntekt.popp
 
+import no.nav.pgi.popp.lagreinntekt.toJson
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerRecord
