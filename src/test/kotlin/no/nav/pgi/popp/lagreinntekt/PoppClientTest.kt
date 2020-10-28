@@ -1,15 +1,14 @@
 package no.nav.pgi.popp.lagreinntekt
 
 
-import no.nav.pgi.popp.lagreinntekt.kafka.*
-import no.nav.pgi.popp.lagreinntekt.kafka.HendelseTestConsumer
-import no.nav.pgi.popp.lagreinntekt.kafka.InntektTestProducer
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaTestEnvironment
 import no.nav.pgi.popp.lagreinntekt.kafka.PlaintextStrategy
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -23,10 +22,6 @@ internal class PoppClientTest {
     private val kafkaTestEnvironment = KafkaTestEnvironment()
     private val poppMockServer = PoppMockServer()
     private val kafkaConfig = KafkaConfig(kafkaTestEnvironment.testEnvironment(), PlaintextStrategy())
-    private val hendelseProducer = HendelseProducer(kafkaConfig)
-    private val inntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
-    private val inntektConsumer = PensjonsgivendeInntektConsumer(kafkaConfig)
-    private val hendelseTestConsumer = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
 
     @AfterAll
     fun tearDown() {
@@ -35,34 +30,14 @@ internal class PoppClientTest {
     }
 
     @Test
-    fun `assert POST response, Http status code 201 Created`() {
+    fun `assert no rePublish to Hendelse`() {
         val poppClient = PoppClient(POPP_URL)
         val hendelseKey = HendelseKey("1000", "2018")
         val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1000", "2018")
         val consumerRecord = ConsumerRecord("topic", 0, 1, hendelseKey, pensjonsgivendeInntekt)
+        val inntekter = listOf(consumerRecord)
+        val rePublishToHendelse = poppClient.savePensjonsgivendeInntekter(inntekter)
 
-        val response = poppClient.storePensjonsgivendeInntekter(consumerRecord)
-
-        assertEquals(201, response.statusCode())
+        assertTrue(rePublishToHendelse.isEmpty())
     }
-
-    @Test
-    fun `application gets inntekter, fails to send them to popp, therefore republishes the inntekt hendelse`() {
-        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("2222", "2018")
-        val hendelseKey = HendelseKey("2222", "2018")
-        inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
-        val inntektRecordList = inntektConsumer.getInntekter()
-
-        assertEquals(hendelseKey, inntektRecordList[0].key())
-        assertEquals(pensjonsgivendeInntekt, inntektRecordList[0].value())
-
-        val poppClient = PoppClient(POPP_URL)
-        val response = poppClient.storePensjonsgivendeInntekter(inntektRecordList[0])
-        assertEquals(500, response.statusCode())
-
-        hendelseProducer.rePublishHendelse(hendelseKey)
-
-        assertEquals(hendelseKey, hendelseTestConsumer.getFirstHendelseRecord()?.key())
-    }
-
 }

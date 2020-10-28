@@ -5,9 +5,7 @@ import no.nav.samordning.pgi.schema.Hendelse
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -22,7 +20,7 @@ internal class ComponentTest {
     private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
     private val hendelseTestConsumer = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
     private val poppMockServer = PoppMockServer()
-    private val application = Application(kafkaConfig, mapOf("POPP_URL" to POPP_URL))
+    private val pgiLagreInntektPopp = PgiLagreInntektPopp(kafkaConfig, mapOf("POPP_URL" to POPP_URL))
 
     @AfterAll
     fun tearDown() {
@@ -30,7 +28,6 @@ internal class ComponentTest {
         poppMockServer.stop()
         inntektTestProducer.close()
         hendelseTestConsumer.close()
-        application.stop()
     }
 
     @Test
@@ -39,7 +36,7 @@ internal class ComponentTest {
         val hendelseKey = HendelseKey("1000", "2018")
         inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
 
-        application.storePensjonsgivendeInntekterInPopp(loopForever = false)
+        pgiLagreInntektPopp.start(loopForever = false)
         Thread.sleep(1000)
         assertEquals(null, hendelseTestConsumer.getFirstHendelseRecord())
     }
@@ -50,7 +47,7 @@ internal class ComponentTest {
         val hendelseKeyID2222Popp500 = HendelseKey("2222", "2018")
         inntektTestProducer.produceToInntektTopic(hendelseKeyID2222Popp500, pensjonsgivendeInntektID2222Popp500)
 
-        application.storePensjonsgivendeInntekterInPopp(loopForever = false)
+        pgiLagreInntektPopp.start(loopForever = false)
         Thread.sleep(1000)
 
         val republishedHendelse = hendelseTestConsumer.getFirstHendelseRecord()
@@ -69,7 +66,7 @@ internal class ComponentTest {
         inntektTestProducer.produceToInntektTopic(hendelseKeyPoppID3000201, pensjonsgivendeInntektID3000Popp201)
         inntektTestProducer.produceToInntektTopic(hendelseKeyID3333Popp500, pensjonsgivendeInntektID3333Popp500)
 
-        application.storePensjonsgivendeInntekterInPopp(loopForever = false)
+        pgiLagreInntektPopp.start(loopForever = false)
         Thread.sleep(1000)
 
         val republishedHendelse = hendelseTestConsumer.getFirstHendelseRecord()
@@ -86,7 +83,7 @@ internal class ComponentTest {
         inntektTestProducer.produceToInntektTopic(hendelseKeyID4444Popp500, pensjonsgivendeInntektID4444Popp500)
         inntektTestProducer.produceToInntektTopic(hendelseKeyID4000Popp201, pensjonsgivendeInntektID4000Popp201)
 
-        application.storePensjonsgivendeInntekterInPopp(loopForever = false)
+        pgiLagreInntektPopp.start(loopForever = false)
         Thread.sleep(1000)
 
         val republishedHendelse = hendelseTestConsumer.getFirstHendelseRecord()
@@ -104,7 +101,7 @@ internal class ComponentTest {
         inntektTestProducer.produceToInntektTopic(hendelseKeyID5556Popp500, pensjonsgivendeInntektPoppID5556HttpResponse500)
         Thread.sleep(1000)
 
-        application.storePensjonsgivendeInntekterInPopp(loopForever = false)
+        pgiLagreInntektPopp.start(loopForever = false)
 
         val republishedHendelser = hendelseTestConsumer.getRecords()
                 .map { consumerRecord -> consumerRecord.value() }
