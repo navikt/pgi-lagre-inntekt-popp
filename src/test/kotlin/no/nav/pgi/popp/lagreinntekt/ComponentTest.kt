@@ -30,6 +30,7 @@ internal class ComponentTest {
         poppMockServer.stop()
         inntektTestProducer.close()
         hendelseTestConsumer.close()
+        application.stop()
     }
 
     @Test
@@ -41,7 +42,6 @@ internal class ComponentTest {
         application.storePensjonsgivendeInntekterInPopp(loopForever = false)
         Thread.sleep(1000)
         assertEquals(null, hendelseTestConsumer.getFirstHendelseRecord())
-
     }
 
     @Test

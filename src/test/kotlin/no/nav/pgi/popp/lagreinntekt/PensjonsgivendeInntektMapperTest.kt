@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 internal class PensjonsgivendeInntektMapperTest {
-
     @Test
     fun `pensjonsgivende inntekt mapped to json`() {
         val pensjongivendeInntekt = PensjonsgivendeInntekt(INDENTIFIKATOR, INNTEKTSAAR)

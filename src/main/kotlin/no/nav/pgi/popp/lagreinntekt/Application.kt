@@ -12,19 +12,23 @@ import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 fun main() {
-    val naisServer = naisServer().start()
+    val application = Application()
     try {
-        Application().storePensjonsgivendeInntekterInPopp()
+        application.storePensjonsgivendeInntekterInPopp()
     } catch (e: Exception) {
-        naisServer.stop(100,100)
+        application.stop()
     }
 }
 
-internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(),
-                           env: Map<String, String> = System.getenv()) {
+internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(), env: Map<String, String> = System.getenv()) {
+    private val naisServer = naisServer()
     private val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
     private val producerRepubliserHendelser = HendelseProducer(kafkaConfig)
     private val poppClient = PoppClient(env.getVal("POPP_URL"))
+
+    init {
+        naisServer.start()
+    }
 
     internal fun storePensjonsgivendeInntekterInPopp(loopForever: Boolean = true) {
 
@@ -66,6 +70,10 @@ internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(),
             }
         }
         return inntekterFeiletTilPopp
+    }
+
+    fun stop() {
+        naisServer.stop(0,0)
     }
 
     companion object {
