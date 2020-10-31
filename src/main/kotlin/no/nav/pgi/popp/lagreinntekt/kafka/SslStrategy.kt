@@ -12,6 +12,7 @@ import org.apache.kafka.common.security.auth.SecurityProtocol
 private const val JAVA_KEYSTORE = "jks"
 private const val PKCS12 = "PKCS12"
 
+/* Connection to kafka Aiven on hold until schema registry issues is fixed */
 internal class SslStrategy(environment: Map<String, String> = System.getenv()) : KafkaConfig.SecurityStrategy {
     private val sslKeystoreLocation = environment.getVal(SSL_KEYSTORE_LOCATION)
     private val sslKeystorePassword = environment.getVal(SSL_KEYSTORE_PASSWORD)
