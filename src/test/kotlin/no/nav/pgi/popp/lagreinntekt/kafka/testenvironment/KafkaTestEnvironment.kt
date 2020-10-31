@@ -20,7 +20,7 @@ class KafkaTestEnvironment {
 
     internal fun testEnvironment() = mapOf(
             KafkaConfig.BOOTSTRAP_SERVERS to kafkaTestEnvironment.brokersURL,
-            "KAFKA_SCHEMA_REGISTRY_TEST" to schemaRegistryUrl
+            KafkaConfig.SCHEMA_REGISTRY to schemaRegistryUrl
     )
 
     internal fun commonTestConfig() = mapOf(
