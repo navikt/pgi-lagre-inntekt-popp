@@ -5,23 +5,32 @@ import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
+import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import kotlin.jvm.Throws
 
-internal class PoppClient(private val url: String) {
+class PoppClient(private val url: String) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
 
-    internal fun savePensjonsgivendeInntekter(inntekter: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>): MutableList<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> {
+    @Throws(PoppClientIOException::class)
+    fun savePensjonsgivendeInntekter(inntekter: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>): MutableList<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> {
+        log.debug("savePensjonsgivendeInntekter now")
         val rePublishToHendelse = mutableListOf<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>()
-        inntekter.forEach { inntekt ->
-            val response = httpPostPensjonsgivendeInntekt(inntekt)
-            if (response.statusCode() != 201) {
-                log.warn("Feil ved lagring av inntekt til POPP.")
-                rePublishToHendelse.add(inntekt)
+        try {
+            inntekter.forEach { inntekt ->
+                val response = httpPostPensjonsgivendeInntekt(inntekt)
+                if (response.statusCode() != 201) {
+                    log.warn("Feil ved lagring av inntekt til POPP.")
+                    rePublishToHendelse.add(inntekt)
 
+                }
             }
+        } catch (e: IOException) {
+            log.warn("Feil ved lagring av pensjonsgivende inntekt til POPP.", e)
+            throw PoppClientIOException("Feil ved lagring av pensjonsgivende inntekt til POPP.", e)
         }
         return rePublishToHendelse
     }
@@ -47,3 +56,4 @@ internal fun createPostRequest(url: String, body: String) = HttpRequest.newBuild
         .POST(HttpRequest.BodyPublishers.ofString(body))
         .build()
 
+class PoppClientIOException(override val message: String?, override val cause: Throwable?) : IOException(message, cause)

@@ -11,9 +11,10 @@ import java.time.Duration
 private val TIMEOUT_DURATION = Duration.ofSeconds(4)
 
 internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
-    private val consumer = KafkaConsumer<HendelseKey, PensjonsgivendeInntekt>(kafkaConfig.commonConfig() + inntektConsumerConfig())
+    private val consumer : KafkaConsumer<HendelseKey, PensjonsgivendeInntekt>
 
     init {
+        consumer = KafkaConsumer<HendelseKey, PensjonsgivendeInntekt>(kafkaConfig.commonConfig() + inntektConsumerConfig())
         consumer.subscribe(listOf(PGI_INNTEKT_TOPIC))
     }
 
