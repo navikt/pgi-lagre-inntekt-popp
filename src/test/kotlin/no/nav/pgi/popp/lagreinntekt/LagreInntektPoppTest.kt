@@ -1,22 +1,27 @@
 package no.nav.pgi.popp.lagreinntekt
 
-import no.nav.pgi.popp.lagreinntekt.kafka.*
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.HendelseTestConsumer
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.InntektTestProducer
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.KafkaTestEnvironment
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.PlaintextStrategy
+import no.nav.pgi.popp.lagreinntekt.mock.POPP_MOCK_URL
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer
-import no.nav.samordning.pgi.schema.Hendelse
-import no.nav.samordning.pgi.schema.HendelseKey
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR1_201
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR1_500
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR2_201
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR2_500
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_201
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_500
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_500
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_500
+import no.nav.samordning.pgi.schema.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
-private const val POPP_PORT = 1080
-private const val POPP_PATH = "/pgi/lagreinntekt"
-private const val POPP_URL = "http://localhost:$POPP_PORT$POPP_PATH"
+private const val INNTEKEKTSAAR = "2018"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class LagreInntektPoppTest {
@@ -25,7 +30,7 @@ internal class LagreInntektPoppTest {
     private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
     private val hendelseTestConsumer = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
     private val poppMockServer = PoppMockServer()
-    private val lagreInntektPopp = LagreInntektPopp(kafkaConfig, mapOf("POPP_URL" to POPP_URL))
+    private val lagreInntektPopp = LagreInntektPopp(kafkaConfig, mapOf("POPP_URL" to POPP_MOCK_URL))
 
     @AfterAll
     fun tearDown() {
@@ -37,8 +42,8 @@ internal class LagreInntektPoppTest {
 
     @Test
     fun `application gets inntekter and sends them to popp`() {
-        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1000", "2018")
-        val hendelseKey = HendelseKey("1000", "2018")
+        val pensjonsgivendeInntekt = createPensjonsgivendeInntekt(FNR_NR1_201, INNTEKEKTSAAR)
+        val hendelseKey = HendelseKey(FNR_NR1_201, INNTEKEKTSAAR)
         inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
 
         lagreInntektPopp.start(loopForever = false)
@@ -48,72 +53,82 @@ internal class LagreInntektPoppTest {
 
     @Test
     fun `republish when POPP returns 500 Internal Server Error`() {
-        val pensjonsgivendeInntektID2222Popp500 = PensjonsgivendeInntekt("2222", "2018")
-        val hendelseKeyID2222Popp500 = HendelseKey("2222", "2018")
-        inntektTestProducer.produceToInntektTopic(hendelseKeyID2222Popp500, pensjonsgivendeInntektID2222Popp500)
+        val pensjonsgivendeInntekt = createPensjonsgivendeInntekt(FNR_NR1_500, INNTEKEKTSAAR)
+        val hendelseKey = HendelseKey(FNR_NR1_500, INNTEKEKTSAAR)
+        inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
 
         lagreInntektPopp.start(loopForever = false)
         Thread.sleep(1000)
 
         val republishedHendelse = hendelseTestConsumer.getFirstHendelseRecord()
         assertNotNull(republishedHendelse)
-        assertEquals(hendelseKeyID2222Popp500, republishedHendelse?.key())
-        assertEquals(pensjonsgivendeInntektID2222Popp500.getIdentifikator(), republishedHendelse?.value()?.getIdentifikator())
+        assertEquals(hendelseKey, republishedHendelse?.key())
+        assertEquals(pensjonsgivendeInntekt.getNorskPersonidentifikator(), republishedHendelse?.value()?.getIdentifikator())
 
     }
 
     @Test
     fun `republiser siste hendelse naar POPP-respons 500`() {
-        val pensjonsgivendeInntektID3000Popp201 = PensjonsgivendeInntekt("3000", "2018")
-        val hendelseKeyPoppID3000201 = HendelseKey("3000", "2018")
-        val pensjonsgivendeInntektID3333Popp500 = PensjonsgivendeInntekt("3333", "2018")
-        val hendelseKeyID3333Popp500 = HendelseKey("3333", "2018")
-        inntektTestProducer.produceToInntektTopic(hendelseKeyPoppID3000201, pensjonsgivendeInntektID3000Popp201)
-        inntektTestProducer.produceToInntektTopic(hendelseKeyID3333Popp500, pensjonsgivendeInntektID3333Popp500)
+        val pensjonsgivendeInntekt201 = createPensjonsgivendeInntekt(FNR_NR2_201, INNTEKEKTSAAR)
+        val hendelseKeyPopp201 = HendelseKey(FNR_NR2_201, INNTEKEKTSAAR)
+        val pensjonsgivendeInntekt500 = createPensjonsgivendeInntekt(FNR_NR2_500, INNTEKEKTSAAR)
+        val hendelseKey500 = HendelseKey(FNR_NR2_500, INNTEKEKTSAAR)
+
+        inntektTestProducer.produceToInntektTopic(hendelseKeyPopp201, pensjonsgivendeInntekt201)
+        inntektTestProducer.produceToInntektTopic(hendelseKey500, pensjonsgivendeInntekt500)
 
         lagreInntektPopp.start(loopForever = false)
         Thread.sleep(1000)
 
         val republishedHendelse = hendelseTestConsumer.getFirstHendelseRecord()
-        assertEquals(pensjonsgivendeInntektID3333Popp500.getIdentifikator(), republishedHendelse?.value()?.getIdentifikator())
+        assertEquals(pensjonsgivendeInntekt500.getNorskPersonidentifikator(), republishedHendelse?.value()?.getIdentifikator())
 
     }
 
     @Test
     fun `republiser foerste hendelse naar POPP-respons er 500`() {
-        val pensjonsgivendeInntektID4000Popp201 = PensjonsgivendeInntekt("4000", "2018")
-        val hendelseKeyID4000Popp201 = HendelseKey("4000", "2018")
-        val pensjonsgivendeInntektID4444Popp500 = PensjonsgivendeInntekt("4444", "2018")
-        val hendelseKeyID4444Popp500 = HendelseKey("4444", "2018")
-        inntektTestProducer.produceToInntektTopic(hendelseKeyID4444Popp500, pensjonsgivendeInntektID4444Popp500)
-        inntektTestProducer.produceToInntektTopic(hendelseKeyID4000Popp201, pensjonsgivendeInntektID4000Popp201)
+
+        val pensjonsgivendeInntekt500 = createPensjonsgivendeInntekt(FNR_NR3_500, INNTEKEKTSAAR)
+        val hendelseKey500 = HendelseKey(FNR_NR3_500, INNTEKEKTSAAR)
+        val pensjonsgivendeInntekt201 = createPensjonsgivendeInntekt(FNR_NR3_201, INNTEKEKTSAAR)
+        val hendelseKey201 = HendelseKey(FNR_NR3_201, INNTEKEKTSAAR)
+
+        inntektTestProducer.produceToInntektTopic(hendelseKey500, pensjonsgivendeInntekt500)
+        inntektTestProducer.produceToInntektTopic(hendelseKey201, pensjonsgivendeInntekt201)
 
         lagreInntektPopp.start(loopForever = false)
         Thread.sleep(1000)
 
         val republishedHendelse = hendelseTestConsumer.getFirstHendelseRecord()
-        assertEquals(pensjonsgivendeInntektID4444Popp500.getIdentifikator(), republishedHendelse?.value()?.getIdentifikator())
+        assertEquals(pensjonsgivendeInntekt500.getNorskPersonidentifikator(), republishedHendelse?.value()?.getIdentifikator())
 
     }
 
     @Test
     fun `republiser hendelser naar POPP-respons er 500`() {
-        val pensjonsgivendeInntektID5555PoppHttpResponse500 = PensjonsgivendeInntekt("5555", "2018")
-        val hendelseKeyID5555Popp500 = HendelseKey("5555", "2018")
-        val pensjonsgivendeInntektPoppID5556HttpResponse500 = PensjonsgivendeInntekt("5556", "2018")
-        val hendelseKeyID5556Popp500 = HendelseKey("5556", "2018")
-        inntektTestProducer.produceToInntektTopic(hendelseKeyID5555Popp500, pensjonsgivendeInntektID5555PoppHttpResponse500)
-        inntektTestProducer.produceToInntektTopic(hendelseKeyID5556Popp500, pensjonsgivendeInntektPoppID5556HttpResponse500)
+        val pensjonsgivendeInntekt1 = createPensjonsgivendeInntekt(FNR_NR4_500, INNTEKEKTSAAR)
+        val hendelseKey1 = HendelseKey(FNR_NR4_500, INNTEKEKTSAAR)
+
+        val pensjonsgivendeInntekt2 = createPensjonsgivendeInntekt(FNR_NR5_500, INNTEKEKTSAAR)
+        val hendelseKey2 = HendelseKey(FNR_NR5_500, INNTEKEKTSAAR)
+
+        inntektTestProducer.produceToInntektTopic(hendelseKey1, pensjonsgivendeInntekt1)
+        inntektTestProducer.produceToInntektTopic(hendelseKey2, pensjonsgivendeInntekt2)
+
         Thread.sleep(1000)
 
         lagreInntektPopp.start(loopForever = false)
-
-        val republishedHendelser = hendelseTestConsumer.getRecords()
-                .map { consumerRecord -> consumerRecord.value() }
+        val republishedHendelser = hendelseTestConsumer.getRecords().map { consumerRecord -> consumerRecord.value() }
 
         assertEquals(2, republishedHendelser.size)
-        assertTrue(republishedHendelser.contains(Hendelse(-1, "5555", "2018")))
-        assertTrue(republishedHendelser.contains(Hendelse(-1, "5556", "2018")))
+        assertTrue(republishedHendelser.contains(Hendelse(-1, FNR_NR4_500, INNTEKEKTSAAR)))
+        assertTrue(republishedHendelser.contains(Hendelse(-1, FNR_NR5_500, INNTEKEKTSAAR)))
+    }
 
+    private fun createPensjonsgivendeInntekt(norskPersonidentifikator: String, inntektsaar: String): PensjonsgivendeInntekt {
+        val pensjonsgivendeIntekter = mutableListOf<PensjonsgivendeInntektPerOrdning>()
+        val pensjonsgivendeInntektPerOrdning = PensjonsgivendeInntektPerOrdning(Skatteordning.FASTLAND, "$inntektsaar-01-01", 523000L, 320000L, 2000L, null)
+        pensjonsgivendeIntekter.add(pensjonsgivendeInntektPerOrdning)
+        return PensjonsgivendeInntekt(norskPersonidentifikator, inntektsaar, pensjonsgivendeIntekter)
     }
 }

@@ -15,7 +15,7 @@ val kafkaVersion = "2.5.0"
 val confluentVersion = "5.5.1"
 val kafkaEmbeddedEnvVersion = "2.5.0"
 
-val pgiSchemaVersion = "0.0.1"
+val pgiSchemaVersion = "0.0.2"
 
 group = "no.nav.pgi"
 

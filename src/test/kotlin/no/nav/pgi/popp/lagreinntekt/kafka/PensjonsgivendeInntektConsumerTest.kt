@@ -25,8 +25,7 @@ internal class PensjonsgivendeInntektConsumerTest {
 
     @Test
     fun `consume from inntekt topic`() {
-
-        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018")
+        val pensjonsgivendeInntekt = PensjonsgivendeInntekt("1234", "2018", emptyList())
         val hendelseKey = HendelseKey("1234", "2018")
         inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
 

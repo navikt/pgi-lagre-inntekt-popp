@@ -5,7 +5,7 @@ import no.nav.pgi.popp.lagreinntekt.kafka.HendelseProducer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.pgi.popp.lagreinntekt.kafka.PensjonsgivendeInntektConsumer
-import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
+import no.nav.pgi.popp.lagreinntekt.popp.PGIPopp
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClientIOException
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
@@ -16,7 +16,7 @@ import kotlin.system.exitProcess
 internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: Map<String, String> = System.getenv()) {
     private val consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
     private val producerRepubliserHendelser = HendelseProducer(kafkaConfig)
-    private val poppClient = PoppClient(env.getVal("POPP_URL"))
+    private val pgiPopp = PGIPopp(env.getVal("POPP_URL"))
 
     internal fun start(loopForever: Boolean = true) {
 
@@ -24,7 +24,7 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
             val inntekter = consumer.getInntekter()
             logRecordsPolledFromTopic(inntekter)
             inntekter.forEach { log.debug("key ${it.key()} - value ${it.value()}") }
-            val leftoverInntekt = poppClient.savePensjonsgivendeInntekter(inntekter)
+            val leftoverInntekt = pgiPopp.savePensjonsgivendeInntekter(inntekter)
             producerRepubliserHendelser.rePublishHendelser(leftoverInntekt)
             consumer.commit()
 
