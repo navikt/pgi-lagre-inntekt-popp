@@ -29,6 +29,6 @@ internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
             ConsumerConfig.GROUP_ID_CONFIG to GROUP_ID,
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest" //TODO: Needs checking
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest"
     )
 }
