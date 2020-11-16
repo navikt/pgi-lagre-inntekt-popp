@@ -38,7 +38,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
-          echo "::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)"
+          echo "IMAGE=$(cat .docker_image):$(cat .docker_tag)" >> $GITHUB_ENV
       - name: Push Docker image
         run: "docker push $(cat .docker_image):$(cat .docker_tag)"
 
