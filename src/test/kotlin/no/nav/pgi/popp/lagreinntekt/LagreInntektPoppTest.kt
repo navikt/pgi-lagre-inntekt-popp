@@ -87,7 +87,6 @@ internal class LagreInntektPoppTest {
 
     @Test
     fun `republish first hendelse when POPP returns status code 500`() {
-
         val pensjonsgivendeInntekt500 = createPensjonsgivendeInntekt(FNR_NR3_500, INNTEKEKTSAAR)
         val hendelseKey500 = HendelseKey(FNR_NR3_500, INNTEKEKTSAAR)
         val pensjonsgivendeInntekt201 = createPensjonsgivendeInntekt(FNR_NR3_201, INNTEKEKTSAAR)
@@ -101,7 +100,6 @@ internal class LagreInntektPoppTest {
 
         val republishedHendelse = hendelseTestConsumer.getFirstHendelseRecord()
         assertEquals(pensjonsgivendeInntekt500.getNorskPersonidentifikator(), republishedHendelse?.value()?.getIdentifikator())
-
     }
 
     @Test
