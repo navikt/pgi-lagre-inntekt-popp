@@ -5,7 +5,9 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.slf4j.LoggerFactory
 import java.time.Duration
 
 private val TIMEOUT_DURATION = Duration.ofSeconds(4)
@@ -18,10 +20,16 @@ internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
         consumer.subscribe(listOf(PGI_INNTEKT_TOPIC))
     }
 
-    internal fun getInntektRecords() = consumer.poll(TIMEOUT_DURATION).records(PGI_INNTEKT_TOPIC).toList()
+    internal fun getInntektRecords() =
+            consumer.poll(TIMEOUT_DURATION).records(PGI_INNTEKT_TOPIC).toList()
+                    .also { records -> logNumberOfRecordsPolledFromTopic(records) }
 
     internal fun commit() {
         consumer.commitSync()
+    }
+
+    private fun logNumberOfRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
+        LOG.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
     }
 
     private fun inntektConsumerConfig() = mapOf(
@@ -32,4 +40,8 @@ internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest"
     )
+
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(PensjonsgivendeInntektConsumer::class.java)
+    }
 }

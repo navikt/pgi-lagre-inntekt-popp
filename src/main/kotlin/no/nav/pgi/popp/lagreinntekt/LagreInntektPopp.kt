@@ -22,7 +22,6 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
     internal fun start(loopForever: Boolean = true) {
         do try {
             val inntektRecords = consumer.getInntektRecords()
-            logRecordsPolledFromTopic(inntektRecords)
             inntektRecords.forEach { record ->
                 val response = poppClient.postPensjonsgivendeInntekt(mapToPensjonsgivendeInntektDto(record))
                 if (response.statusCode() != 201) {
@@ -38,10 +37,6 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
             e.printStackTrace()
             exitProcess(1)
         } while (loopForever)
-    }
-
-    private fun logRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
-        LOG.debug("Antall ConsumerRecords polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
     }
 
     private companion object {
