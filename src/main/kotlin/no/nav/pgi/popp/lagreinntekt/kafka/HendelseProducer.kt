@@ -3,8 +3,6 @@ package no.nav.pgi.popp.lagreinntekt.kafka
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import no.nav.samordning.pgi.schema.Hendelse
 import no.nav.samordning.pgi.schema.HendelseKey
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -13,15 +11,10 @@ import org.slf4j.LoggerFactory
 internal class HendelseProducer(kafkaConfig: KafkaConfig) {
     private val producer = KafkaProducer<HendelseKey, Hendelse>(kafkaConfig.commonConfig() + hendelseProducerConfig())
 
-    internal fun rePublishHendelser(inntekterFeiletTilPopp: MutableList<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
-        inntekterFeiletTilPopp.forEach {
-            rePublishHendelse(it.key())
-        }.also { log.warn("Republiserer ${inntekterFeiletTilPopp.size} hendelse(r) til topic $PGI_HENDELSE_TOPIC.") }
-    }
-
-    private fun rePublishHendelse(hendelseKey: HendelseKey) {
+    internal fun rePublishHendelse(hendelseKey: HendelseKey) {
         val record = ProducerRecord(PGI_HENDELSE_TOPIC, hendelseKey, toHendelse(hendelseKey))
         producer.send(record).get()
+        LOG.warn("Republiserer $record to $PGI_HENDELSE_TOPIC")
     }
 
     private fun toHendelse(hendelseKey: HendelseKey) =
@@ -35,6 +28,6 @@ internal class HendelseProducer(kafkaConfig: KafkaConfig) {
     )
 
     companion object {
-        private val log = LoggerFactory.getLogger(HendelseProducer::class.java)
+        private val LOG = LoggerFactory.getLogger(HendelseProducer::class.java)
     }
 }

@@ -29,10 +29,8 @@ internal class PensjonsgivendeInntektConsumerTest {
         val hendelseKey = HendelseKey("1234", "2018")
         inntektTestProducer.produceToInntektTopic(hendelseKey, pensjonsgivendeInntekt)
 
-        val inntektRecord = inntektConsumer.getInntekter()
+        val inntektRecord = inntektConsumer.getInntektRecords()
         assertEquals(hendelseKey, inntektRecord[0].key())
         assertEquals(pensjonsgivendeInntekt, inntektRecord[0].value())
     }
-
-
 }
