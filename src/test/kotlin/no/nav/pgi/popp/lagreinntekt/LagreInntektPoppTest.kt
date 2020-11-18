@@ -68,7 +68,7 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
-    fun `republiser siste hendelse naar POPP-respons 500`() {
+    fun `republish last hendelse when POPP returns status code 500`() {
         val pensjonsgivendeInntekt201 = createPensjonsgivendeInntekt(FNR_NR2_201, INNTEKEKTSAAR)
         val hendelseKeyPopp201 = HendelseKey(FNR_NR2_201, INNTEKEKTSAAR)
         val pensjonsgivendeInntekt500 = createPensjonsgivendeInntekt(FNR_NR2_500, INNTEKEKTSAAR)
@@ -86,7 +86,7 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
-    fun `republiser foerste hendelse naar POPP-respons er 500`() {
+    fun `republish first hendelse when POPP returns status code 500`() {
 
         val pensjonsgivendeInntekt500 = createPensjonsgivendeInntekt(FNR_NR3_500, INNTEKEKTSAAR)
         val hendelseKey500 = HendelseKey(FNR_NR3_500, INNTEKEKTSAAR)
@@ -105,7 +105,7 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
-    fun `republiser hendelser naar POPP-respons er 500`() {
+    fun `republish hendelser when POPP returns status code 500`() {
         val pensjonsgivendeInntekt1 = createPensjonsgivendeInntekt(FNR_NR4_500, INNTEKEKTSAAR)
         val hendelseKey1 = HendelseKey(FNR_NR4_500, INNTEKEKTSAAR)
 

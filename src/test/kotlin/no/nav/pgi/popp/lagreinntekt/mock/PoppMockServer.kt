@@ -46,11 +46,11 @@ internal class PoppMockServer {
     }
 
     //TODO Gjør om pensjonsgivende inntekt Dto til noe fornuftig
-    private fun mockHttpResponseFromPopp(identifikator: String, aar: String, responseCode: ResponseDefinitionBuilder) {
+    private fun mockHttpResponseFromPopp(identifikator: String, inntektsAar: String, responseCode: ResponseDefinitionBuilder) {
         poppApiMockServer.stubFor(
                 WireMock.post(WireMock.urlPathEqualTo(POPP_PATH))
                         .withRequestBody(containing(""""norskPersonidentifikator":"$identifikator""""))
-                        .withRequestBody(containing(""""inntektsaar":"$aar""""))
+                        .withRequestBody(containing(""""inntektsaar":"$inntektsAar""""))
                         .withRequestBody(containing("pensjonsgivendeInntekt"))
                         .willReturn(responseCode))
     }
