@@ -3,13 +3,9 @@ package no.nav.pgi.popp.lagreinntekt
 import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pgi.popp.lagreinntekt.kafka.HendelseProducer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.pgi.popp.lagreinntekt.kafka.PensjonsgivendeInntektConsumer
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.pgi.popp.lagreinntekt.popp.mapToPensjonsgivendeInntektDto
-import no.nav.samordning.pgi.schema.HendelseKey
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import kotlin.system.exitProcess
@@ -25,7 +21,7 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
             inntektRecords.forEach { record ->
                 val response = poppClient.postPensjonsgivendeInntekt(mapToPensjonsgivendeInntektDto(record))
                 if (response.statusCode() != 201) {
-                    hendelseProducer.rePublishHendelse(record.key())
+                    hendelseProducer.republishHendelse(record.key())
                 }
             }
             consumer.commit()
