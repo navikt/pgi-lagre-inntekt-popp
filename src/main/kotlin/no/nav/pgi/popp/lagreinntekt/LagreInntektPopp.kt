@@ -1,6 +1,7 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pensjon.samhandling.maskfnr.maskFnr
 import no.nav.pgi.popp.lagreinntekt.kafka.HendelseProducer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.PensjonsgivendeInntektConsumer
@@ -41,7 +42,9 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
     }
 
     private fun logFailedInntektToPopp(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) {
-        LOG.warn("$inntektRecord could not be sent to popp. Status code: ${response.statusCode()}. Body: ${response.body()}")
+        LOG.warn(("$inntektRecord could not be sent to popp.\n" +
+                "Status code: ${response.statusCode()}.\n" +
+                "Body: ${response.body()}").maskFnr())
     }
 
     private companion object {
