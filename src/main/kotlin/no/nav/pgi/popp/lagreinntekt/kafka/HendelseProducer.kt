@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 internal class HendelseProducer(kafkaConfig: KafkaConfig) {
     private val producer = KafkaProducer<HendelseKey, Hendelse>(kafkaConfig.commonConfig() + hendelseProducerConfig())
 
+    //TODO: Error handling
     internal fun republishHendelse(hendelseKey: HendelseKey) {
         val record = ProducerRecord(PGI_HENDELSE_TOPIC, hendelseKey, toHendelse(hendelseKey))
         producer.send(record).get()
