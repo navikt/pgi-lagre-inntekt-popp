@@ -2,17 +2,15 @@ package no.nav.pgi.popp.lagreinntekt
 
 import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pensjon.samhandling.maskfnr.maskFnr
-import no.nav.pgi.popp.lagreinntekt.kafka.republish.HendelseProducer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.PensjonsgivendeInntektConsumer
 import no.nav.pgi.popp.lagreinntekt.kafka.inntekt.PensjonsgivendeInntektConsumer
+import no.nav.pgi.popp.lagreinntekt.kafka.republish.HendelseProducer
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import java.net.http.HttpResponse
 import kotlin.system.exitProcess
 
