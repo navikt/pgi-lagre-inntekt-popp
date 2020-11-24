@@ -32,7 +32,7 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
             }
             consumer.commit()
         } catch (e: TopicAuthorizationException) {
-            LOG.warn("")
+            LOG.warn("TopicAuthorizationException recieved. Attempting credential rotation")
             val kafkaConfig = KafkaConfig()
             consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
             hendelseProducer = HendelseProducer(kafkaConfig)
