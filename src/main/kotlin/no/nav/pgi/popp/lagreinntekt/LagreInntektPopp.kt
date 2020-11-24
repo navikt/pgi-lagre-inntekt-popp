@@ -32,15 +32,20 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
             }
             consumer.commit()
         } catch (e: TopicAuthorizationException) {
-            LOG.warn("TopicAuthorizationException recieved. Attempting credential rotation")
-            val kafkaConfig = KafkaConfig()
-            consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
-            hendelseProducer = HendelseProducer(kafkaConfig)
+            refreshKafkaCredentials()
         } catch (e: Exception) {
             LOG.error(e.message)
             e.printStackTrace()
             exitProcess(1)
         } while (loopForever)
+    }
+
+    private fun refreshKafkaCredentials() {
+        LOG.warn("TopicAuthorizationException recieved. Attempting credential rotation")
+        val kafkaConfig = KafkaConfig()
+        consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
+        hendelseProducer = HendelseProducer(kafkaConfig)
+        Thread.sleep(5000)
     }
 
     private fun logFailedInntektToPopp(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) {
