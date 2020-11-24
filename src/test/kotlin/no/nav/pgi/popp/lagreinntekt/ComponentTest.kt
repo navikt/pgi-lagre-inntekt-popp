@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
-private const val INNTEKTSAAR = 2018L
+private const val YEAR_2018 = 2018L
+private const val YEAR_2019 = 2020L
+private const val YEAR_2020 = 2020L
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class LagreInntektPoppTest {
@@ -60,17 +62,17 @@ internal class LagreInntektPoppTest {
     }
 
     private fun pensjonsgivendeInntekter() = listOf(
-            createPensjonsgivendeInntekt(FNR_NR1_201, INNTEKTSAAR),
-            createPensjonsgivendeInntekt(FNR_NR2_201, INNTEKTSAAR),
-            createPensjonsgivendeInntekt(FNR_NR3_201, INNTEKTSAAR)
+            createPensjonsgivendeInntekt(FNR_NR1_201, YEAR_2018),
+            createPensjonsgivendeInntekt(FNR_NR2_201, YEAR_2019),
+            createPensjonsgivendeInntekt(FNR_NR3_201, YEAR_2020)
     )
 
     private fun invalidPensjonsgivendeInntekter() = listOf(
-            createPensjonsgivendeInntekt(FNR_NR1_500, INNTEKTSAAR),
-            createPensjonsgivendeInntekt(FNR_NR2_500, INNTEKTSAAR),
-            createPensjonsgivendeInntekt(FNR_NR3_500, INNTEKTSAAR),
-            createPensjonsgivendeInntekt(FNR_NR4_500, INNTEKTSAAR),
-            createPensjonsgivendeInntekt(FNR_NR5_500, INNTEKTSAAR),
+            createPensjonsgivendeInntekt(FNR_NR1_500, YEAR_2018),
+            createPensjonsgivendeInntekt(FNR_NR2_500, YEAR_2018),
+            createPensjonsgivendeInntekt(FNR_NR3_500, YEAR_2019),
+            createPensjonsgivendeInntekt(FNR_NR4_500, YEAR_2019),
+            createPensjonsgivendeInntekt(FNR_NR5_500, YEAR_2020),
     )
 
 

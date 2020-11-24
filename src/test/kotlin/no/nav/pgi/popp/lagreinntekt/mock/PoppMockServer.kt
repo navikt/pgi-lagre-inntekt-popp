@@ -6,7 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import no.nav.pgi.popp.lagreinntekt.popp.PGI_PATH
 
-private const val POPP_PORT = 1080
+private const val POPP_PORT = 31241
 internal const val POPP_MOCK_URL = "http://localhost:$POPP_PORT$PGI_PATH"
 
 internal class PoppMockServer {
@@ -27,22 +27,22 @@ internal class PoppMockServer {
     init {
         poppApiMockServer.start()
 
-        mockHttpResponseFromPopp(FNR_NR2_500, WireMock.serverError())
-        mockHttpResponseFromPopp(FNR_NR1_500, WireMock.serverError())
-        mockHttpResponseFromPopp(FNR_NR3_500, WireMock.serverError())
-        mockHttpResponseFromPopp(FNR_NR4_500, WireMock.serverError())
-        mockHttpResponseFromPopp(FNR_NR5_500, WireMock.serverError())
+        mockResponseFromPopp(FNR_NR2_500, WireMock.serverError())
+        mockResponseFromPopp(FNR_NR1_500, WireMock.serverError())
+        mockResponseFromPopp(FNR_NR3_500, WireMock.serverError())
+        mockResponseFromPopp(FNR_NR4_500, WireMock.serverError())
+        mockResponseFromPopp(FNR_NR5_500, WireMock.serverError())
 
-        mockHttpResponseFromPopp(FNR_NR1_201, WireMock.created())
-        mockHttpResponseFromPopp(FNR_NR2_201, WireMock.created())
-        mockHttpResponseFromPopp(FNR_NR3_201, WireMock.created())
+        mockResponseFromPopp(FNR_NR1_201, WireMock.created())
+        mockResponseFromPopp(FNR_NR2_201, WireMock.created())
+        mockResponseFromPopp(FNR_NR3_201, WireMock.created())
     }
 
     internal fun stop() {
         poppApiMockServer.stop()
     }
 
-    private fun mockHttpResponseFromPopp(identifikator: String, responseCode: ResponseDefinitionBuilder) {
+    private fun mockResponseFromPopp(identifikator: String, responseCode: ResponseDefinitionBuilder) {
         poppApiMockServer.stubFor(
                 WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
                         .withRequestBody(containing(identifikator))

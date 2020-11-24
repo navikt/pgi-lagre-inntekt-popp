@@ -31,12 +31,6 @@ internal class HendelseTestConsumer(commonKafkaConfig: Map<String, String>) {
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest"
     )
 
-    internal fun getFirstHendelseRecord(): ConsumerRecord<HendelseKey, Hendelse>? {
-        val hendelseRecords = hendelseTestConsumer.poll(Duration.ofSeconds(4)).records(PGI_HENDELSE_TOPIC).toList()
-        return if (hendelseRecords.isEmpty()) null
-           else hendelseRecords[0]
-    }
-
-    internal fun getRecords(): List<ConsumerRecord<HendelseKey,Hendelse>> =
+    internal fun getRecords(): List<ConsumerRecord<HendelseKey, Hendelse>> =
             hendelseTestConsumer.poll(Duration.ofSeconds(4)).records(PGI_HENDELSE_TOPIC).toList()
 }

@@ -17,7 +17,7 @@ internal class PoppClient(private val url: String) {
 
     private fun createPostRequest(url: String, body: String) = HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .header("Authorization", "Bearer dummyvalue")
+            .header("Authorization", "Bearer dummyvalue") //TODO: Proper token
             .header("Content-Type", "application/json")
             .header("Nav-Call-Id", UUID.randomUUID().toString())
             .header("Nav-Consumer-Id", "pgi-lagre-inntekt-popp")

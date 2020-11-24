@@ -1,7 +1,10 @@
-package no.nav.pgi.popp.lagreinntekt.kafka
+package no.nav.pgi.popp.lagreinntekt.kafka.inntekt
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.GROUP_ID
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -20,7 +23,7 @@ internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
         consumer.subscribe(listOf(PGI_INNTEKT_TOPIC))
     }
 
-    internal fun getInntektRecords() =
+    internal fun pollInntektRecords() =
             consumer.poll(TIMEOUT_DURATION).records(PGI_INNTEKT_TOPIC).toList()
                     .also { records -> logNumberOfRecordsPolledFromTopic(records) }
 
