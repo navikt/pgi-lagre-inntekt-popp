@@ -16,6 +16,10 @@ spec:
     - secret: pgi-lagre-inntekt-popp-secrets
   kafka:
     pool: nav-prod
+  accessPolicy:
+    outbound:
+      external:
+        - host: pensjon-popp.prod-fss-pub.nais.io
   liveness:
     path: isAlive
     initialDelay: 5
