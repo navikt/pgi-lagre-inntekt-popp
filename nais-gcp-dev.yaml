@@ -9,6 +9,10 @@ spec:
   image: {{ image }}
   team: pensjonsamhandling
   port: 8080
+  azure:
+    application:
+      enabled: true
+      tenant: trygdeetaten.no
   envFrom:
     - secret: pgi-lagre-inntekt-popp-secrets
   kafka:
