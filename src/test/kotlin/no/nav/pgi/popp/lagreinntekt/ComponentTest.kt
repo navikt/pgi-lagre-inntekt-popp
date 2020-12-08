@@ -1,6 +1,7 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.HendelseTestConsumer
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.InntektTestProducer
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.KafkaTestEnvironment
@@ -15,9 +16,12 @@ import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_201
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_500
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_500
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_500
-import no.nav.samordning.pgi.schema.*
+import no.nav.samordning.pgi.schema.HendelseKey
+import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
+import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
+import no.nav.samordning.pgi.schema.Skatteordning
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -28,11 +32,11 @@ private const val YEAR_2020 = 2020L
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class LagreInntektPoppTest {
     private val kafkaTestEnvironment = KafkaTestEnvironment()
-    private val kafkaConfig = KafkaConfig(kafkaTestEnvironment.testEnvironment(), PlaintextStrategy())
+    private val kafkaFactory = KafkaInntektFactory(KafkaConfig(kafkaTestEnvironment.testEnvironment(), PlaintextStrategy()))
     private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
     private val republishedHendelse = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
     private val poppMockServer = PoppMockServer()
-    private val lagreInntektPopp = LagreInntektPopp(kafkaConfig, mapOf("POPP_URL" to POPP_MOCK_URL) + kafkaTestEnvironment.testEnvironment())
+    private val lagreInntektPopp = LagreInntektPopp(kafkaFactory, mapOf("POPP_URL" to POPP_MOCK_URL) + kafkaTestEnvironment.testEnvironment())
 
     @AfterAll
     fun tearDown() {

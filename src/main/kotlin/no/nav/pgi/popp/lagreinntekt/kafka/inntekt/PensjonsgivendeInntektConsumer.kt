@@ -1,25 +1,20 @@
 package no.nav.pgi.popp.lagreinntekt.kafka.inntekt
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.GROUP_ID
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.time.Duration
 
 private val TIMEOUT_DURATION = Duration.ofSeconds(4)
 
-internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
-    private val consumer : KafkaConsumer<HendelseKey, PensjonsgivendeInntekt>
+internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
+    private val consumer: Consumer<HendelseKey, PensjonsgivendeInntekt> = kafkaFactory.pensjonsgivendeInntektConsumer()
 
     init {
-        consumer = KafkaConsumer<HendelseKey, PensjonsgivendeInntekt>(kafkaConfig.commonConfig() + inntektConsumerConfig())
         consumer.subscribe(listOf(PGI_INNTEKT_TOPIC))
     }
 
@@ -34,15 +29,6 @@ internal class PensjonsgivendeInntektConsumer(kafkaConfig: KafkaConfig) {
     private fun logNumberOfRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
         LOG.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
     }
-
-    private fun inntektConsumerConfig() = mapOf(
-            KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true,
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-            ConsumerConfig.GROUP_ID_CONFIG to GROUP_ID,
-            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest"
-    )
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(PensjonsgivendeInntektConsumer::class.java)

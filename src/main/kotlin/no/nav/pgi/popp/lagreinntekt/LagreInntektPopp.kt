@@ -2,7 +2,8 @@ package no.nav.pgi.popp.lagreinntekt
 
 import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pensjon.samhandling.maskfnr.maskFnr
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.inntekt.PensjonsgivendeInntektConsumer
 import no.nav.pgi.popp.lagreinntekt.kafka.republish.HendelseProducer
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
@@ -14,16 +15,15 @@ import org.slf4j.LoggerFactory
 import java.net.http.HttpResponse
 import kotlin.system.exitProcess
 
-internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: Map<String, String> = System.getenv()) {
-    private var consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
-    private var hendelseProducer = HendelseProducer(kafkaConfig)
+internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
+    private var consumer = PensjonsgivendeInntektConsumer(kafkaFactory)
+    private var hendelseProducer = HendelseProducer(kafkaFactory)
     private val poppClient = PoppClient(env.getVal("POPP_URL"))
 
     internal fun start(loopForever: Boolean = true) {
         do try {
             val inntektRecords = consumer.pollInntektRecords()
             inntektRecords.forEach { inntektRecord ->
-
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
                 if (response.statusCode() != 201) {
                     logFailedInntektToPopp(inntektRecord, response)
@@ -40,11 +40,12 @@ internal class LagreInntektPopp(kafkaConfig: KafkaConfig = KafkaConfig(), env: M
         } while (loopForever)
     }
 
-    private fun refreshKafkaCredentials() {
+    // TODO close consumer and producer ???
+    // TODO thread sleep ??
+    private fun refreshKafkaCredentials(kafkaFactory: KafkaFactory = KafkaInntektFactory()) {
         LOG.warn("TopicAuthorizationException recieved. Attempting credential rotation")
-        val kafkaConfig = KafkaConfig()
-        consumer = PensjonsgivendeInntektConsumer(kafkaConfig)
-        hendelseProducer = HendelseProducer(kafkaConfig)
+        consumer = PensjonsgivendeInntektConsumer(kafkaFactory)
+        hendelseProducer = HendelseProducer(kafkaFactory)
         Thread.sleep(5000)
     }
 

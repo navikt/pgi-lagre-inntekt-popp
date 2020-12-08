@@ -1,7 +1,8 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import no.nav.pensjon.samhandling.naisserver.naisServer
-import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
+import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 
 fun main() {
     val application = Application()
@@ -12,9 +13,9 @@ fun main() {
     }
 }
 
-internal class Application(kafkaConfig: KafkaConfig = KafkaConfig(), env: Map<String, String> = System.getenv()) {
+internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
     private val naisServer = naisServer()
-    private val lagreInntektPopp = LagreInntektPopp(kafkaConfig, env)
+    private val lagreInntektPopp = LagreInntektPopp(kafkaFactory, env)
 
     init {
         naisServer.start()
