@@ -38,6 +38,20 @@ internal class PoppMockServer {
         mockResponseFromPopp(FNR_NR3_201, WireMock.created())
     }
 
+    internal fun reset() = poppApiMockServer.resetAll()
+
+    internal fun `Mock default response 201 ok`(priority: Int = 10) {
+        poppApiMockServer.stubFor(WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
+                .atPriority(priority)
+                .willReturn(WireMock.created()))
+    }
+
+    internal fun `Mock default response 500 servererror`(priority: Int = 10) {
+        poppApiMockServer.stubFor(WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
+                .atPriority(priority)
+                .willReturn(WireMock.serverError()))
+    }
+
     internal fun stop() {
         poppApiMockServer.stop()
     }
@@ -45,6 +59,7 @@ internal class PoppMockServer {
     private fun mockResponseFromPopp(identifikator: String, responseCode: ResponseDefinitionBuilder) {
         poppApiMockServer.stubFor(
                 WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
+                        .atPriority(1)
                         .withRequestBody(containing(identifikator))
                         .willReturn(responseCode))
     }

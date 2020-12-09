@@ -30,7 +30,7 @@ private const val YEAR_2019 = 2020L
 private const val YEAR_2020 = 2020L
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class LagreInntektPoppTest {
+internal class ComponentTest {
     private val kafkaTestEnvironment = KafkaTestEnvironment()
     private val kafkaFactory = KafkaInntektFactory(KafkaConfig(kafkaTestEnvironment.testEnvironment(), PlaintextStrategy()))
     private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())

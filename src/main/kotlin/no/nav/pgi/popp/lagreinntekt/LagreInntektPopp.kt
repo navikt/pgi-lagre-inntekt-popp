@@ -13,12 +13,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.slf4j.LoggerFactory
 import java.net.http.HttpResponse
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 
 internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
     private var consumer = PensjonsgivendeInntektConsumer(kafkaFactory)
     private var hendelseProducer = HendelseProducer(kafkaFactory)
     private val poppClient = PoppClient(env.getVal("POPP_URL"))
+    private var closed: AtomicBoolean = AtomicBoolean(false)
 
     internal fun start(loopForever: Boolean = true) {
         do try {
@@ -37,7 +39,11 @@ internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory
             LOG.error(e.message)
             e.printStackTrace()
             exitProcess(1)
-        } while (loopForever)
+        } while (loopForever && !closed.get())
+    }
+
+    internal fun close() {
+        closed.set(true)
     }
 
     // TODO close consumer and producer ???

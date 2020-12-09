@@ -14,10 +14,6 @@ private val TIMEOUT_DURATION = Duration.ofSeconds(4)
 internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
     private val consumer: Consumer<HendelseKey, PensjonsgivendeInntekt> = kafkaFactory.pensjonsgivendeInntektConsumer()
 
-    init {
-        consumer.subscribe(listOf(PGI_INNTEKT_TOPIC))
-    }
-
     internal fun pollInntektRecords() =
             consumer.poll(TIMEOUT_DURATION).records(PGI_INNTEKT_TOPIC).toList()
                     .also { records -> logNumberOfRecordsPolledFromTopic(records) }
