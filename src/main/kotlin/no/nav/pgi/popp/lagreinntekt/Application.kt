@@ -27,5 +27,6 @@ internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), e
 
     internal fun stop() {
         naisServer.stop(0, 0)
+        lagreInntektPopp.close()
     }
 }

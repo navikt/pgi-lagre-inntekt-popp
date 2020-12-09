@@ -18,6 +18,10 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
         LOG.warn("Republiserer ${record.key()} to $PGI_HENDELSE_TOPIC") //TODO: Mask fnr
     }
 
+    internal fun close() {
+        producer.close()
+    }
+
     private fun toHendelse(hendelseKey: HendelseKey) =
             Hendelse(-1L, hendelseKey.getIdentifikator(), hendelseKey.getGjelderPeriode())
 

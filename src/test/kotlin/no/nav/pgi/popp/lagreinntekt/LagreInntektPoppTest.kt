@@ -57,7 +57,7 @@ internal class LagreInntektPoppTest {
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
         lagreInntektPopp.start(loopForever = false)
 
-        assertEquals(10, kafkaMockFactory.hendelseProducer.history().size)
+        assertEquals(11, kafkaMockFactory.hendelseProducer.history().size)
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
 

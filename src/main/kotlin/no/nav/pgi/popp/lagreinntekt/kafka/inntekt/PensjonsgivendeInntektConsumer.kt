@@ -22,6 +22,10 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
         consumer.commitSync()
     }
 
+    internal fun close(){
+        consumer.close()
+    }
+
     private fun logNumberOfRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
         LOG.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
     }

@@ -17,14 +17,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 
 internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
-    private var consumer = PensjonsgivendeInntektConsumer(kafkaFactory)
+    private var pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
     private var hendelseProducer = HendelseProducer(kafkaFactory)
     private val poppClient = PoppClient(env.getVal("POPP_URL"))
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
     internal fun start(loopForever: Boolean = true) {
         do try {
-            val inntektRecords = consumer.pollInntektRecords()
+            val inntektRecords = pgiConsumer.pollInntektRecords()
             inntektRecords.forEach { inntektRecord ->
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
                 if (response.statusCode() != 201) {
@@ -32,7 +32,7 @@ internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory
                     hendelseProducer.republishHendelse(inntektRecord.key())
                 }
             }
-            consumer.commit()
+            pgiConsumer.commit()
         } catch (e: TopicAuthorizationException) {
             refreshKafkaCredentials()
         } catch (e: Exception) {
@@ -44,13 +44,15 @@ internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory
 
     internal fun close() {
         closed.set(true)
+        pgiConsumer.close()
+        hendelseProducer.close()
     }
 
     // TODO close consumer and producer ???
     // TODO thread sleep ??
     private fun refreshKafkaCredentials(kafkaFactory: KafkaFactory = KafkaInntektFactory()) {
         LOG.warn("TopicAuthorizationException recieved. Attempting credential rotation")
-        consumer = PensjonsgivendeInntektConsumer(kafkaFactory)
+        pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
         hendelseProducer = HendelseProducer(kafkaFactory)
         Thread.sleep(5000)
     }
