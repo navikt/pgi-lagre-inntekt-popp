@@ -9,7 +9,7 @@ fun main() {
     try {
         application.startLagreInntektPopp()
     } catch (e: Exception) {
-        application.stop()
+        application.close()
     }
 }
 
@@ -18,6 +18,7 @@ internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), e
     private val lagreInntektPopp = LagreInntektPopp(kafkaFactory, env)
 
     init {
+        addShutdownHook()
         naisServer.start()
     }
 
@@ -25,8 +26,19 @@ internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), e
         lagreInntektPopp.start(loopForever)
     }
 
-    internal fun stop() {
+    internal fun close() {
         naisServer.stop(0, 0)
         lagreInntektPopp.close()
     }
+
+    private fun addShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            try {
+                close()
+            } catch (e: Exception) {
+                //TODO håndter
+            }
+        })
+    }
 }
+
