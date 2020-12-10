@@ -80,14 +80,14 @@ internal class LagreInntektPoppTest {
     @Test
     fun `should close kafka producer and consumer on closeKafka`() {
         GlobalScope.async {
-            delay(10)
+            delay(20)
             lagreInntektPopp.stop()
-            delay(10)
+            delay(20)
             lagreInntektPopp.closeKafka()
         }
 
         lagreInntektPopp.start(loopForever = true)
-        Thread.sleep(40)
+        Thread.sleep(100)
 
         assertTrue(kafkaMockFactory.hendelseProducer.closed())
         assertTrue(kafkaMockFactory.pensjonsgivendeInntektConsumer.closed())

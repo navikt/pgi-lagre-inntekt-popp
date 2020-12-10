@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt.kafka.republish
 
+import no.nav.pensjon.samhandling.maskfnr.maskFnr
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
 import no.nav.samordning.pgi.schema.Hendelse
@@ -13,14 +14,14 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
     private val producer: Producer<HendelseKey, Hendelse> = kafkaFactory.hendelseProducer()
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
-    //TODO: Error handling
     internal fun republishHendelse(hendelseKey: HendelseKey) {
         val record = ProducerRecord(PGI_HENDELSE_TOPIC, hendelseKey, toHendelse(hendelseKey))
         producer.send(record).get()
-        LOG.warn("Republiserer ${record.key()} to $PGI_HENDELSE_TOPIC") //TODO: Mask fnr
+        LOG.warn("Republiserer ${record.key()} to $PGI_HENDELSE_TOPIC".maskFnr())
     }
 
     internal fun close() {
+        LOG.info("closing ${HendelseProducer::class.simpleName}")
         producer.close()
         closed.set(true)
     }

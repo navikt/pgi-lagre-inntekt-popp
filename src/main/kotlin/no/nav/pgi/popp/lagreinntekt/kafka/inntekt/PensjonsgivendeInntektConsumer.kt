@@ -24,7 +24,8 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
         consumer.commitSync()
     }
 
-    internal fun close(){
+    internal fun close() {
+        LOG.info("closing ${PensjonsgivendeInntektConsumer::class.simpleName}")
         consumer.close()
         closed.set(true)
     }

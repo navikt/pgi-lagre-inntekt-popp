@@ -46,7 +46,6 @@ internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory
     internal fun isStopped() = stop.get()
 
     internal fun closeKafka() {
-        LOG.info("Closing pgiConsumer and hendelseProducer")
         if (!pgiConsumer.isClosed()) pgiConsumer.close()
         if (!hendelseProducer.isClosed()) hendelseProducer.close()
         LOG.info("pgiConsumer and hendelseProducer closed")
@@ -59,6 +58,7 @@ internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory
         pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
         hendelseProducer = HendelseProducer(kafkaFactory)
         Thread.sleep(5000)
+        LOG.warn("Credentials rotated")
     }
 
     private fun logFailedInntektToPopp(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) {
