@@ -25,7 +25,7 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
     }
 
     internal fun close() {
-        LOG.info("closing ${PensjonsgivendeInntektConsumer::class.simpleName}")
+        LOG.info("Closing ${PensjonsgivendeInntektConsumer::class.simpleName}")
         consumer.close()
         closed.set(true)
     }

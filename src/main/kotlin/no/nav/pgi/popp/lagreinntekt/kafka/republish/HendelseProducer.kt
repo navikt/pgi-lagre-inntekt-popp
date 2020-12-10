@@ -21,7 +21,7 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
     }
 
     internal fun close() {
-        LOG.info("closing ${HendelseProducer::class.simpleName}")
+        LOG.info("Closing ${HendelseProducer::class.simpleName}")
         producer.close()
         closed.set(true)
     }

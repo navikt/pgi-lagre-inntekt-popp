@@ -72,7 +72,6 @@ internal class LagreInntektPoppTest {
         }
         lagreInntektPopp.start(loopForever = true)
 
-        assertTrue(lagreInntektPopp.isStopped())
         assertFalse(kafkaMockFactory.hendelseProducer.closed())
         assertFalse(kafkaMockFactory.pensjonsgivendeInntektConsumer.closed())
     }
@@ -92,8 +91,6 @@ internal class LagreInntektPoppTest {
         assertTrue(kafkaMockFactory.hendelseProducer.closed())
         assertTrue(kafkaMockFactory.pensjonsgivendeInntektConsumer.closed())
     }
-
-
 
     private fun createPgiRecords(fromOffset: Long, toOffset: Long) = (fromOffset..toOffset)
             .map {

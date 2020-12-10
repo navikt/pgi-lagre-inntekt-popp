@@ -43,18 +43,16 @@ internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory
         stop.set(true)
     }
 
-    internal fun isStopped() = stop.get()
+    internal fun isClosed() = pgiConsumer.isClosed() && hendelseProducer.isClosed()
 
     internal fun closeKafka() {
-        if (!pgiConsumer.isClosed()) pgiConsumer.close()
-        if (!hendelseProducer.isClosed()) hendelseProducer.close()
-        LOG.info("pgiConsumer and hendelseProducer closed")
+        pgiConsumer.close()
+        hendelseProducer.close()
     }
 
     private fun refreshKafkaCredentials(kafkaFactory: KafkaFactory = KafkaInntektFactory()) {
         LOG.warn("TopicAuthorizationException recieved. Attempting credential rotation")
-        pgiConsumer.close()
-        hendelseProducer.close()
+        closeKafka()
         pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
         hendelseProducer = HendelseProducer(kafkaFactory)
         Thread.sleep(5000)

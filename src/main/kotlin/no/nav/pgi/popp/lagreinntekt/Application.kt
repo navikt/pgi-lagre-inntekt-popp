@@ -4,19 +4,24 @@ import no.nav.pensjon.samhandling.naisserver.naisServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.system.exitProcess
 
 fun main() {
     val application = Application()
     try {
         application.startLagreInntektPopp()
     } catch (e: Exception) {
-        application.close()
+        application.stop()
+    } finally {
+        exitProcess(0)
     }
 }
 
 internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
     private val naisServer = naisServer()
     private val lagreInntektPopp = LagreInntektPopp(kafkaFactory, env)
+    private var started = AtomicBoolean(false)
 
     init {
         addShutdownHook()
@@ -25,29 +30,39 @@ internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), e
 
     internal fun startLagreInntektPopp(loopForever: Boolean = true) {
         try {
+            started.set(true)
             lagreInntektPopp.start(loopForever)
         } catch (e: Throwable) {
             LOG.error(e.message)
         } finally {
-            close()
+            tearDown()
         }
     }
 
-    internal fun close() {
+    internal fun tearDown() {
         LOG.info("Closing naisServer and lagreInntektPopp")
-        lagreInntektPopp.stop()
-        naisServer.stop(100, 100)
-        Thread.sleep(100)
+        naisServer.stop(500, 500)
         lagreInntektPopp.closeKafka()
+    }
+
+    internal fun stop() {
+        LOG.info("Stopping naisServer and lagreInntektPopp")
+        lagreInntektPopp.stop()
+        Thread.sleep(3000)
+        if (!lagreInntektPopp.isClosed()) {
+            LOG.info("Failed to stop lagreInntektPopp")
+            tearDown()
+        }
     }
 
     private fun addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(Thread {
             try {
-                close()
+                LOG.info("Stopping application from shutdown hook")
+                stop()
             } catch (e: Exception) {
-                LOG.info("Shutdownhook faild trying to close kafka")
-                lagreInntektPopp.closeKafka()
+                LOG.info("Shutdownhook failed trying to close kafka")
+                tearDown()
             }
         })
     }
