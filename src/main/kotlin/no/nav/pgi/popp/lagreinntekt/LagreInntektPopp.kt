@@ -14,13 +14,13 @@ import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.slf4j.LoggerFactory
 import java.net.http.HttpResponse
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.system.exitProcess
 
 internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
     private var pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
     private var hendelseProducer = HendelseProducer(kafkaFactory)
     private val poppClient = PoppClient(env.getVal("POPP_URL"))
-    private var closed: AtomicBoolean = AtomicBoolean(false)
+
+    private var stop: AtomicBoolean = AtomicBoolean(false)
 
     internal fun start(loopForever: Boolean = true) {
         do try {
@@ -35,23 +35,27 @@ internal class LagreInntektPopp(kafkaFactory: KafkaFactory = KafkaInntektFactory
             pgiConsumer.commit()
         } catch (e: TopicAuthorizationException) {
             refreshKafkaCredentials()
-        } catch (e: Exception) {
-            LOG.error(e.message)
-            e.printStackTrace()
-            exitProcess(1)
-        } while (loopForever && !closed.get())
+        } while (loopForever && !stop.get())
     }
 
-    internal fun close() {
-        closed.set(true)
-        pgiConsumer.close()
-        hendelseProducer.close()
+    internal fun stop() {
+        LOG.info("stopping LagreInntektPopp")
+        stop.set(true)
     }
 
-    // TODO close consumer and producer ???
-    // TODO thread sleep ??
+    internal fun isStopped() = stop.get()
+
+    internal fun closeKafka() {
+        LOG.info("Closing pgiConsumer and hendelseProducer")
+        if (!pgiConsumer.isClosed()) pgiConsumer.close()
+        if (!hendelseProducer.isClosed()) hendelseProducer.close()
+        LOG.info("pgiConsumer and hendelseProducer closed")
+    }
+
     private fun refreshKafkaCredentials(kafkaFactory: KafkaFactory = KafkaInntektFactory()) {
         LOG.warn("TopicAuthorizationException recieved. Attempting credential rotation")
+        pgiConsumer.close()
+        hendelseProducer.close()
         pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
         hendelseProducer = HendelseProducer(kafkaFactory)
         Thread.sleep(5000)

@@ -3,6 +3,7 @@ package no.nav.pgi.popp.lagreinntekt
 import no.nav.pensjon.samhandling.naisserver.naisServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
+import org.slf4j.LoggerFactory
 
 fun main() {
     val application = Application()
@@ -23,12 +24,21 @@ internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), e
     }
 
     internal fun startLagreInntektPopp(loopForever: Boolean = true) {
-        lagreInntektPopp.start(loopForever)
+        try {
+            lagreInntektPopp.start(loopForever)
+        } catch (e: Throwable) {
+            LOG.error(e.message)
+        } finally {
+            close()
+        }
     }
 
     internal fun close() {
-        naisServer.stop(0, 0)
-        lagreInntektPopp.close()
+        LOG.info("Closing naisServer and lagreInntektPopp")
+        lagreInntektPopp.stop()
+        naisServer.stop(100, 100)
+        Thread.sleep(100)
+        lagreInntektPopp.closeKafka()
     }
 
     private fun addShutdownHook() {
@@ -36,9 +46,14 @@ internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), e
             try {
                 close()
             } catch (e: Exception) {
-                //TODO håndter
+                LOG.info("Shutdownhook faild trying to close kafka")
+                lagreInntektPopp.closeKafka()
             }
         })
+    }
+
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(Application::class.java)
     }
 }
 

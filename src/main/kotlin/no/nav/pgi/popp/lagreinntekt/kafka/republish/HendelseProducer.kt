@@ -7,9 +7,11 @@ import no.nav.samordning.pgi.schema.HendelseKey
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicBoolean
 
 internal class HendelseProducer(kafkaFactory: KafkaFactory) {
     private val producer: Producer<HendelseKey, Hendelse> = kafkaFactory.hendelseProducer()
+    private var closed: AtomicBoolean = AtomicBoolean(false)
 
     //TODO: Error handling
     internal fun republishHendelse(hendelseKey: HendelseKey) {
@@ -20,7 +22,10 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
 
     internal fun close() {
         producer.close()
+        closed.set(true)
     }
+
+    internal fun isClosed() = closed.get()
 
     private fun toHendelse(hendelseKey: HendelseKey) =
             Hendelse(-1L, hendelseKey.getIdentifikator(), hendelseKey.getGjelderPeriode())

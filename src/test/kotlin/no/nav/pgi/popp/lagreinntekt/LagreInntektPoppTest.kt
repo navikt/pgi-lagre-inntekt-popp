@@ -1,5 +1,8 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.pgi.popp.lagreinntekt.mock.KafkaMockFactory
 import no.nav.pgi.popp.lagreinntekt.mock.POPP_MOCK_URL
@@ -11,7 +14,7 @@ import no.nav.samordning.pgi.schema.Skatteordning.FASTLAND
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -26,7 +29,7 @@ internal class LagreInntektPoppTest {
     fun afterEach() {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
-        lagreInntektPopp.close()
+        lagreInntektPopp.stop()
         lagreInntektPopp = LagreInntektPopp(kafkaMockFactory, mapOf("POPP_URL" to POPP_MOCK_URL))
         poppMockServer.reset()
     }
@@ -35,7 +38,7 @@ internal class LagreInntektPoppTest {
     fun tearDown() {
         kafkaMockFactory.close()
         poppMockServer.stop()
-        lagreInntektPopp.close()
+        lagreInntektPopp.stop()
     }
 
     @Test
@@ -60,6 +63,37 @@ internal class LagreInntektPoppTest {
         assertEquals(11, kafkaMockFactory.hendelseProducer.history().size)
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
+
+    @Test
+    fun `should exits loop on stop`() {
+        GlobalScope.async {
+            delay(50)
+            lagreInntektPopp.stop()
+        }
+        lagreInntektPopp.start(loopForever = true)
+
+        assertTrue(lagreInntektPopp.isStopped())
+        assertFalse(kafkaMockFactory.hendelseProducer.closed())
+        assertFalse(kafkaMockFactory.pensjonsgivendeInntektConsumer.closed())
+    }
+
+    @Test
+    fun `should close kafka producer and consumer on closeKafka`() {
+        GlobalScope.async {
+            delay(10)
+            lagreInntektPopp.stop()
+            delay(10)
+            lagreInntektPopp.closeKafka()
+        }
+
+        lagreInntektPopp.start(loopForever = true)
+        Thread.sleep(40)
+
+        assertTrue(kafkaMockFactory.hendelseProducer.closed())
+        assertTrue(kafkaMockFactory.pensjonsgivendeInntektConsumer.closed())
+    }
+
+
 
     private fun createPgiRecords(fromOffset: Long, toOffset: Long) = (fromOffset..toOffset)
             .map {
