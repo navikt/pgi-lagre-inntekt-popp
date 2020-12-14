@@ -17,8 +17,8 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
     internal fun pollInntektRecords() =
-            consumer.poll(TIMEOUT_DURATION).records(PGI_INNTEKT_TOPIC).toList()
-                    .also { records -> logNumberOfRecordsPolledFromTopic(records) }
+        consumer.poll(TIMEOUT_DURATION).records(PGI_INNTEKT_TOPIC).toList()
+            .also { records -> logNumberOfRecordsPolledFromTopic(records) }
 
     internal fun commit() {
         consumer.commitSync()

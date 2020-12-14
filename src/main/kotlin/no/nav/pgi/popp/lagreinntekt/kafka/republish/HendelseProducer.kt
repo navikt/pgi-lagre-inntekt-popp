@@ -29,7 +29,7 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
     internal fun isClosed() = closed.get()
 
     private fun toHendelse(hendelseKey: HendelseKey) =
-            Hendelse(-1L, hendelseKey.getIdentifikator(), hendelseKey.getGjelderPeriode())
+        Hendelse(-1L, hendelseKey.getIdentifikator(), hendelseKey.getGjelderPeriode())
 
     companion object {
         private val LOG = LoggerFactory.getLogger(HendelseProducer::class.java)

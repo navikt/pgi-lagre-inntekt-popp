@@ -10,11 +10,12 @@ import org.apache.kafka.clients.producer.Producer
 
 internal class KafkaInntektFactory(private val kafkaConfig: KafkaConfig = KafkaConfig()) : KafkaFactory {
     override fun pensjonsgivendeInntektConsumer() =
-            KafkaConsumer<HendelseKey, PensjonsgivendeInntekt>(kafkaConfig.commonConfig() + kafkaConfig.inntektConsumerConfig())
-                    .also { it.subscribe(listOf(PGI_INNTEKT_TOPIC)) }
+        KafkaConsumer<HendelseKey, PensjonsgivendeInntekt>(kafkaConfig.commonConfig() + kafkaConfig.inntektConsumerConfig())
+            .also { it.subscribe(listOf(PGI_INNTEKT_TOPIC)) }
 
     override fun hendelseProducer() = KafkaProducer<HendelseKey, Hendelse>(
-            kafkaConfig.commonConfig() + kafkaConfig.hendelseProducerConfig())
+        kafkaConfig.commonConfig() + kafkaConfig.hendelseProducerConfig()
+    )
 }
 
 internal interface KafkaFactory {
