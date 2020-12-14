@@ -1,21 +1,23 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val junitJupiterVersion = "5.6.0"
+val kafkaVersion = "2.5.0"
+val confluentVersion = "5.5.1"
 val ktorVersion = "1.3.2-1.4.0-rc"
+val msal4jVersion = "1.8.0"
+
 val ktorSupportVersion = "0.0.14"
+val pgiSchemaVersion = "0.0.4"
+
 val micrometerVersion = "1.3.5"
 val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoder = "5.2"
 val slf4jVersion = "1.7.30"
 val log4jVersion = "2.13.3"
+
+val junitJupiterVersion = "5.6.0"
 val wiremockVersion = "2.27.1"
-
-val kafkaVersion = "2.5.0"
-val confluentVersion = "5.5.1"
 val kafkaEmbeddedEnvVersion = "2.5.0"
-
-val pgiSchemaVersion = "0.0.4"
 
 group = "no.nav.pgi"
 
@@ -62,7 +64,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
 
-
+    implementation("com.microsoft.azure:msal4j:$msal4jVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")

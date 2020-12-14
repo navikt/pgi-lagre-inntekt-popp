@@ -25,12 +25,16 @@ internal class ShutdownTest {
 
     @AfterEach
     fun afterEach() {
-        println("AfterEach starting")
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
         application.tearDown()
         application = Application(kafkaMockFactory, mapOf("POPP_URL" to POPP_MOCK_URL))
         poppMockServer.reset()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        poppMockServer.stop()
     }
 
     @Test

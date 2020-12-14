@@ -13,15 +13,15 @@ internal class PoppClient(private val url: String) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
 
     internal fun postPensjonsgivendeInntekt(pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
-            httpClient.send(createPostRequest(url, pensjonsgivendeInntekt.toString()), HttpResponse.BodyHandlers.ofString())
+        httpClient.send(createPostRequest(url, pensjonsgivendeInntekt.toString()), HttpResponse.BodyHandlers.ofString())
 
     private fun createPostRequest(url: String, body: String) = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .header("Authorization", "Bearer dummyvalue") //TODO: Proper token
-            .header("Content-Type", "application/json")
-            .header("Nav-Call-Id", UUID.randomUUID().toString())
-            .header("Nav-Consumer-Id", "pgi-lagre-inntekt-popp")
-            .POST(HttpRequest.BodyPublishers.ofString(body))
-            .build()
+        .uri(URI.create(url))
+        .header("Authorization", "Bearer dummyvalue") //TODO: Proper token
+        .header("Content-Type", "application/json")
+        .header("Nav-Call-Id", UUID.randomUUID().toString())
+        .header("Nav-Consumer-Id", "pgi-lagre-inntekt-popp")
+        .POST(HttpRequest.BodyPublishers.ofString(body))
+        .build()
 }
 
