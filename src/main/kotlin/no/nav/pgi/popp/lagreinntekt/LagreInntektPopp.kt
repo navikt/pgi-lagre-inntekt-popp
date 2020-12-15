@@ -25,7 +25,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
             val inntektRecords = pgiConsumer.pollInntektRecords()
             inntektRecords.forEach { inntektRecord ->
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
-                if (response.statusCode() != 201) {
+                if (response.statusCode() != 200) {
                     logFailedInntektToPopp(inntektRecord, response)
                     hendelseProducer.republishHendelse(inntektRecord.key())
                 }
