@@ -1,8 +1,10 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pensjon.samhandling.naisserver.naisServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
+import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
@@ -20,7 +22,8 @@ fun main() {
 
 internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
     private val naisServer = naisServer()
-    private val lagreInntektPopp = LagreInntektPopp(kafkaFactory, env)
+    private val poppClient = PoppClient(env)
+    private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
     private var started = AtomicBoolean(false)
 
     init {

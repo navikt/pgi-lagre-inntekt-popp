@@ -7,6 +7,8 @@ import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import no.nav.pgi.popp.lagreinntekt.mock.KafkaMockFactory
 import no.nav.pgi.popp.lagreinntekt.mock.POPP_MOCK_URL
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer
+import no.nav.pgi.popp.lagreinntekt.mock.TokenProviderMock
+import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
@@ -23,14 +25,15 @@ internal class LagreInntektPoppTest {
 
     private val poppMockServer = PoppMockServer()
     private var kafkaMockFactory = KafkaMockFactory()
-    private var lagreInntektPopp = LagreInntektPopp(kafkaMockFactory, mapOf("POPP_URL" to POPP_MOCK_URL))
+    private val poppClient = PoppClient(testEnvironment(), TokenProviderMock())
+    private var lagreInntektPopp = LagreInntektPopp(poppClient, kafkaMockFactory)
 
     @AfterEach
     fun afterEach() {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
         lagreInntektPopp.stop()
-        lagreInntektPopp = LagreInntektPopp(kafkaMockFactory, mapOf("POPP_URL" to POPP_MOCK_URL))
+        lagreInntektPopp = LagreInntektPopp(poppClient, kafkaMockFactory)
         poppMockServer.reset()
     }
 
@@ -102,6 +105,14 @@ internal class LagreInntektPoppTest {
             PensjonsgivendeInntekt(identifikator,
                     2020L,
                     listOf(PensjonsgivendeInntektPerOrdning(FASTLAND, "2020-01-01", 523000L, 320000L, 2000L, 200L)))
+
+    private fun testEnvironment() = mapOf(
+        "POPP_URL" to POPP_MOCK_URL,
+        "AZURE_APP_CLIENT_ID" to "1234",
+        "AZURE_APP_CLIENT_SECRET" to "verySecret",
+        "AZURE_APP_TARGET_API_ID" to "5678",
+        "AZURE_APP_WELL_KNOWN_URL" to "https://login.microsoft/asfasf",
+    )
 }
 
 private fun PensjonsgivendeInntekt.key() = HendelseKey(getNorskPersonidentifikator(), getInntektsaar().toString())

@@ -16,6 +16,8 @@ import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_201
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_500
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_500
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_500
+import no.nav.pgi.popp.lagreinntekt.mock.TokenProviderMock
+import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
@@ -36,7 +38,8 @@ internal class ComponentTest {
     private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
     private val republishedHendelse = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
     private val poppMockServer = PoppMockServer()
-    private val lagreInntektPopp = LagreInntektPopp(kafkaFactory, mapOf("POPP_URL" to POPP_MOCK_URL) + kafkaTestEnvironment.testEnvironment())
+    private val poppClient = PoppClient(mapOf("POPP_URL" to POPP_MOCK_URL), TokenProviderMock())
+    private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
 
     @AfterAll
     fun tearDown() {
@@ -76,7 +79,7 @@ internal class ComponentTest {
             createPensjonsgivendeInntekt(FNR_NR2_500, YEAR_2018),
             createPensjonsgivendeInntekt(FNR_NR3_500, YEAR_2019),
             createPensjonsgivendeInntekt(FNR_NR4_500, YEAR_2019),
-            createPensjonsgivendeInntekt(FNR_NR5_500, YEAR_2020),
+            createPensjonsgivendeInntekt(FNR_NR5_500, YEAR_2020)
     )
 
 

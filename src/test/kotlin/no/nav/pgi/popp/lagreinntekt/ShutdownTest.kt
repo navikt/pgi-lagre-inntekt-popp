@@ -21,14 +21,14 @@ internal class ShutdownTest {
 
     private val poppMockServer = PoppMockServer()
     private var kafkaMockFactory = KafkaMockFactory()
-    private var application = Application(kafkaMockFactory, mapOf("POPP_URL" to POPP_MOCK_URL))
+    private var application = Application(kafkaMockFactory, testEnvironment())
 
     @AfterEach
     fun afterEach() {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
         application.tearDown()
-        application = Application(kafkaMockFactory, mapOf("POPP_URL" to POPP_MOCK_URL))
+        application = Application(kafkaMockFactory, testEnvironment())
         poppMockServer.reset()
     }
 
@@ -69,5 +69,13 @@ internal class ShutdownTest {
             HttpClient.newHttpClient().send(
                     HttpRequest.newBuilder()
                             .uri(URI.create("http://localhost:8080$IS_ALIVE_PATH")).GET().build(), HttpResponse.BodyHandlers.ofString())
+
+    private fun testEnvironment() = mapOf(
+        "POPP_URL" to POPP_MOCK_URL,
+        "AZURE_APP_CLIENT_ID" to "1234",
+        "AZURE_APP_CLIENT_SECRET" to "verySecret",
+        "AZURE_APP_TARGET_API_ID" to "5678",
+        "AZURE_APP_WELL_KNOWN_URL" to "https://login.microsoft/asfasf",
+    )
 }
 
