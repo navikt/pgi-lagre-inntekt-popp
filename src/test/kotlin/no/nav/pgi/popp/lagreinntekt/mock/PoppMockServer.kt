@@ -33,20 +33,20 @@ internal class PoppMockServer {
         mockResponseFromPopp(FNR_NR4_500, WireMock.serverError())
         mockResponseFromPopp(FNR_NR5_500, WireMock.serverError())
 
-        mockResponseFromPopp(FNR_NR1_201, WireMock.created())
-        mockResponseFromPopp(FNR_NR2_201, WireMock.created())
-        mockResponseFromPopp(FNR_NR3_201, WireMock.created())
+        mockResponseFromPopp(FNR_NR1_201, WireMock.ok())
+        mockResponseFromPopp(FNR_NR2_201, WireMock.ok())
+        mockResponseFromPopp(FNR_NR3_201, WireMock.ok())
     }
 
     internal fun reset() = poppApiMockServer.resetAll()
 
-    internal fun `Mock default response 201 ok`(priority: Int = 10) {
+    internal fun `Mock default response 200 ok`(priority: Int = 10) {
         poppApiMockServer.stubFor(WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
                 .atPriority(priority)
-                .willReturn(WireMock.created()))
+                .willReturn(WireMock.ok()))
     }
 
-    internal fun `Mock default response 500 servererror`(priority: Int = 10) {
+    internal fun `Mock default response 500 server error`(priority: Int = 10) {
         poppApiMockServer.stubFor(WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
                 .atPriority(priority)
                 .willReturn(WireMock.serverError()))

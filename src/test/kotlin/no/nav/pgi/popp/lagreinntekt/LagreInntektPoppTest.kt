@@ -46,7 +46,7 @@ internal class LagreInntektPoppTest {
 
     @Test
     fun `Commits to consumer when stored in POPP`() {
-        poppMockServer.`Mock default response 201 ok`()
+        poppMockServer.`Mock default response 200 ok`()
         val pgiRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> = createPgiRecords(5, 15)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
@@ -57,7 +57,7 @@ internal class LagreInntektPoppTest {
 
     @Test
     fun `Commits to consumer when republished`() {
-        poppMockServer.`Mock default response 500 servererror`()
+        poppMockServer.`Mock default response 500 server error`()
         val pgiRecords = createPgiRecords(10, 20)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
