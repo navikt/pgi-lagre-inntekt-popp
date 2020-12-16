@@ -14,7 +14,7 @@ internal const val PGI_PATH = "/popp/api/inntekt/pgi"
 
 internal class PoppClient(environment: Map<String, String>, private val tokenProvider: TokenProvider = AadTokenClient(environment)) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
-    private val poppUrl = environment.getVal(POPP_URL)
+    private val poppUrl = environment.getVal(POPP_URL) + PGI_PATH
 
     internal fun postPensjonsgivendeInntekt(pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
         httpClient.send(createPostRequest(poppUrl, pensjonsgivendeInntekt.toString()), HttpResponse.BodyHandlers.ofString())

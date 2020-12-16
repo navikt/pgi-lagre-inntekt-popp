@@ -7,7 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.containing
 import no.nav.pgi.popp.lagreinntekt.popp.PGI_PATH
 
 private const val POPP_PORT = 31241
-internal const val POPP_MOCK_URL = "http://localhost:$POPP_PORT$PGI_PATH"
+internal const val POPP_MOCK_URL = "http://localhost:$POPP_PORT"
 
 internal class PoppMockServer {
     private val poppApiMockServer = WireMockServer(POPP_PORT)
