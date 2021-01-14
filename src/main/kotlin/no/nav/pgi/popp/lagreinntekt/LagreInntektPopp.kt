@@ -53,7 +53,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logSuccessfulRequestToPopp(statusCode: Int, pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
         LOG.info("Response status $statusCode for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
-    
+
     private fun logFailedInntektToPopp(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) {
         LOG.warn(("$inntektRecord could not be sent to popp.\n" +
                     "Status code: ${response.statusCode()}.\n" +

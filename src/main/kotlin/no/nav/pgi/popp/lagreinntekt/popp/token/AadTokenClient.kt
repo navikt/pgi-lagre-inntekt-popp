@@ -4,7 +4,10 @@ import com.microsoft.aad.msal4j.ClientCredentialFactory
 import com.microsoft.aad.msal4j.ClientCredentialParameters
 import com.microsoft.aad.msal4j.ConfidentialClientApplication
 import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pgi.popp.lagreinntekt.Application
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient.TokenProvider
+import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient.Companion.LOG
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -29,11 +32,11 @@ internal class AadTokenClient(environment: Map<String, String>) : TokenProvider 
     private fun getAadToken(): AadToken {
         val clientCredentialParameters = ClientCredentialParameters.builder(scopes).build()
         val authenticationResult = confidentialClientApplication.acquireToken(clientCredentialParameters).get()
-
+        LOG.info("Fetching new AadToken")
         return AadToken(
             authenticationResult.accessToken(),
             authenticationResult.expiresOnDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
-        ).apply { println("Token expires at date: $expires") }
+        )
     }
 
     private fun createConfidentialClientApplication() =
@@ -49,5 +52,9 @@ internal class AadTokenClient(environment: Map<String, String>) : TokenProvider 
         private const val CLIENT_ID = "AZURE_APP_CLIENT_ID"
         private const val CLIENT_PASSWORD = "AZURE_APP_CLIENT_SECRET"
         private const val TARGET_API_ID = "AZURE_APP_TARGET_API_ID"
+    }
+
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(AadTokenClient::class.java)
     }
 }
