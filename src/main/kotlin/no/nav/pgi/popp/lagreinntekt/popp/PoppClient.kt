@@ -19,8 +19,8 @@ internal class PoppClient(environment: Map<String, String>, private val tokenPro
     internal fun postPensjonsgivendeInntekt(pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
         httpClient.send(createPostRequest(poppUrl, pensjonsgivendeInntekt.toString()), HttpResponse.BodyHandlers.ofString())
 
-    private fun createPostRequest(url: String, body: String) = HttpRequest.newBuilder()
-        .uri(URI.create(url))
+    private fun createPostRequest(poppUrl: String, body: String) = HttpRequest.newBuilder()
+        .uri(URI.create(poppUrl))
         .header("Authorization", "Bearer ${tokenProvider.getToken().accessToken}")
         .header("Content-Type", "application/json")
         .header("Nav-Call-Id", UUID.randomUUID().toString())

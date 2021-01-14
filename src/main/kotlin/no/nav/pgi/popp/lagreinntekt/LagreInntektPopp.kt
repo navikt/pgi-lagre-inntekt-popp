@@ -29,6 +29,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
                     logFailedInntektToPopp(inntektRecord, response)
                     hendelseProducer.republishHendelse(inntektRecord.key())
                 }
+                logSuccessfulRequestToPopp(response.statusCode(), inntektRecord.value())
             }
             pgiConsumer.commit()
         } catch (topicAuthorizationException: TopicAuthorizationException) {
@@ -36,6 +37,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
             throw topicAuthorizationException
         } while (loopForever && !stop.get())
     }
+
 
     internal fun stop() {
         LOG.info("stopping LagreInntektPopp")
@@ -49,6 +51,9 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
         hendelseProducer.close()
     }
 
+    private fun logSuccessfulRequestToPopp(statusCode: Int, pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
+        LOG.info("Response status $statusCode for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
+    
     private fun logFailedInntektToPopp(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) {
         LOG.warn(("$inntektRecord could not be sent to popp.\n" +
                     "Status code: ${response.statusCode()}.\n" +
