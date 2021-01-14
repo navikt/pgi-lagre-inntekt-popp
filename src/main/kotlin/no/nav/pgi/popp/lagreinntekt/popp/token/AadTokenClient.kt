@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+private val LOG = LoggerFactory.getLogger(AadTokenClient::class.java)
+
 internal class AadTokenClient(environment: Map<String, String>) : TokenProvider {
     private val clientId = environment.getVal(CLIENT_ID)
     private val clientPassword = environment.getVal(CLIENT_PASSWORD)
@@ -52,9 +54,5 @@ internal class AadTokenClient(environment: Map<String, String>) : TokenProvider 
         private const val CLIENT_ID = "AZURE_APP_CLIENT_ID"
         private const val CLIENT_PASSWORD = "AZURE_APP_CLIENT_SECRET"
         private const val TARGET_API_ID = "AZURE_APP_TARGET_API_ID"
-    }
-
-    private companion object {
-        private val LOG = LoggerFactory.getLogger(AadTokenClient::class.java)
     }
 }
