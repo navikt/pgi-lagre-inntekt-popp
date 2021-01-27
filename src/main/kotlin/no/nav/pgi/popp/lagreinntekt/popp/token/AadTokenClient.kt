@@ -27,7 +27,7 @@ internal class AadTokenClient(environment: Map<String, String>) : TokenProvider 
         if (aadToken == null || tokenExpiresWithinTwoMinutes(aadToken)) getAadToken() else aadToken
 
     private fun tokenExpiresWithinTwoMinutes(aadToken: AadToken) =
-        aadToken.expires.isBefore(LocalDateTime.now().minusMinutes(2))
+        LocalDateTime.now() >= aadToken.expires.minusMinutes(2)
 
     private fun getAadToken(): AadToken {
         val clientCredentialParameters = ClientCredentialParameters.builder(scopes).build()
