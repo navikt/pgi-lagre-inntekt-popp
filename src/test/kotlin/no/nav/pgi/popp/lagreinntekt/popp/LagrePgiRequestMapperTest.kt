@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
-private const val personIdentifkator = "12345678901"
+private const val personIdentifikator = "12345678901"
 private const val inntektsaar = 2021L
 private val skatteOrdningFastland = Skatteordning.FASTLAND
 private const val datoForFastsetting = "01-04-2321"
@@ -24,15 +24,15 @@ internal class LagrePgiRequestMapperTest {
     fun `maps from PensjonsgivendeInntekt to LagrePgiRequest`() {
 
         val pgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt())
-        assertEquals(personIdentifkator, pgiRequest.personIdentikator)
+        assertEquals(personIdentifikator, pgiRequest.personIdentifikator)
         assertEquals(inntektsaar.toString(), pgiRequest.inntektsaar)
-        assertEquals(skatteOrdningFastland.name, pgiRequest.pgiOrdning.first().skatteordning)
-        assertEquals(datoForFastsetting, pgiRequest.pgiOrdning.first().datoForFastSetting)
+        assertEquals(skatteOrdningFastland.name, pgiRequest.pgiOrdning!!.first().skatteordning)
+        assertEquals(datoForFastsetting, pgiRequest.pgiOrdning!!.first().datoForFastSetting)
     }
 
     private fun pensjonsgivendeInntekt() =
         PensjonsgivendeInntekt(
-            personIdentifkator,
+            personIdentifikator,
             inntektsaar,
             listOf(
                 PensjonsgivendeInntektPerOrdning(

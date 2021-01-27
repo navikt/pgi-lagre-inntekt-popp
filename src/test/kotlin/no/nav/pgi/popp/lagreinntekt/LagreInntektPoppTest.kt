@@ -68,7 +68,7 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
-    fun `should exits loop on stop`() {
+    fun `should exit loop on stop`() {
         GlobalScope.async {
             delay(50)
             lagreInntektPopp.stop()

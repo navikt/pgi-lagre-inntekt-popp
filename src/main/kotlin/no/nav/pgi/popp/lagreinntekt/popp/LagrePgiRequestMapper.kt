@@ -7,7 +7,7 @@ internal object LagrePgiRequestMapper {
 
     internal fun toLagrePgiRequest(pensjonsgivendeInntekt: PensjonsgivendeInntekt): LagrePgiRequest {
         return LagrePgiRequest(
-            personIdentikator = pensjonsgivendeInntekt.getNorskPersonidentifikator(),
+            personIdentifikator = pensjonsgivendeInntekt.getNorskPersonidentifikator(),
             inntektsaar = pensjonsgivendeInntekt.getInntektsaar().toString(),
             pgiOrdning = pensjonsgivendeInntekt.getPensjonsgivendeInntekt().map { toPgiOrdning(it) }
         )
