@@ -26,8 +26,8 @@ internal class LagrePgiRequestMapperTest {
         val pgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt())
         assertEquals(personIdentifikator, pgiRequest.personIdentifikator)
         assertEquals(inntektsaar.toString(), pgiRequest.inntektsaar)
-        assertEquals(skatteOrdningFastland.name, pgiRequest.pgiOrdning!!.first().skatteordning)
-        assertEquals(datoForFastsetting, pgiRequest.pgiOrdning!!.first().datoForFastSetting)
+        assertEquals(skatteOrdningFastland.name, pgiRequest.pgiOrdninger.first().skatteordning)
+        assertEquals(datoForFastsetting, pgiRequest.pgiOrdninger.first().datoForFastSetting)
     }
 
     private fun pensjonsgivendeInntekt() =
