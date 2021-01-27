@@ -72,7 +72,7 @@ internal class LagrePgiRequestTest {
             pgiNaeringFiskeFangstFamiliebarnehage: Long? = PGI_NAERING_FISKE_FANGST_FAMILIEBARNEHAGE,
     ) = PgiOrdning(
             skatteordning = skatteordning,
-            datoForFastSetting = datoForFastSetting,
+            datoForFastsetting = datoForFastSetting,
             pgiLoenn = pgiLoenn,
             pgiLoennPensjonsdel = pgiLoennPensjonsdel,
             pgiNaering = pgiNaering,

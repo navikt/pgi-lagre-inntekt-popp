@@ -27,7 +27,7 @@ internal class LagrePgiRequestMapperTest {
         assertEquals(personIdentifikator, pgiRequest.personIdentifikator)
         assertEquals(inntektsaar.toString(), pgiRequest.inntektsaar)
         assertEquals(skatteOrdningFastland.name, pgiRequest.pgiOrdninger.first().skatteordning)
-        assertEquals(datoForFastsetting, pgiRequest.pgiOrdninger.first().datoForFastSetting)
+        assertEquals(datoForFastsetting, pgiRequest.pgiOrdninger.first().datoForFastsetting)
     }
 
     private fun pensjonsgivendeInntekt() =

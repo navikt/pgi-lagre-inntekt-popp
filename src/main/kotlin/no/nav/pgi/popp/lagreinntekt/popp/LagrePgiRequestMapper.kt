@@ -16,7 +16,7 @@ internal object LagrePgiRequestMapper {
     private fun toPgiOrdning(pgiPerOrdning: PensjonsgivendeInntektPerOrdning) =
         PgiOrdning(
             skatteordning = pgiPerOrdning.getSkatteordning().name,
-            datoForFastSetting = pgiPerOrdning.getDatoForFastsetting(),
+            datoForFastsetting = pgiPerOrdning.getDatoForFastsetting(),
             pgiLoenn = pgiPerOrdning.getPensjonsgivendeInntektAvLoennsinntekt(),
             pgiLoennPensjonsdel = pgiPerOrdning.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel(),
             pgiNaering = pgiPerOrdning.getPensjonsgivendeInntektAvNaeringsinntekt(),

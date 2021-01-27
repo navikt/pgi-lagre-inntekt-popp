@@ -10,7 +10,7 @@ internal data class LagrePgiRequest(
 
 internal data class PgiOrdning(
         val skatteordning: String,
-        val datoForFastSetting: String,
+        val datoForFastsetting: String,
         val pgiLoenn: Long?,
         val pgiLoennPensjonsdel: Long?,
         val pgiNaering: Long?,
