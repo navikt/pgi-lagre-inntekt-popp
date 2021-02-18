@@ -1,6 +1,5 @@
 package no.nav.pgi.popp.lagreinntekt
 
-import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pensjon.samhandling.naisserver.naisServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory

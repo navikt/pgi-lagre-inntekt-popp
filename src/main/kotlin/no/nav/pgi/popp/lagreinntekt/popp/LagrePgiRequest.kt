@@ -1,21 +1,35 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+
 
 internal data class LagrePgiRequest(
-        val personIdentifikator: String,
-        val inntektsaar: String,
-        val pgiOrdninger: List<PgiOrdning> = emptyList(),
+    val personIdentifikator: String,
+    val inntektsaar: Int,
+    val pgiList: List<Pgi> = emptyList(),
 )
 
-internal data class PgiOrdning(
-        val skatteordning: String,
-        val datoForFastsetting: String,
-        val pgiLoenn: Long?,
-        val pgiLoennPensjonsdel: Long?,
-        val pgiNaering: Long?,
-        val pgiNaeringFiskeFangstFamiliebarnehage: Long?,
+internal data class Pgi(
+    val pgiType: PgiType,
+    val datoForFastsetting: String,
+    val belop: Long?
 )
 
-private val mapper = ObjectMapper()
+internal enum class PgiType {
+    FL_PGI_LOENN,
+    FL_PGI_LOENN_PD,
+    FL_PGI_NAERING,
+    FL_PGI_NAERING_FFF,
+    KSL_PGI_LOENN,
+    KSL_PGI_LOENN_PD,
+    KSL_PGI_NAERING,
+    KSL_PGI_NAERING_FFF,
+    SVA_PGI_LOENN,
+    SVA_PGI_LOENN_PD,
+    SVA_PGI_NAERING,
+    SVA_PGI_NAERING_FFF
+}
+
+private val mapper = ObjectMapper().registerModule(KotlinModule())
 internal fun LagrePgiRequest.toJson() = mapper.writeValueAsString(this)

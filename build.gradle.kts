@@ -73,13 +73,8 @@ dependencies {
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion") {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")
     }
-
-
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-
-
 }
-
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "14"

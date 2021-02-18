@@ -1,84 +1,102 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.samordning.pgi.schema.Skatteordning
+import no.nav.pgi.popp.lagreinntekt.popp.PgiType.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
-private val mapper = ObjectMapper().registerModule(KotlinModule()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-private const val PERSON_IDENTIFIKATOR = "12345678901"
-private const val INNTEKTSAAR = "2021"
-
-private val FASTLAND = Skatteordning.FASTLAND.name
-private val KILDESKATT_PAA_LOENN = Skatteordning.KILDESKATT_PAA_LOENN.name
-private val SVALBARD = Skatteordning.SVALBARD.name
-
-private const val DATOFOR_FASTSETTING = "01-04-2321"
-private const val PGI_LOENN = 1L
-private const val PGI_LOENN_PENSJONSDEL = 2L
-private const val PGI_NAERING = 3L
-private const val PGI_NAERING_FISKE_FANGST_FAMILIEBARNEHAGE = 4L
+private val mapper = ObjectMapper().registerModule(KotlinModule())
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class LagrePgiRequestTest {
+    private val personIdentifikator = "12345678901"
+    private val inntektsAar = 2020
+    private val datoForFastsetting = "2020-01-01"
+    private val belop = 1L
 
     @Test
     fun `map LagrePgiRequest to json string`() {
-        val request = createLagrePgiRequest()
-        val convertedRequest = request.toJson().toLagrePgiRequest()
+        val expectedJson = """
+            {
+                "personIdentifikator": "$personIdentifikator",
+                "inntektsaar": $inntektsAar,
+                "pgiList": [
+                    {
+                        "pgiType": "FL_PGI_LOENN",
+                        "datoForFastsetting": "$datoForFastsetting",
+                        "belop": $belop
+                    },
+                    {
+                        "pgiType": "FL_PGI_NAERING",
+                        "datoForFastsetting": "$datoForFastsetting",
+                        "belop": $belop
+                    },
+                    {
+                        "pgiType": "FL_PGI_LOENN_PD",
+                        "datoForFastsetting": "$datoForFastsetting",
+                        "belop": $belop
+                    },
+                    {
+                        "pgiType": "FL_PGI_NAERING_FFF",
+                        "datoForFastsetting": "$datoForFastsetting",
+                        "belop": $belop
+                    }
+                ]
+            }
+        """
 
-        assertEquals(request.personIdentifikator, convertedRequest.personIdentifikator)
-        assertEquals(request.inntektsaar, convertedRequest.inntektsaar)
+        val jsonRequest = createLagrePgiRequest(
+            pgiList = listOf(
+                createPgi(FL_PGI_LOENN),
+                createPgi(FL_PGI_NAERING),
+                createPgi(FL_PGI_LOENN_PD),
+                createPgi(FL_PGI_NAERING_FFF),
+            )
+        ).toJson()
+
+        assertEquals(mapper.readTree(expectedJson), mapper.readTree(jsonRequest))
+    }
+
+    @Test
+    fun `map null value to null`() {
+        val expectedJson = """
+            {
+                "personIdentifikator": "$personIdentifikator",
+                "inntektsaar": $inntektsAar,
+                "pgiList": [
+                    {
+                        "pgiType": "FL_PGI_LOENN",
+                        "datoForFastsetting": "$datoForFastsetting",
+                        "belop": null
+                    }
+                ]
+            }
+        """
+
+        val jsonRequest = createLagrePgiRequest(pgiList = listOf(createPgi(pgiType = FL_PGI_LOENN, pgiBelop = null)))
+            .toJson()
+
+        assertEquals(mapper.readTree(expectedJson), mapper.readTree(jsonRequest))
     }
 
     @Test
     fun `map PgiOrdninger to json string`() {
-        val request = createLagrePgiRequest(
-                pgiOrdninger = listOf(
-                        createPgiOrdning(FASTLAND),
-                        createPgiOrdning(KILDESKATT_PAA_LOENN),
-                        createPgiOrdning(SVALBARD)
-                )
-        )
-        val convertedRequest = request.toJson().toLagrePgiRequest()
 
-        assertEquals(request.pgiOrdninger.size, convertedRequest.pgiOrdninger.size)
-        assertEquals(request.pgiOrdninger.getSkatteordning(FASTLAND), convertedRequest.pgiOrdninger.getSkatteordning(FASTLAND))
-        assertEquals(request.pgiOrdninger.getSkatteordning(KILDESKATT_PAA_LOENN), convertedRequest.pgiOrdninger.getSkatteordning(KILDESKATT_PAA_LOENN))
-        assertEquals(request.pgiOrdninger.getSkatteordning(SVALBARD), convertedRequest.pgiOrdninger.getSkatteordning(SVALBARD))
     }
 
     private fun createLagrePgiRequest(
-            identifikator: String = PERSON_IDENTIFIKATOR,
-            aar: String = INNTEKTSAAR,
-            pgiOrdninger: List<PgiOrdning> = listOf(createPgiOrdning()),
-    ) = LagrePgiRequest(
-            personIdentifikator = identifikator,
-            inntektsaar = aar,
-            pgiOrdninger = pgiOrdninger
-    )
+        identifikator: String = personIdentifikator, aar: Int = inntektsAar, pgiList: List<Pgi> = listOf(createPgi()),
+    ) = LagrePgiRequest(personIdentifikator = identifikator, inntektsaar = aar, pgiList = pgiList)
 
-    private fun createPgiOrdning(
-            skatteordning: String = FASTLAND,
-            datoForFastSetting: String = DATOFOR_FASTSETTING,
-            pgiLoenn: Long? = PGI_LOENN,
-            pgiLoennPensjonsdel: Long? = PGI_LOENN_PENSJONSDEL,
-            pgiNaering: Long? = PGI_NAERING,
-            pgiNaeringFiskeFangstFamiliebarnehage: Long? = PGI_NAERING_FISKE_FANGST_FAMILIEBARNEHAGE,
-    ) = PgiOrdning(
-            skatteordning = skatteordning,
-            datoForFastsetting = datoForFastSetting,
-            pgiLoenn = pgiLoenn,
-            pgiLoennPensjonsdel = pgiLoennPensjonsdel,
-            pgiNaering = pgiNaering,
-            pgiNaeringFiskeFangstFamiliebarnehage = pgiNaeringFiskeFangstFamiliebarnehage
-    )
+    private fun createPgi(
+        pgiType: PgiType = FL_PGI_LOENN, datoForFastSetting: String = datoForFastsetting, pgiBelop: Long? = belop,
+    ) = Pgi(pgiType = pgiType, datoForFastsetting = datoForFastSetting, belop = pgiBelop)
+
+
 }
 
-private fun String.toLagrePgiRequest() = mapper.readValue<LagrePgiRequest>(this)
-private fun List<PgiOrdning>.getSkatteordning(ordning: String) = find { it.skatteordning == ordning }
+
+
