@@ -6,7 +6,7 @@ val confluentVersion = "5.5.1"
 val ktorVersion = "1.3.2-1.4.0-rc"
 val msal4jVersion = "1.8.0"
 
-val ktorSupportVersion = "0.0.14"
+val ktorSupportVersion = "0.0.19"
 val pgiSchemaVersion = "0.0.4"
 
 val micrometerVersion = "1.3.5"
