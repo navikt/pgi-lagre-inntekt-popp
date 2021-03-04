@@ -36,7 +36,7 @@ internal class AadTokenClient(environment: Map<String, String>) : TokenProvider 
         return AadToken(
             authenticationResult.accessToken(),
             authenticationResult.expiresOnDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
-        )
+        ).also { cachedToken = it }
     }
 
     private fun createConfidentialClientApplication() =
