@@ -5,7 +5,6 @@ import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.inntekt.PensjonsgivendeInntektConsumer
 import no.nav.pgi.popp.lagreinntekt.kafka.republish.HendelseProducer
-import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
@@ -23,8 +22,10 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     internal fun start(loopForever: Boolean = true) {
         do try {
-            val inntektRecords = pgiConsumer.pollInntektRecords()
+            val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> = pgiConsumer.pollInntektRecords()
+            //val delayRequestsToPopp = inntektRecords.isDuplicates()
             inntektRecords.forEach { inntektRecord ->
+                //if (delayRequestsToPopp) Thread.sleep(50L)
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
                 when (response.statusCode()) {
                     200 -> {
@@ -47,7 +48,6 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
         } while (loopForever && !stop.get())
     }
 
-
     internal fun stop() {
         LOG.info("stopping LagreInntektPopp")
         stop.set(true)
@@ -61,17 +61,21 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
     }
 
     private fun logSuccessfulRequestToPopp(statusCode: Int, pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
-        LOG.info("Successfully added inntekt to POPP. PoppResponse(Status $statusCode) for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
+        LOG.info("Successfully added inntekt to POPP PoppResponse(Status $statusCode) for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
 
     private fun logRepublishingFailedInntekt(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) =
-        LOG.warn(("Failed to add inntekt to POPP for $inntektRecord PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})").maskFnr())
+        LOG.warn(("Failed to add inntekt to POPP initiating resending PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $inntektRecord").maskFnr())
 
     private fun logShuttingDownDueToUnhandledStatus(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) =
-        LOG.error(("Failed to add inntekt to POPP initiating shutdown $inntektRecord PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})").maskFnr())
+        LOG.error(("Failed to add inntekt to POPP initiating shutdown PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $inntektRecord ").maskFnr())
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
     }
 }
 
-internal class UnhandledStatusCodeFromPoppException(response: HttpResponse<String>) : Exception("""Unhandled status code in PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})""".maskFnr())
+internal class UnhandledStatusCodeFromPoppException(response: HttpResponse<String>) :
+    Exception("""Unhandled status code in PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})""".maskFnr())
+
+private fun List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>.isDuplicates() =
+    map { it.key() }.toHashSet().size == size
