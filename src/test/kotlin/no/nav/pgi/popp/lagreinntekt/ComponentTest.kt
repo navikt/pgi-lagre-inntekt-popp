@@ -8,14 +8,14 @@ import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.KafkaTestEnvironment
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.PlaintextStrategy
 import no.nav.pgi.popp.lagreinntekt.mock.POPP_MOCK_URL
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR1_201
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR1_500
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR2_201
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR2_500
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_201
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_500
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_500
-import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_500
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR1_200
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR1_409
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR2_200
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR2_409
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_200
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_409
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_409
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_409
 import no.nav.pgi.popp.lagreinntekt.mock.TokenProviderMock
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.samordning.pgi.schema.HendelseKey
@@ -26,10 +26,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-
-private const val YEAR_2018 = 2018L
-private const val YEAR_2019 = 2020L
-private const val YEAR_2020 = 2020L
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ComponentTest {
@@ -50,9 +46,9 @@ internal class ComponentTest {
     }
 
     @Test
-    fun `application sends inntekter to popp or republishes them to hendelse topic`() {
-        val inntekter = pensjonsgivendeInntekter()
-        val invalidInntekter = invalidPensjonsgivendeInntekter()
+    fun `application sends inntekter to popp or republishes them to hendelse topic if status 200 or 409`() {
+        val inntekter = pensjonsgivendeInntekterWith200FromPopp()
+        val invalidInntekter = pensjonsgivendeInntekterWith409FromPopp()
 
         populateInntektTopic(inntekter + invalidInntekter)
 
@@ -62,31 +58,30 @@ internal class ComponentTest {
     }
 
     private fun populateInntektTopic(inntekter: List<PensjonsgivendeInntekt>) {
-        for (inntekt in inntekter) {
-            val hendelseKey = HendelseKey(inntekt.getNorskPersonidentifikator(), inntekt.getInntektsaar().toString())
-            inntektTestProducer.produceToInntektTopic(hendelseKey, inntekt)
+        inntekter.forEach {
+            val hendelseKey = HendelseKey(it.getNorskPersonidentifikator(), it.getInntektsaar().toString())
+            inntektTestProducer.produceToInntektTopic(hendelseKey, it)
         }
     }
 
-    private fun pensjonsgivendeInntekter() = listOf(
-            createPensjonsgivendeInntekt(FNR_NR1_201, YEAR_2018),
-            createPensjonsgivendeInntekt(FNR_NR2_201, YEAR_2019),
-            createPensjonsgivendeInntekt(FNR_NR3_201, YEAR_2020)
+    private fun pensjonsgivendeInntekterWith200FromPopp() = listOf(
+        createPensjonsgivendeInntekt(FNR_NR1_200, 2018),
+        createPensjonsgivendeInntekt(FNR_NR2_200, 2019),
+        createPensjonsgivendeInntekt(FNR_NR3_200, 2020)
     )
 
-    private fun invalidPensjonsgivendeInntekter() = listOf(
-            createPensjonsgivendeInntekt(FNR_NR1_500, YEAR_2018),
-            createPensjonsgivendeInntekt(FNR_NR2_500, YEAR_2018),
-            createPensjonsgivendeInntekt(FNR_NR3_500, YEAR_2019),
-            createPensjonsgivendeInntekt(FNR_NR4_500, YEAR_2019),
-            createPensjonsgivendeInntekt(FNR_NR5_500, YEAR_2020)
+    private fun pensjonsgivendeInntekterWith409FromPopp() = listOf(
+        createPensjonsgivendeInntekt(FNR_NR1_409, 2018),
+        createPensjonsgivendeInntekt(FNR_NR2_409, 2018),
+        createPensjonsgivendeInntekt(FNR_NR3_409, 2019),
+        createPensjonsgivendeInntekt(FNR_NR4_409, 2019),
+        createPensjonsgivendeInntekt(FNR_NR5_409, 2020)
     )
 
-
-    private fun createPensjonsgivendeInntekt(norskPersonidentifikator: String, inntektsaar: Long): PensjonsgivendeInntekt {
-        val pensjonsgivendeIntekter = mutableListOf<PensjonsgivendeInntektPerOrdning>()
-        val pensjonsgivendeInntektPerOrdning = PensjonsgivendeInntektPerOrdning(Skatteordning.FASTLAND, "$inntektsaar-01-01", 523000L, 320000L, 2000L, null)
-        pensjonsgivendeIntekter.add(pensjonsgivendeInntektPerOrdning)
-        return PensjonsgivendeInntekt(norskPersonidentifikator, inntektsaar, pensjonsgivendeIntekter)
+    private fun createPensjonsgivendeInntekt(idenfifikator: String, inntektsaar: Long): PensjonsgivendeInntekt {
+        val pensjonsgivendeIntekter = mutableListOf<PensjonsgivendeInntektPerOrdning>().apply {
+            add(PensjonsgivendeInntektPerOrdning(Skatteordning.FASTLAND, "$inntektsaar-01-01", 523000L, 320000L, 2000L, null))
+        }
+        return PensjonsgivendeInntekt(idenfifikator, inntektsaar, pensjonsgivendeIntekter)
     }
 }

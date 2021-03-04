@@ -2,8 +2,7 @@ package no.nav.pgi.popp.lagreinntekt.mock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.pgi.popp.lagreinntekt.popp.PGI_PATH
 
 private const val POPP_PORT = 31241
@@ -13,54 +12,64 @@ internal class PoppMockServer {
     private val poppApiMockServer = WireMockServer(POPP_PORT)
 
     companion object {
-        const val FNR_NR1_201 = "11111111201"
-        const val FNR_NR2_201 = "22222222201"
-        const val FNR_NR3_201 = "33333333201"
+        const val FNR_NR1_200 = "11111111201"
+        const val FNR_NR2_200 = "22222222201"
+        const val FNR_NR3_200 = "33333333201"
 
-        const val FNR_NR1_500 = "11111111111"
-        const val FNR_NR2_500 = "22222222222"
-        const val FNR_NR3_500 = "33333333333"
-        const val FNR_NR4_500 = "44444444444"
-        const val FNR_NR5_500 = "55555555555"
+        const val FNR_NR1_409 = "11111111111"
+        const val FNR_NR2_409 = "22222222222"
+        const val FNR_NR3_409 = "33333333333"
+        const val FNR_NR4_409 = "44444444444"
+        const val FNR_NR5_409 = "55555555555"
     }
 
     init {
         poppApiMockServer.start()
 
-        mockResponseFromPopp(FNR_NR2_500, WireMock.serverError())
-        mockResponseFromPopp(FNR_NR1_500, WireMock.serverError())
-        mockResponseFromPopp(FNR_NR3_500, WireMock.serverError())
-        mockResponseFromPopp(FNR_NR4_500, WireMock.serverError())
-        mockResponseFromPopp(FNR_NR5_500, WireMock.serverError())
+        mockResponseFromPopp(FNR_NR2_409, aResponse().withStatus(409))
+        mockResponseFromPopp(FNR_NR1_409, aResponse().withStatus(409))
+        mockResponseFromPopp(FNR_NR3_409, aResponse().withStatus(409))
+        mockResponseFromPopp(FNR_NR4_409, aResponse().withStatus(409))
+        mockResponseFromPopp(FNR_NR5_409, aResponse().withStatus(409))
 
-        mockResponseFromPopp(FNR_NR1_201, WireMock.ok())
-        mockResponseFromPopp(FNR_NR2_201, WireMock.ok())
-        mockResponseFromPopp(FNR_NR3_201, WireMock.ok())
+        mockResponseFromPopp(FNR_NR1_200, ok())
+        mockResponseFromPopp(FNR_NR2_200, ok())
+        mockResponseFromPopp(FNR_NR3_200, ok())
     }
 
+    internal fun stop() = poppApiMockServer.stop()
     internal fun reset() = poppApiMockServer.resetAll()
 
-    internal fun `Mock default response 200 ok`(priority: Int = 10) {
-        poppApiMockServer.stubFor(WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
-                .atPriority(priority)
-                .willReturn(WireMock.ok()))
+    internal fun `Mock 200 ok`() {
+        poppApiMockServer.stubFor(
+            post(urlPathEqualTo(PGI_PATH))
+                .atPriority(10)
+                .willReturn(ok())
+        )
     }
 
-    internal fun `Mock default response 500 server error`(priority: Int = 10) {
-        poppApiMockServer.stubFor(WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
-                .atPriority(priority)
-                .willReturn(WireMock.serverError()))
+    internal fun `Mock 500 server error`() {
+        poppApiMockServer.stubFor(
+            post(urlPathEqualTo(PGI_PATH))
+                .atPriority(10)
+                .willReturn(serverError())
+        )
     }
 
-    internal fun stop() {
-        poppApiMockServer.stop()
+    internal fun `Mock 409 conflict`() {
+        poppApiMockServer.stubFor(
+            post(urlPathEqualTo(PGI_PATH))
+                .atPriority(10)
+                .willReturn(aResponse().withStatus(409))
+        )
     }
 
     private fun mockResponseFromPopp(identifikator: String, responseCode: ResponseDefinitionBuilder) {
         poppApiMockServer.stubFor(
-                WireMock.post(WireMock.urlPathEqualTo(PGI_PATH))
-                        .atPriority(1)
-                        .withRequestBody(containing(identifikator))
-                        .willReturn(responseCode))
+            post(urlPathEqualTo(PGI_PATH))
+                .atPriority(1)
+                .withRequestBody(containing(identifikator))
+                .willReturn(responseCode)
+        )
     }
 }

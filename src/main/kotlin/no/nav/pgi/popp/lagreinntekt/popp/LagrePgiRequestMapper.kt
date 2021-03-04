@@ -80,8 +80,7 @@ object LagrePgiRequestMapper {
         )
 }
 
-internal class UnknownSkatteOrdningException(missingSkatteordning: String?) :
-    Exception("""Cant find $missingSkatteordning in ${LagrePgiRequestMapper::class.simpleName} when mapping to POPP lagrePgiRequest. """)
+internal class UnknownSkatteOrdningException(missingSkatteordning: String?) : Exception("""Cant find $missingSkatteordning in ${LagrePgiRequestMapper::class.simpleName} when mapping to POPP lagrePgiRequest. """)
 
 private enum class PgiTypeUtenOrdning {
     PGI_LOENN,

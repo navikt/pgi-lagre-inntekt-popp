@@ -14,11 +14,8 @@ import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
 import no.nav.samordning.pgi.schema.Skatteordning.FASTLAND
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class LagreInntektPoppTest {
@@ -46,7 +43,7 @@ internal class LagreInntektPoppTest {
 
     @Test
     fun `Commits to consumer when stored in POPP`() {
-        poppMockServer.`Mock default response 200 ok`()
+        poppMockServer.`Mock 200 ok`()
         val pgiRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> = createPgiRecords(5, 15)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
@@ -56,8 +53,8 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
-    fun `Commits to consumer when republished`() {
-        poppMockServer.`Mock default response 500 server error`()
+    fun `Republish hendelse to consumer when 409 is returned from popp`() {
+        poppMockServer.`Mock 409 conflict`()
         val pgiRecords = createPgiRecords(10, 20)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
@@ -65,6 +62,15 @@ internal class LagreInntektPoppTest {
 
         assertEquals(11, kafkaMockFactory.hendelseProducer.history().size)
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
+    }
+
+    @Test
+    fun `Throws error when 500 is returned from popp`() {
+        poppMockServer.`Mock 500 server error`()
+        val pgiRecords = createPgiRecords(10, 20)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        assertThrows<UnhandledStatusCodeFromPoppException> { lagreInntektPopp.start(loopForever = false) }
     }
 
     @Test
@@ -96,15 +102,17 @@ internal class LagreInntektPoppTest {
     }
 
     private fun createPgiRecords(fromOffset: Long, toOffset: Long) = (fromOffset..toOffset)
-            .map {
-                val pgi = createPgi((it + 10000000000).toString())
-                ConsumerRecord(PGI_INNTEKT_TOPIC, KafkaMockFactory.DEFAULT_PARTITION, it, pgi.key(), pgi)
-            }
+        .map {
+            val pgi = createPgi((it + 10000000000).toString())
+            ConsumerRecord(PGI_INNTEKT_TOPIC, KafkaMockFactory.DEFAULT_PARTITION, it, pgi.key(), pgi)
+        }
 
     private fun createPgi(identifikator: String): PensjonsgivendeInntekt =
-            PensjonsgivendeInntekt(identifikator,
-                    2020L,
-                    listOf(PensjonsgivendeInntektPerOrdning(FASTLAND, "2020-01-01", 523000L, 320000L, 2000L, 200L)))
+        PensjonsgivendeInntekt(
+            identifikator,
+            2020L,
+            listOf(PensjonsgivendeInntektPerOrdning(FASTLAND, "2020-01-01", 523000L, 320000L, 2000L, 200L))
+        )
 
     private fun testEnvironment() = mapOf(
         "POPP_URL" to POPP_MOCK_URL,
