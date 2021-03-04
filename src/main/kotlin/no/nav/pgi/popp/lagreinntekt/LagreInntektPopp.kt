@@ -64,10 +64,10 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
         LOG.info("Successfully added inntekt to POPP. PoppResponse(Status $statusCode) for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
 
     private fun logRepublishingFailedInntekt(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) =
-        LOG.warn(("Failed to add inntekt to POPP for $inntektRecord \nPoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})").maskFnr())
+        LOG.warn(("Failed to add inntekt to POPP for $inntektRecord PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})").maskFnr())
 
     private fun logShuttingDownDueToUnhandledStatus(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) =
-        LOG.error(("Failed to add inntekt to POPP initiating shutdown $inntektRecord \nPoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})").maskFnr())
+        LOG.error(("Failed to add inntekt to POPP initiating shutdown $inntektRecord PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})").maskFnr())
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
