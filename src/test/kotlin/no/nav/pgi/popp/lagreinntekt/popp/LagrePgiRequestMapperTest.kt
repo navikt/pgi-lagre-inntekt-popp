@@ -2,6 +2,7 @@ package no.nav.pgi.popp.lagreinntekt.popp
 
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
+import no.nav.samordning.pgi.schema.PensjonsgivendeInntektMetadata
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
 import no.nav.samordning.pgi.schema.Skatteordning
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -23,13 +24,13 @@ internal class LagrePgiRequestMapperTest {
         assertEquals(pensjonsgivendeInntekt.getInntektsaar().toInt(), lagrePgiRequest.inntektsaar)
 
         val pensjonsgivendeInntektFastland = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.FASTLAND)
-        assertPensjonsgivendeInntektFastlandToPgiMapping(pensjonsgivendeInntektFastland!!, lagrePgiRequest)
+        assertPensjonsgivendeInntektFastlandToPgiMapping(pensjonsgivendeInntektFastland, lagrePgiRequest)
 
         val pensjonsgivendeInntektSvalbard = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.SVALBARD)
-        assertPensjonsgivendeInntektSvalbardToPgiMapping(pensjonsgivendeInntektSvalbard!!, lagrePgiRequest)
+        assertPensjonsgivendeInntektSvalbardToPgiMapping(pensjonsgivendeInntektSvalbard, lagrePgiRequest)
 
         val pensjonsgivendeInntektKSL = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.KILDESKATT_PAA_LOENN)
-        assertPensjonsgivendeInntektKildeskattPaaLoennToPgiMapping(pensjonsgivendeInntektKSL!!, lagrePgiRequest)
+        assertPensjonsgivendeInntektKildeskattPaaLoennToPgiMapping(pensjonsgivendeInntektKSL, lagrePgiRequest)
     }
 
     private fun assertPensjonsgivendeInntektFastlandToPgiMapping(
@@ -95,7 +96,8 @@ internal class LagrePgiRequestMapperTest {
                     11L,
                     12L
                 )
-            )
+            ),
+            PensjonsgivendeInntektMetadata()
         )
 }
 
@@ -103,6 +105,6 @@ private fun LagrePgiRequest.getPgiBelop(pgiType: PgiType) = pgiList.find { it.pg
 
 private fun LagrePgiRequest.countPgiWithDate(date: String) = pgiList.filter { pgi -> pgi.datoForFastsetting == date }.count()
 
-private fun PensjonsgivendeInntekt.getPensjonsgivendeInntekt(skatteOrdning: Skatteordning): PensjonsgivendeInntektPerOrdning? = getPensjonsgivendeInntekt().find { it.getSkatteordning() == skatteOrdning }
+private fun PensjonsgivendeInntekt.getPensjonsgivendeInntekt(skatteOrdning: Skatteordning): PensjonsgivendeInntektPerOrdning = getPensjonsgivendeInntekt().find { it.getSkatteordning() == skatteOrdning }!!
 
 

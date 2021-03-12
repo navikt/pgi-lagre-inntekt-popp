@@ -18,10 +18,7 @@ import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_409
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_409
 import no.nav.pgi.popp.lagreinntekt.mock.TokenProviderMock
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
-import no.nav.samordning.pgi.schema.HendelseKey
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
-import no.nav.samordning.pgi.schema.Skatteordning
+import no.nav.samordning.pgi.schema.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -53,7 +50,6 @@ internal class ComponentTest {
         populateInntektTopic(inntekter + invalidInntekter)
 
         lagreInntektPopp.start(loopForever = false)
-
         assertEquals(invalidInntekter.size, republishedHendelse.getRecords().size)
     }
 
@@ -65,23 +61,36 @@ internal class ComponentTest {
     }
 
     private fun pensjonsgivendeInntekterWith200FromPopp() = listOf(
-        createPensjonsgivendeInntekt(FNR_NR1_200, 2018),
-        createPensjonsgivendeInntekt(FNR_NR2_200, 2019),
-        createPensjonsgivendeInntekt(FNR_NR3_200, 2020)
+        createPensjonsgivendeInntekt(FNR_NR1_200, 2018, PensjonsgivendeInntektMetadata()),
+        createPensjonsgivendeInntekt(FNR_NR2_200, 2019, PensjonsgivendeInntektMetadata()),
+        createPensjonsgivendeInntekt(FNR_NR3_200, 2020, PensjonsgivendeInntektMetadata())
     )
 
     private fun pensjonsgivendeInntekterWith409FromPopp() = listOf(
-        createPensjonsgivendeInntekt(FNR_NR1_409, 2018),
-        createPensjonsgivendeInntekt(FNR_NR2_409, 2018),
-        createPensjonsgivendeInntekt(FNR_NR3_409, 2019),
-        createPensjonsgivendeInntekt(FNR_NR4_409, 2019),
-        createPensjonsgivendeInntekt(FNR_NR5_409, 2020)
+        createPensjonsgivendeInntekt(FNR_NR1_409, 2018, PensjonsgivendeInntektMetadata(1, 2)),
+        createPensjonsgivendeInntekt(FNR_NR2_409, 2018, PensjonsgivendeInntektMetadata(3, 4)),
+        createPensjonsgivendeInntekt(FNR_NR3_409, 2019, PensjonsgivendeInntektMetadata(5, 6)),
+        createPensjonsgivendeInntekt(FNR_NR4_409, 2019, PensjonsgivendeInntektMetadata(7, 8)),
+        createPensjonsgivendeInntekt(FNR_NR5_409, 2020, PensjonsgivendeInntektMetadata(9, 10))
     )
 
-    private fun createPensjonsgivendeInntekt(idenfifikator: String, inntektsaar: Long): PensjonsgivendeInntekt {
+    private fun createPensjonsgivendeInntekt(
+        idenfifikator: String,
+        inntektsaar: Long,
+        metadata: PensjonsgivendeInntektMetadata
+    ): PensjonsgivendeInntekt {
         val pensjonsgivendeIntekter = mutableListOf<PensjonsgivendeInntektPerOrdning>().apply {
-            add(PensjonsgivendeInntektPerOrdning(Skatteordning.FASTLAND, "$inntektsaar-01-01", 523000L, 320000L, 2000L, null))
+            add(
+                PensjonsgivendeInntektPerOrdning(
+                    Skatteordning.FASTLAND,
+                    "$inntektsaar-01-01",
+                    523000L,
+                    320000L,
+                    2000L,
+                    null
+                )
+            )
         }
-        return PensjonsgivendeInntekt(idenfifikator, inntektsaar, pensjonsgivendeIntekter)
+        return PensjonsgivendeInntekt(idenfifikator, inntektsaar, pensjonsgivendeIntekter, metadata)
     }
 }

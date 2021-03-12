@@ -7,7 +7,7 @@ val ktorVersion = "1.3.2-1.4.0-rc"
 val msal4jVersion = "1.8.0"
 
 val ktorSupportVersion = "0.0.19"
-val pgiSchemaVersion = "0.0.4"
+val pgiSchemaVersion = "0.0.7"
 
 val micrometerVersion = "1.3.5"
 val logbackClassicVersion = "1.2.3"
@@ -53,7 +53,7 @@ dependencies {
     implementation("no.nav.pensjonsamhandling:pensjon-samhandling-ktor-support:$ktorSupportVersion")
 
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
-    implementation("no.nav.pensjonsamhandling:pgi-schema:$pgiSchemaVersion")
+    implementation("no.nav.pgi:pgi-schema:$pgiSchemaVersion")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("io.confluent:kafka-avro-serializer:$confluentVersion")

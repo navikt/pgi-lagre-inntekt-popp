@@ -33,7 +33,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
                     }
                     409 -> {
                         logRepublishingFailedInntekt(inntektRecord, response)
-                        hendelseProducer.republishHendelse(inntektRecord.key())
+                        hendelseProducer.republishHendelse(inntektRecord)
                     }
                     else -> {
                         logShuttingDownDueToUnhandledStatus(inntektRecord, response)

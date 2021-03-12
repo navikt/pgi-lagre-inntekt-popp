@@ -5,6 +5,9 @@ import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
 import no.nav.samordning.pgi.schema.Hendelse
 import no.nav.samordning.pgi.schema.HendelseKey
+import no.nav.samordning.pgi.schema.HendelseMetadata
+import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
@@ -14,8 +17,8 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
     private val producer: Producer<HendelseKey, Hendelse> = kafkaFactory.hendelseProducer()
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
-    internal fun republishHendelse(hendelseKey: HendelseKey) {
-        val record = ProducerRecord(PGI_HENDELSE_TOPIC, hendelseKey, toHendelse(hendelseKey))
+    internal fun republishHendelse(consumerRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>) {
+        val record = ProducerRecord(PGI_HENDELSE_TOPIC, consumerRecord.key(), toHendelse(consumerRecord))
         producer.send(record).get()
         LOG.warn("Republiserer ${record.key()} to $PGI_HENDELSE_TOPIC".maskFnr())
     }
@@ -28,8 +31,14 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
 
     internal fun isClosed() = closed.get()
 
-    private fun toHendelse(hendelseKey: HendelseKey) =
-        Hendelse(-1L, hendelseKey.getIdentifikator(), hendelseKey.getGjelderPeriode())
+    private fun toHendelse(consumerRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>): Hendelse {
+        return Hendelse(
+            consumerRecord.value().getMetaData().getSekvensnummer(),
+            consumerRecord.key().getIdentifikator(),
+            consumerRecord.key().getGjelderPeriode(),
+            HendelseMetadata(consumerRecord.value().getMetaData().getRetries())
+        )
+    }
 
     companion object {
         private val LOG = LoggerFactory.getLogger(HendelseProducer::class.java)
