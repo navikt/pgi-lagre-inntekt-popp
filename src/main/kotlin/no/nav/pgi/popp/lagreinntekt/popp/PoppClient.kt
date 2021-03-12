@@ -12,34 +12,44 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.util.*
 import javax.ws.rs.core.UriBuilder
 
 internal const val PGI_PATH = "/popp/api/inntekt/pgi"
 private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
 
-internal class PoppClient(environment: Map<String, String>, private val tokenProvider: TokenProvider = AadTokenClient(environment)) {
+internal class PoppClient(
+    environment: Map<String, String>,
+    private val tokenProvider: TokenProvider = AadTokenClient(environment)
+) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
     private val poppHost = environment.getVal(POPP_URL)
     private val poppUrl = UriBuilder.fromPath(poppHost).path(PGI_PATH).build()
 
     internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): HttpResponse<String> {
         val lagrePgiRequest = toLagrePgiRequest(pgi)
-        LOG.info(lagrePgiRequest.toJson().maskFnr()) //TODO: Make it pretty
-        return httpClient.send(createPostRequest(poppUrl, lagrePgiRequest), HttpResponse.BodyHandlers.ofString())
+        logRequestToPopp(lagrePgiRequest, pgi)
+        return httpClient.send(
+            createPostRequest(poppUrl, lagrePgiRequest, pgi.getMetaData().getSekvensnummer()),
+            HttpResponse.BodyHandlers.ofString()
+        )
     }
 
-    private fun createPostRequest(poppUrl: URI, lagrePgiRequest: LagrePgiRequest) = HttpRequest.newBuilder()
-        .uri(poppUrl)
-        .header("Authorization", "Bearer ${tokenProvider.getToken().accessToken}")
-        .header("Content-Type", "application/json")
-        .header("Nav-Call-Id", UUID.randomUUID().toString())
-        .header("Nav-Consumer-Id", "pgi-lagre-inntekt-popp")
-        .POST(HttpRequest.BodyPublishers.ofString(lagrePgiRequest.toJson()))
-        .build()
+    private fun createPostRequest(poppUrl: URI, lagrePgiRequest: LagrePgiRequest, callId: Long) =
+        HttpRequest.newBuilder()
+            .uri(poppUrl)
+            .header("Authorization", "Bearer ${tokenProvider.getToken().accessToken}")
+            .header("Content-Type", "application/json")
+            .header("Nav-Call-Id", callId.toString())
+            .header("Nav-Consumer-Id", "pgi-lagre-inntekt-popp")
+            .POST(HttpRequest.BodyPublishers.ofString(lagrePgiRequest.toJson()))
+            .build()
 
     internal interface TokenProvider {
         fun getToken(): AadToken
+    }
+
+    private fun logRequestToPopp(lagrePgiRequest: LagrePgiRequest, pgi: PensjonsgivendeInntekt) {
+        LOG.info("""Request to popp: ${lagrePgiRequest.toJson().maskFnr()}. ${createTraceString(pgi)}""")
     }
 
     private companion object EnvironmentKey {
@@ -47,3 +57,7 @@ internal class PoppClient(environment: Map<String, String>, private val tokenPro
     }
 }
 
+internal fun createTraceString(pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
+    createTraceString(pensjonsgivendeInntekt.getMetaData().getSekvensnummer())
+
+internal fun createTraceString(sekvensnummer: Long?) = """ ("sekvensnummer": $sekvensnummer)"""

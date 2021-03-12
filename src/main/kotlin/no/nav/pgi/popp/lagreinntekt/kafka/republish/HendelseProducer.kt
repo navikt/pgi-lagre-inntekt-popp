@@ -18,9 +18,9 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
     internal fun republishHendelse(consumerRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>) {
-        val record = ProducerRecord(PGI_HENDELSE_TOPIC, consumerRecord.key(), toHendelse(consumerRecord))
-        producer.send(record).get()
-        LOG.warn("Republiserer ${record.key()} to $PGI_HENDELSE_TOPIC".maskFnr())
+        val hendelseRecord = ProducerRecord(PGI_HENDELSE_TOPIC, consumerRecord.key(), toHendelse(consumerRecord))
+        producer.send(hendelseRecord).get()
+        LOG.warn("Republiserer ${hendelseRecord.value()} to $PGI_HENDELSE_TOPIC".maskFnr())
     }
 
     internal fun close() {

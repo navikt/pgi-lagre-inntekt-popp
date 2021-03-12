@@ -19,7 +19,10 @@ fun main() {
     }
 }
 
-internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), env: Map<String, String> = System.getenv()) {
+internal class Application(
+    kafkaFactory: KafkaFactory = KafkaInntektFactory(),
+    env: Map<String, String> = System.getenv()
+) {
     private val naisServer = naisServer()
     private val poppClient = PoppClient(env)
     private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
@@ -73,4 +76,3 @@ internal class Application(kafkaFactory: KafkaFactory = KafkaInntektFactory(), e
         private val LOG = LoggerFactory.getLogger(Application::class.java)
     }
 }
-

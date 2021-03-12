@@ -14,7 +14,10 @@ import org.slf4j.LoggerFactory
 import java.net.http.HttpResponse
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory: KafkaFactory = KafkaInntektFactory()) {
+internal class LagreInntektPopp(
+    private val poppClient: PoppClient,
+    kafkaFactory: KafkaFactory = KafkaInntektFactory()
+) {
     private val pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
     private val hendelseProducer = HendelseProducer(kafkaFactory)
 
@@ -22,7 +25,8 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     internal fun start(loopForever: Boolean = true) {
         do try {
-            val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> = pgiConsumer.pollInntektRecords()
+            val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> =
+                pgiConsumer.pollInntektRecords()
             //val delayRequestsToPopp = inntektRecords.isDuplicates()
             inntektRecords.forEach { inntektRecord ->
                 //if (delayRequestsToPopp) Thread.sleep(50L)
@@ -32,11 +36,11 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
                         logSuccessfulRequestToPopp(response.statusCode(), inntektRecord.value())
                     }
                     409 -> {
-                        logRepublishingFailedInntekt(inntektRecord, response)
+                        logRepublishingFailedInntekt(response, inntektRecord.value())
                         hendelseProducer.republishHendelse(inntektRecord)
                     }
                     else -> {
-                        logShuttingDownDueToUnhandledStatus(inntektRecord, response)
+                        logShuttingDownDueToUnhandledStatus(response, inntektRecord.value())
                         throw UnhandledStatusCodeFromPoppException(response)
                     }
                 }
@@ -61,13 +65,23 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
     }
 
     private fun logSuccessfulRequestToPopp(statusCode: Int, pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
-        LOG.info("Successfully added inntekt to POPP PoppResponse(Status $statusCode) for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
+        LOG.info(
+            "Successfully added inntekt to POPP PoppResponse(Status $statusCode) for inntekt: ${
+                pensjonsgivendeInntekt.toString().maskFnr()
+            }"
+        )
 
-    private fun logRepublishingFailedInntekt(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) =
-        LOG.warn(("Failed to add inntekt to POPP initiating resending PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $inntektRecord").maskFnr())
+    private fun logRepublishingFailedInntekt(
+        response: HttpResponse<String>,
+        pensjonsgivendeInntekt: PensjonsgivendeInntekt
+    ) =
+        LOG.warn(("Failed to add inntekt to POPP initiating resending PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $pensjonsgivendeInntekt").maskFnr())
 
-    private fun logShuttingDownDueToUnhandledStatus(inntektRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>?, response: HttpResponse<String>) =
-        LOG.error(("Failed to add inntekt to POPP initiating shutdown PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $inntektRecord ").maskFnr())
+    private fun logShuttingDownDueToUnhandledStatus(
+        response: HttpResponse<String>,
+        pensjonsgivendeInntekt: PensjonsgivendeInntekt
+    ) =
+        LOG.error(("Failed to add inntekt to POPP initiating shutdown PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $pensjonsgivendeInntekt ").maskFnr())
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
