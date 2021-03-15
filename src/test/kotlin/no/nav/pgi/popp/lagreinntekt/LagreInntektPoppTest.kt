@@ -81,7 +81,7 @@ internal class LagreInntektPoppTest {
 
         val republishedHendelseValue = kafkaMockFactory.hendelseProducer.history().first().value()
 
-        assertEquals(pgiRecord.value().getMetaData().getRetries(), republishedHendelseValue.getMetaData().getRetries())
+        assertEquals(pgiRecord.value().getMetaData().getRetries() + 1, republishedHendelseValue.getMetaData().getRetries())
         assertEquals(pgiRecord.value().getMetaData().getSekvensnummer(), republishedHendelseValue.getSekvensnummer())
     }
 

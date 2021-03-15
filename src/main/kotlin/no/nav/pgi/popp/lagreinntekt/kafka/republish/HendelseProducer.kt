@@ -12,6 +12,7 @@ import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.reflect.jvm.internal.impl.resolve.constants.LongValue
 
 internal class HendelseProducer(kafkaFactory: KafkaFactory) {
     private val producer: Producer<HendelseKey, Hendelse> = kafkaFactory.hendelseProducer()
@@ -36,9 +37,12 @@ internal class HendelseProducer(kafkaFactory: KafkaFactory) {
             consumerRecord.value().getMetaData().getSekvensnummer(),
             consumerRecord.key().getIdentifikator(),
             consumerRecord.key().getGjelderPeriode(),
-            HendelseMetadata(consumerRecord.value().getMetaData().getRetries())
+            HendelseMetadata(incrementRetries(consumerRecord))
         )
     }
+
+    private fun incrementRetries(consumerRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>) =
+        consumerRecord.value().getMetaData().getRetries() + 1
 
     companion object {
         private val LOG = LoggerFactory.getLogger(HendelseProducer::class.java)
