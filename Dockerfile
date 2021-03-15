@@ -1,3 +1,3 @@
 FROM navikt/java:14
-RUN apt-get -y install curl
+RUN sudo apt-get -y update && sudo apt-get -y install curl
 COPY build/libs/*.jar ./
