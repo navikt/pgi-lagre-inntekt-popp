@@ -16,7 +16,7 @@ object LagrePgiRequestMapper {
     }
 
     private fun toPgiList(pensjonsGivendeInntekt: PensjonsgivendeInntektPerOrdning): List<Pgi> {
-        return listOf(
+        val pgiList = listOf(
             toPgi(
                 createPgiType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
@@ -37,8 +37,20 @@ object LagrePgiRequestMapper {
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
                 pensjonsGivendeInntekt.getPensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage()
             )
-        )
+        ).filter {it.belop != null && it.belop != 0L}
+
+        return if(pgiList.isNotEmpty()) pgiList else defaultPgiListLoenn(pensjonsGivendeInntekt)
+        }
     }
+
+    private fun defaultPgiListLoenn(pensjonsGivendeInntekt: PensjonsgivendeInntektPerOrdning) =
+        listOf(
+            toPgi(
+                createPgiType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
+                pensjonsGivendeInntekt.getDatoForFastsetting(),
+                0L
+            )
+        )
 
     private fun createPgiType(skatteordning: Skatteordning, pgiTypeUtenOrdning: PgiTypeUtenOrdning): PgiType {
         return when (skatteordning) {
@@ -78,7 +90,6 @@ object LagrePgiRequestMapper {
             datoForFastsetting = datoForFastsetting,
             belop = belop
         )
-}
 
 internal class UnknownSkatteOrdningException(missingSkatteordning: String?) : Exception("""Cant find $missingSkatteordning in ${LagrePgiRequestMapper::class.simpleName} when mapping to POPP lagrePgiRequest. """)
 
