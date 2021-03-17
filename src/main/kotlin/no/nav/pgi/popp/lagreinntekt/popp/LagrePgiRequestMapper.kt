@@ -4,7 +4,6 @@ import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
 import no.nav.samordning.pgi.schema.Skatteordning
 
-
 object LagrePgiRequestMapper {
 
     internal fun toLagrePgiRequest(pensjonsgivendeInntekt: PensjonsgivendeInntekt): LagrePgiRequest {
@@ -37,11 +36,16 @@ object LagrePgiRequestMapper {
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
                 pensjonsGivendeInntekt.getPensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage()
             )
-        ).filter {it.belop != null && it.belop != 0L}
+        ).filterNullInntekter()
 
         return if(pgiList.isNotEmpty()) pgiList else defaultPgiListLoenn(pensjonsGivendeInntekt)
         }
     }
+
+    private fun List<Pgi>.filterNullInntekter() : List<Pgi>{
+        return filter {it.belop != null && it.belop != 0L}
+    }
+
 
     private fun defaultPgiListLoenn(pensjonsGivendeInntekt: PensjonsgivendeInntektPerOrdning) =
         listOf(
