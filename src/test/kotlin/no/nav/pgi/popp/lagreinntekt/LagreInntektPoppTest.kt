@@ -107,7 +107,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(10, 20)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        assertThrows<UnhandledStatusCodeFromPoppException> { lagreInntektPopp.start(loopForever = false) }
+        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.start(loopForever = false) }
     }
 
     @Test
