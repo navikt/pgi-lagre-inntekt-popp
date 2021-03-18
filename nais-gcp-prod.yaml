@@ -9,6 +9,9 @@ spec:
   image: {{ image }}
   team: pensjonopptjening
   port: 8080
+  prometheus:
+    enabled: true
+    path: /metrics
   azure:
     application:
       enabled: true
