@@ -8,6 +8,12 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 
+/*private val exceptionCounter =
+    Counter.build()
+        .name("pgi-lagre-inntekt-exception-counter")
+        .labelNames("type")
+        .help("Number of exceptions by exception type").register()*/
+
 fun main() {
     val application = Application()
     try {
@@ -28,16 +34,20 @@ internal class Application(
     private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
     private var started = AtomicBoolean(false)
 
+
+
     init {
         addShutdownHook()
         naisServer.start()
     }
+
 
     internal fun startLagreInntektPopp(loopForever: Boolean = true) {
         try {
             started.set(true)
             lagreInntektPopp.start(loopForever)
         } catch (e: Throwable) {
+//            exceptionCounter.labels(e.javaClass.simpleName).inc()
             LOG.error(e.message)
         } finally {
             tearDown()

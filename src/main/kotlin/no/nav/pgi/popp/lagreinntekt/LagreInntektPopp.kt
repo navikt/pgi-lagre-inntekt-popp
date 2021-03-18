@@ -16,9 +16,11 @@ import java.net.http.HttpResponse
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-private val success200Counter = Counter.build("pgi_lagre_inntekt_200_success", "Count 200 success from popp").register()
-private val republish409Counter = Counter.build("pgi_lagre_inntekt_409_republish", "Count 409 from popp to republishing").register()
-private val shutdownUnknownErrorCodeCounter = Counter.build("pgi_lagre_inntekt_unknown_error_code_shutdown", "Count unknown errorcode from popp shutting down").register()
+private val pgiPoppRespnseCounter = Counter.build()
+    .name("pgi_lagre_inntekt_popp_response_counter")
+    .labelNames("statusCode")
+    .help("Count response status codes from popp")
+    .register()
 
 internal class LagreInntektPopp(
     private val poppClient: PoppClient,
@@ -37,6 +39,9 @@ internal class LagreInntektPopp(
             inntektRecords.forEach { inntektRecord ->
                 //if (delayRequestsToPopp) Thread.sleep(50L)
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
+
+                pgiPoppRespnseCounter.labels(response.statusCode().toString()).inc()
+
                 when (response.statusCode()) {
                     200 -> {
                         logSuccessfulRequestToPopp(response.statusCode(), inntektRecord.value())
@@ -72,17 +77,14 @@ internal class LagreInntektPopp(
 
     private fun logSuccessfulRequestToPopp(statusCode: Int, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
         LOG.info("Successfully added inntekt to POPP PoppResponse(Status $statusCode) for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
-        success200Counter.inc()
     }
 
     private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
         LOG.warn(("Failed to add inntekt to POPP initiating resending PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $pensjonsgivendeInntekt").maskFnr())
-        republish409Counter.inc()
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
         LOG.error(("Failed to add inntekt to POPP initiating shutdown PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $pensjonsgivendeInntekt ").maskFnr())
-        shutdownUnknownErrorCodeCounter.inc()
     }
 
     private companion object {
