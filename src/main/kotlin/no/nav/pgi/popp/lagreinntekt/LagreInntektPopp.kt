@@ -5,7 +5,7 @@ import no.nav.pensjon.samhandling.maskfnr.maskFnr
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.inntekt.PensjonsgivendeInntektConsumer
-import no.nav.pgi.popp.lagreinntekt.kafka.republish.HendelseProducer
+import no.nav.pgi.popp.lagreinntekt.kafka.republish.RepubliserHendelseProducer
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.samordning.pgi.schema.HendelseKey
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
@@ -26,7 +26,7 @@ internal class LagreInntektPopp(
     kafkaFactory: KafkaFactory = KafkaInntektFactory()
 ) {
     private val pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
-    private val hendelseProducer = HendelseProducer(kafkaFactory)
+    private val republiserHendelseProducer = RepubliserHendelseProducer(kafkaFactory)
 
     private var stop: AtomicBoolean = AtomicBoolean(false)
 
@@ -45,7 +45,7 @@ internal class LagreInntektPopp(
                     response.statusCode() == 400 && response errorMessage "PGI_002_INNTEKT_AAR_VALIDATION_FAILED" -> logInntektAarValidationFailed(response, inntektRecord.value())
                     response.statusCode() == 409 -> {
                         logRepublishingFailedInntekt(response, inntektRecord.value())
-                        hendelseProducer.republishHendelse(inntektRecord)
+                        republiserHendelseProducer.send(inntektRecord)
                     }
                     else -> {
                         logShuttingDownDueToUnhandledStatus(response, inntektRecord.value())
@@ -65,11 +65,11 @@ internal class LagreInntektPopp(
         stop.set(true)
     }
 
-    internal fun isClosed() = pgiConsumer.isClosed() && hendelseProducer.isClosed()
+    internal fun isClosed() = pgiConsumer.isClosed() && republiserHendelseProducer.isClosed()
 
     internal fun closeKafka() {
         pgiConsumer.close()
-        hendelseProducer.close()
+        republiserHendelseProducer.close()
     }
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {

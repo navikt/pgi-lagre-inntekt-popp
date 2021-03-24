@@ -11,7 +11,7 @@ import org.apache.kafka.clients.producer.ProducerConfig
 
 internal const val GROUP_ID = "pgi-lagre-inntekt-consumer-group"
 internal const val PGI_INNTEKT_TOPIC = "pensjonopptjening.privat-pgi-inntekt"
-internal const val PGI_HENDELSE_TOPIC = "pensjonopptjening.privat-pgi-hendelse"
+internal const val PGI_HENDELSE_REPUBLISERING_TOPIC = "pensjonopptjening.privat-pgi-hendelse-republisering"
 
 internal class KafkaConfig(environment: Map<String, String> = System.getenv(), private val securityStrategy: SecurityStrategy = SslStrategy()) {
     private val bootstrapServers = environment.getVal(BOOTSTRAP_SERVERS)

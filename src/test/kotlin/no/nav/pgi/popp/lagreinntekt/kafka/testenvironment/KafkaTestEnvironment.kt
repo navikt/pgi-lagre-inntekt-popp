@@ -4,14 +4,14 @@ package no.nav.pgi.popp.lagreinntekt.kafka.testenvironment
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
 import no.nav.common.KafkaEnvironment
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_REPUBLISERING_TOPIC
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 
 class KafkaTestEnvironment {
     private val kafkaTestEnvironment: KafkaEnvironment = KafkaEnvironment(
             withSchemaRegistry = true,
-            topicNames = listOf(PGI_INNTEKT_TOPIC, PGI_HENDELSE_TOPIC)
+            topicNames = listOf(PGI_INNTEKT_TOPIC, PGI_HENDELSE_REPUBLISERING_TOPIC)
     )
 
     init {

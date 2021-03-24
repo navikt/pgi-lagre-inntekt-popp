@@ -2,7 +2,7 @@ package no.nav.pgi.popp.lagreinntekt.kafka.testenvironment
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_TOPIC
+import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_REPUBLISERING_TOPIC
 import no.nav.samordning.pgi.schema.Hendelse
 import no.nav.samordning.pgi.schema.HendelseKey
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -15,7 +15,7 @@ internal class HendelseTestConsumer(commonKafkaConfig: Map<String, String>) {
     private val hendelseTestConsumer = KafkaConsumer<HendelseKey, Hendelse>(commonKafkaConfig + hendelseTestConsumerConfig())
 
     init {
-        hendelseTestConsumer.subscribe(listOf(PGI_HENDELSE_TOPIC))
+        hendelseTestConsumer.subscribe(listOf(PGI_HENDELSE_REPUBLISERING_TOPIC))
     }
 
     internal fun close() {
@@ -32,5 +32,5 @@ internal class HendelseTestConsumer(commonKafkaConfig: Map<String, String>) {
     )
 
     internal fun getRecords(): List<ConsumerRecord<HendelseKey, Hendelse>> =
-            hendelseTestConsumer.poll(Duration.ofSeconds(4)).records(PGI_HENDELSE_TOPIC).toList()
+            hendelseTestConsumer.poll(Duration.ofSeconds(4)).records(PGI_HENDELSE_REPUBLISERING_TOPIC).toList()
 }
