@@ -33,7 +33,7 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
     internal fun isClosed() = closed.get()
 
     private fun logNumberOfRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
-        LOG.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
+        if (consumerRecords.isNotEmpty()) LOG.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
     }
 
     private companion object {
