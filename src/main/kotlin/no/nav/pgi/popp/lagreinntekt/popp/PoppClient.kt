@@ -26,10 +26,8 @@ internal class PoppClient(
     private val poppUrl = UriBuilder.fromPath(poppHost).path(PGI_PATH).build()
 
     internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): HttpResponse<String> {
-        val lagrePgiRequest = toLagrePgiRequest(pgi)
-        logRequestToPopp(lagrePgiRequest, pgi)
         return httpClient.send(
-            createPostRequest(poppUrl, lagrePgiRequest, pgi.getMetaData().getSekvensnummer()),
+            createPostRequest(poppUrl, toLagrePgiRequest(pgi), pgi.getMetaData().getSekvensnummer()),
             HttpResponse.BodyHandlers.ofString()
         )
     }
@@ -46,10 +44,6 @@ internal class PoppClient(
 
     internal interface TokenProvider {
         fun getToken(): AadToken
-    }
-
-    private fun logRequestToPopp(lagrePgiRequest: LagrePgiRequest, pgi: PensjonsgivendeInntekt) {
-        LOG.info("""Request to popp: ${lagrePgiRequest.toJson().maskFnr()}. ${createTraceString(pgi)}""")
     }
 
     private companion object EnvironmentKey {
