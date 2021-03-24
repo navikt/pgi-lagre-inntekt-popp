@@ -94,7 +94,7 @@ internal class LagreInntektPopp(
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        LOG.error(("Failed to add inntekt to POPP initiating shutdown ${response.logString()}. For pgi: $pgi ").maskFnr())
+        LOG.error(("Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi ").maskFnr())
     }
 
 
