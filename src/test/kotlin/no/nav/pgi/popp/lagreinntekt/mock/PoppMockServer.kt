@@ -56,6 +56,14 @@ internal class PoppMockServer {
         )
     }
 
+    internal fun `Mock 400 bad request with body`(body: String) {
+        poppApiMockServer.stubFor(
+            post(urlPathEqualTo(PGI_PATH))
+                .atPriority(10)
+                .willReturn(aResponse().withStatus(400).withBody(body))
+        )
+    }
+
     internal fun `Mock 409 conflict`() {
         poppApiMockServer.stubFor(
             post(urlPathEqualTo(PGI_PATH))

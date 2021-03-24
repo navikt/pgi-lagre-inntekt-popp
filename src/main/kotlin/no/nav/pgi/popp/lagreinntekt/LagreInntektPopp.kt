@@ -42,11 +42,11 @@ internal class LagreInntektPopp(
 
                 pgiPoppRespnseCounter.labels(response.statusCode().toString()).inc()
 
-                when (response.statusCode()) {
-                    200 -> {
-                        logSuccessfulRequestToPopp(response.statusCode(), inntektRecord.value())
-                    }
-                    409 -> {
+                when {
+                    response.statusCode() == 200 -> logSuccessfulRequestToPopp(response, inntektRecord.value())
+                    response.statusCode() == 400 && response errorMessage "PGI_001_PID_VALIDATION_FAILED" -> logPidValidationFailed(response, inntektRecord.value())
+                    response.statusCode() == 400 && response errorMessage "PGI_002_INNTEKT_AAR_VALIDATION_FAILED" -> logInntektAarValidationFailed(response, inntektRecord.value())
+                    response.statusCode() == 409 -> {
                         logRepublishingFailedInntekt(response, inntektRecord.value())
                         hendelseProducer.republishHendelse(inntektRecord)
                     }
@@ -75,17 +75,28 @@ internal class LagreInntektPopp(
         hendelseProducer.close()
     }
 
-    private fun logSuccessfulRequestToPopp(statusCode: Int, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
-        LOG.info("Successfully added inntekt to POPP PoppResponse(Status $statusCode) for inntekt: ${pensjonsgivendeInntekt.toString().maskFnr()}")
+    private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
+        LOG.info("Successfully added to POPP. ${response.logString()}. For pgi: ${pgi.toString().maskFnr()}")
     }
 
-    private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
-        LOG.warn(("Failed to add inntekt to POPP initiating resending PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $pensjonsgivendeInntekt").maskFnr())
+    private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
+        LOG.warn(("Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi").maskFnr())
     }
 
-    private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
-        LOG.error(("Failed to add inntekt to POPP initiating shutdown PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()}) $pensjonsgivendeInntekt ").maskFnr())
+    private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
+        LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi").maskFnr())
     }
+
+    private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt?) {
+        LOG.warn(
+            ("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi ").maskFnr()
+        )
+    }
+
+    private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
+        LOG.error(("Failed to add inntekt to POPP initiating shutdown ${response.logString()}. For pgi: $pgi ").maskFnr())
+    }
+
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
@@ -93,6 +104,10 @@ internal class LagreInntektPopp(
 }
 
 internal class UnhandledStatusCodePoppException(response: HttpResponse<String>) :
-    Exception("""Unhandled status code in PoppResponse(Status: ${response.statusCode()}. Body: ${response.body()})""".maskFnr())
+    Exception("""Unhandled status code in PoppResponse(Status: ${response.statusCode()} Body: ${response.body()})""".maskFnr())
 
 private fun List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>.isDuplicates() = map { it.key() }.toHashSet().size == size
+
+private infix fun HttpResponse<String>.errorMessage(errorMessage: String) = body().contains(errorMessage)
+
+private fun HttpResponse<String>.logString() = "PoppResponse(Status: ${statusCode()}${if(body().isEmpty())"" else " Body: ${body()}"})"

@@ -50,7 +50,19 @@ internal class LagreInntektPoppTest {
     @Test
     fun `Commits when 200 is returned from POPP`() {
         poppMockServer.`Mock 200 ok`()
-        val pgiRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> = createPgiRecords(5, 15)
+        val pgiRecords = createPgiRecords(1, 3)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        lagreInntektPopp.start(loopForever = false)
+
+        assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
+    }
+
+
+    @Test
+    fun `Commits when 400 with body PGI_001_PID_VALIDATION_FAILED is returned from POPP`() {
+        poppMockServer.`Mock 400 bad request with body`("PGI_001_PID_VALIDATION_FAILED bla bla bla")
+        val pgiRecords = createPgiRecords(5, 6)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
         lagreInntektPopp.start(loopForever = false)
@@ -59,15 +71,44 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
+    fun `Commits when 400 with body PGI_002_INNTEKT_AAR_VALIDATION_FAILED is returned from POPP`() {
+        poppMockServer.`Mock 400 bad request with body`("PGI_002_INNTEKT_AAR_VALIDATION_FAILED")
+        val pgiRecords = createPgiRecords(100, 102)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        lagreInntektPopp.start(loopForever = false)
+
+        assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
+    }
+
+    @Test
+    fun `Throws error when 400 with empty body is returned from popp`() {
+        poppMockServer.`Mock 400 bad request with body`("")
+        val pgiRecords = createPgiRecords(15, 20)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.start(loopForever = false) }
+    }
+
+    @Test
+    fun `Throws error when 400 with unknown body is returned from popp`() {
+        poppMockServer.`Mock 400 bad request with body`("Unknown body")
+        val pgiRecords = createPgiRecords(10, 20)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.start(loopForever = false) }
+    }
+
+    @Test
     fun `Republishes hendelse to consumer when 409 is returned from popp`() {
         poppMockServer.`Mock 409 conflict`()
-        val pgiRecords = createPgiRecords(10, 20)
+        val pgiRecords = createPgiRecords(10, 12)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
         lagreInntektPopp.start(loopForever = false)
 
         val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
-        assertEquals(11, republishedHendelser.size)
+        assertEquals(3, republishedHendelser.size)
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
 
