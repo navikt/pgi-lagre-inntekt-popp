@@ -78,12 +78,12 @@ internal class LagreInntektPopp(
     }
 
     private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_PidValidation").inc()
+        pgiPoppRespnseCounter.labels("${response.statusCode()}_Pid_Validation").inc()
         LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi").maskFnr())
     }
 
     private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt?) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_InnntektAarValidation").inc()
+        pgiPoppRespnseCounter.labels("${response.statusCode()}_InnntektAar_Validation").inc()
         LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi ").maskFnr())
     }
 
