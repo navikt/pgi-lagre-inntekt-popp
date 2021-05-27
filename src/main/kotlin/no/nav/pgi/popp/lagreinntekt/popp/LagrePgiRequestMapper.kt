@@ -10,29 +10,30 @@ object LagrePgiRequestMapper {
         return LagrePgiRequest(
             personIdentifikator = pensjonsgivendeInntekt.getNorskPersonidentifikator(),
             inntektsaar = pensjonsgivendeInntekt.getInntektsaar().toInt(),
-            pgiList = pensjonsgivendeInntekt.getPensjonsgivendeInntekt().map { toPgiList(it) }.flatten()
+            pgiList = pensjonsgivendeInntekt.getPensjonsgivendeInntekt().map { toPgiList(it) }.flatten(),
+            sekvensnummer = pensjonsgivendeInntekt.getMetaData().getSekvensnummer()
         )
     }
 
     private fun toPgiList(pensjonsGivendeInntekt: PensjonsgivendeInntektPerOrdning): List<Pgi> {
         val pgiList = listOf(
             toPgi(
-                createPgiType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
+                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
                 pensjonsGivendeInntekt.getPensjonsgivendeInntektAvLoennsinntekt()
             ),
             toPgi(
-                createPgiType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN_PD),
+                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN_PD),
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
                 pensjonsGivendeInntekt.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel()
             ),
             toPgi(
-                createPgiType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_NAERING),
+                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_NAERING),
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
                 pensjonsGivendeInntekt.getPensjonsgivendeInntektAvNaeringsinntekt()
             ),
             toPgi(
-                createPgiType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_NAERING_FFF),
+                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_NAERING_FFF),
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
                 pensjonsGivendeInntekt.getPensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage()
             )
@@ -50,36 +51,36 @@ object LagrePgiRequestMapper {
     private fun defaultPgiListLoenn(pensjonsGivendeInntekt: PensjonsgivendeInntektPerOrdning) =
         listOf(
             toPgi(
-                createPgiType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
+                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
                 pensjonsGivendeInntekt.getDatoForFastsetting(),
                 0L
             )
         )
 
-    private fun createPgiType(skatteordning: Skatteordning, pgiTypeUtenOrdning: PgiTypeUtenOrdning): PgiType {
+    private fun createInntektType(skatteordning: Skatteordning, pgiTypeUtenOrdning: PgiTypeUtenOrdning): InntektType {
         return when (skatteordning) {
             Skatteordning.SVALBARD -> {
                 when (pgiTypeUtenOrdning) {
-                    PgiTypeUtenOrdning.PGI_LOENN -> PgiType.SVA_PGI_LOENN
-                    PgiTypeUtenOrdning.PGI_LOENN_PD -> PgiType.SVA_PGI_LOENN_PD
-                    PgiTypeUtenOrdning.PGI_NAERING -> PgiType.SVA_PGI_NAERING
-                    PgiTypeUtenOrdning.PGI_NAERING_FFF -> PgiType.SVA_PGI_NAERING_FFF
+                    PgiTypeUtenOrdning.PGI_LOENN -> InntektType.SVA_PGI_LOENN
+                    PgiTypeUtenOrdning.PGI_LOENN_PD -> InntektType.SVA_PGI_LOENN_PD
+                    PgiTypeUtenOrdning.PGI_NAERING -> InntektType.SVA_PGI_NAERING
+                    PgiTypeUtenOrdning.PGI_NAERING_FFF -> InntektType.SVA_PGI_NAERING_FFF
                 }
             }
             Skatteordning.FASTLAND -> {
                 when (pgiTypeUtenOrdning) {
-                    PgiTypeUtenOrdning.PGI_LOENN -> PgiType.FL_PGI_LOENN
-                    PgiTypeUtenOrdning.PGI_LOENN_PD -> PgiType.FL_PGI_LOENN_PD
-                    PgiTypeUtenOrdning.PGI_NAERING -> PgiType.FL_PGI_NAERING
-                    PgiTypeUtenOrdning.PGI_NAERING_FFF -> PgiType.FL_PGI_NAERING_FFF
+                    PgiTypeUtenOrdning.PGI_LOENN -> InntektType.FL_PGI_LOENN
+                    PgiTypeUtenOrdning.PGI_LOENN_PD -> InntektType.FL_PGI_LOENN_PD
+                    PgiTypeUtenOrdning.PGI_NAERING -> InntektType.FL_PGI_NAERING
+                    PgiTypeUtenOrdning.PGI_NAERING_FFF -> InntektType.FL_PGI_NAERING_FFF
                 }
             }
             Skatteordning.KILDESKATT_PAA_LOENN -> {
                 when (pgiTypeUtenOrdning) {
-                    PgiTypeUtenOrdning.PGI_LOENN -> PgiType.KSL_PGI_LOENN
-                    PgiTypeUtenOrdning.PGI_LOENN_PD -> PgiType.KSL_PGI_LOENN_PD
-                    PgiTypeUtenOrdning.PGI_NAERING -> PgiType.KSL_PGI_NAERING
-                    PgiTypeUtenOrdning.PGI_NAERING_FFF -> PgiType.KSL_PGI_NAERING_FFF
+                    PgiTypeUtenOrdning.PGI_LOENN -> InntektType.KSL_PGI_LOENN
+                    PgiTypeUtenOrdning.PGI_LOENN_PD -> InntektType.KSL_PGI_LOENN_PD
+                    PgiTypeUtenOrdning.PGI_NAERING -> InntektType.KSL_PGI_NAERING
+                    PgiTypeUtenOrdning.PGI_NAERING_FFF -> InntektType.KSL_PGI_NAERING_FFF
                 }
             }
             else -> {
@@ -88,9 +89,9 @@ object LagrePgiRequestMapper {
         }
     }
 
-    private fun toPgi(pgiType: PgiType, datoForFastsetting: String, belop: Long?) =
+    private fun toPgi(inntektType: InntektType, datoForFastsetting: String, belop: Long?) =
         Pgi(
-            pgiType = pgiType,
+            inntektType = inntektType,
             datoForFastsetting = datoForFastsetting,
             belop = belop
         )

@@ -7,16 +7,17 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 internal data class LagrePgiRequest(
     val personIdentifikator: String,
     val inntektsaar: Int,
+    val sekvensnummer: Long,
     val pgiList: List<Pgi> = emptyList(),
 )
 
 internal data class Pgi(
-    val pgiType: PgiType,
+    val inntektType: InntektType,
     val datoForFastsetting: String,
     val belop: Long?
 )
 
-internal enum class PgiType {
+internal enum class InntektType {
     FL_PGI_LOENN,
     FL_PGI_LOENN_PD,
     FL_PGI_NAERING,

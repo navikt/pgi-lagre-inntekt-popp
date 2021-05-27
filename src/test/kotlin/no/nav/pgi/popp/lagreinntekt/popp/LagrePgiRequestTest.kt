@@ -2,7 +2,7 @@ package no.nav.pgi.popp.lagreinntekt.popp
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import no.nav.pgi.popp.lagreinntekt.popp.PgiType.*
+import no.nav.pgi.popp.lagreinntekt.popp.InntektType.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -16,6 +16,7 @@ internal class LagrePgiRequestTest {
     private val inntektsAar = 2020
     private val datoForFastsetting = "2020-01-01"
     private val belop = 1L
+    private val sekvensnummer = 5L
 
     @Test
     fun `map LagrePgiRequest to json string`() {
@@ -23,24 +24,25 @@ internal class LagrePgiRequestTest {
             {
                 "personIdentifikator": "$personIdentifikator",
                 "inntektsaar": $inntektsAar,
+                "sekvensnummer": $sekvensnummer,
                 "pgiList": [
                     {
-                        "pgiType": "FL_PGI_LOENN",
+                        "inntektType": "FL_PGI_LOENN",
                         "datoForFastsetting": "$datoForFastsetting",
                         "belop": $belop
                     },
                     {
-                        "pgiType": "FL_PGI_NAERING",
+                        "inntektType": "FL_PGI_NAERING",
                         "datoForFastsetting": "$datoForFastsetting",
                         "belop": $belop
                     },
                     {
-                        "pgiType": "FL_PGI_LOENN_PD",
+                        "inntektType": "FL_PGI_LOENN_PD",
                         "datoForFastsetting": "$datoForFastsetting",
                         "belop": $belop
                     },
                     {
-                        "pgiType": "FL_PGI_NAERING_FFF",
+                        "inntektType": "FL_PGI_NAERING_FFF",
                         "datoForFastsetting": "$datoForFastsetting",
                         "belop": $belop
                     }
@@ -66,9 +68,10 @@ internal class LagrePgiRequestTest {
             {
                 "personIdentifikator": "$personIdentifikator",
                 "inntektsaar": $inntektsAar,
+                "sekvensnummer": $sekvensnummer,
                 "pgiList": [
                     {
-                        "pgiType": "FL_PGI_LOENN",
+                        "inntektType": "FL_PGI_LOENN",
                         "datoForFastsetting": "$datoForFastsetting",
                         "belop": null
                     }
@@ -76,24 +79,22 @@ internal class LagrePgiRequestTest {
             }
         """
 
-        val jsonRequest = createLagrePgiRequest(pgiList = listOf(createPgi(pgiType = FL_PGI_LOENN, pgiBelop = null)))
+        val jsonRequest = createLagrePgiRequest(pgiList = listOf(createPgi(inntektType = FL_PGI_LOENN, pgiBelop = null)))
             .toJson()
 
         assertEquals(mapper.readTree(expectedJson), mapper.readTree(jsonRequest))
     }
 
-    @Test
-    fun `map PgiOrdninger to json string`() {
-
-    }
-
     private fun createLagrePgiRequest(
-        identifikator: String = personIdentifikator, aar: Int = inntektsAar, pgiList: List<Pgi> = listOf(createPgi()),
-    ) = LagrePgiRequest(personIdentifikator = identifikator, inntektsaar = aar, pgiList = pgiList)
+        identifikator: String = personIdentifikator,
+        aar: Int = inntektsAar,
+        pgiList: List<Pgi> = listOf(createPgi()),
+        sekvensnr: Long = sekvensnummer
+    ) = LagrePgiRequest(personIdentifikator = identifikator, inntektsaar = aar, pgiList = pgiList, sekvensnummer = sekvensnr)
 
     private fun createPgi(
-        pgiType: PgiType = FL_PGI_LOENN, datoForFastSetting: String = datoForFastsetting, pgiBelop: Long? = belop,
-    ) = Pgi(pgiType = pgiType, datoForFastsetting = datoForFastSetting, belop = pgiBelop)
+        inntektType: InntektType = FL_PGI_LOENN, datoForFastSetting: String = datoForFastsetting, pgiBelop: Long? = belop,
+    ) = Pgi(inntektType = inntektType, datoForFastsetting = datoForFastSetting, belop = pgiBelop)
 
 
 }
