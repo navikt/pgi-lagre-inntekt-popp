@@ -21,10 +21,7 @@ private val pgiPoppRespnseCounter = Counter.build()
     .help("Count response status codes from popp")
     .register()
 
-internal class LagreInntektPopp(
-    private val poppClient: PoppClient,
-    kafkaFactory: KafkaFactory = KafkaInntektFactory()
-) {
+internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory: KafkaFactory = KafkaInntektFactory()) {
     private val pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
     private val republiserHendelseProducer = RepubliserHendelseProducer(kafkaFactory)
 
@@ -32,13 +29,12 @@ internal class LagreInntektPopp(
 
     internal fun start(loopForever: Boolean = true) {
         do try {
-            val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> =
-                pgiConsumer.pollInntektRecords()
-            //val delayRequestsToPopp = inntektRecords.isDuplicates()
+            val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> = pgiConsumer.pollInntektRecords()
+            val delayRequestsToPopp = inntektRecords.isDuplicates()
+            if (delayRequestsToPopp) LOG.info("More than one of the same fnr in polled records, delaying calls to popp for ${inntektRecords.size} records")
             inntektRecords.forEach { inntektRecord ->
-                //if (delayRequestsToPopp) Thread.sleep(50L)
+                if (delayRequestsToPopp) Thread.sleep(30L)
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
-
                 when {
                     response.statusCode() == 200 -> logSuccessfulRequestToPopp(response, inntektRecord.value())
                     response.statusCode() == 400 && response errorMessage "PGI_001_PID_VALIDATION_FAILED" -> logPidValidationFailed(response, inntektRecord.value())
@@ -105,7 +101,7 @@ internal class LagreInntektPopp(
 internal class UnhandledStatusCodePoppException(response: HttpResponse<String>) :
     Exception("""Unhandled status code in PoppResponse(Status: ${response.statusCode()} Body: ${response.body()})""".maskFnr())
 
-private fun List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>.isDuplicates() = map { it.key() }.toHashSet().size == size
+private fun List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>.isDuplicates() = map { it.key() }.toHashSet().size != size
 
 private infix fun HttpResponse<String>.errorMessage(errorMessage: String) = body().contains(errorMessage)
 
