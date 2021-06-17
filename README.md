@@ -18,6 +18,7 @@ export GITHUB_ACTOR="username"
 export GITHUB_TOKEN="token"
 ```
 
+
 #### Metrikker
 Grafana dashboards brukes for å f.eks. monitorere minne, cpu-bruk og andre metrikker.
 Se [pgi-lagre-inntekt-popp grafana dasboard](https://grafana.adeo.no/) TODO: Fiks link
