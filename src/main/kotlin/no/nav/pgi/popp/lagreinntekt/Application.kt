@@ -41,7 +41,6 @@ internal class Application(
 
     internal fun startLagreInntektPopp(loopForever: Boolean = true) {
         try {
-            SECURE_LOG.warn("test secure log")
             started.set(true)
             lagreInntektPopp.start(loopForever)
         } catch (e: Throwable) {
