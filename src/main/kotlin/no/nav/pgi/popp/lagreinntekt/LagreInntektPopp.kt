@@ -27,9 +27,15 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private var stop: AtomicBoolean = AtomicBoolean(false)
 
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
+        private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
+    }
+
     internal fun start(loopForever: Boolean = true) {
         do try {
-            val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> = pgiConsumer.pollInntektRecords()
+            val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> =
+                pgiConsumer.pollInntektRecords()
             val delayRequestsToPopp = inntektRecords.isDuplicates()
             if (delayRequestsToPopp) LOG.info("More than one of the same fnr in polled records, delaying calls to popp for ${inntektRecords.size} records")
             inntektRecords.forEach { inntektRecord ->
@@ -70,31 +76,32 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_OK").inc()
-        LOG.info("Successfully added to POPP. ${response.logString()}. For pgi: ${pgi.toString().maskFnr()}")
+        LOG.info("Successfully added to POPP")
+        SECURE_LOG.info("Successfully added to POPP. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_Pid_Validation").inc()
-        LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi").maskFnr())
+        LOG.warn("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate")
+        SECURE_LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi"))
     }
 
     private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt?) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_InnntektAar_Validation").inc()
-        LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi ").maskFnr())
+        LOG.warn("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi.")
+        SECURE_LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi "))
     }
 
     private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_Republish").inc()
-        LOG.warn(("Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi").maskFnr())
+        LOG.warn("Failed when adding to POPP. Initiating republishing.")
+        SECURE_LOG.warn(("Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi"))
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_ShutDown").inc()
-        LOG.error(("Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi ").maskFnr())
-    }
-
-    private companion object {
-        private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
+        LOG.error("Failed when adding to POPP. Initiating shutdown.")
+        SECURE_LOG.error(("Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi "))
     }
 }
 

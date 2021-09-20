@@ -1,6 +1,5 @@
 package no.nav.pgi.popp.lagreinntekt.kafka.republish
 
-import no.nav.pensjon.samhandling.maskfnr.maskFnr
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_REPUBLISERING_TOPIC
 import no.nav.samordning.pgi.schema.Hendelse
@@ -17,10 +16,17 @@ internal class RepubliserHendelseProducer(kafkaFactory: KafkaFactory) {
     private val producer: Producer<HendelseKey, Hendelse> = kafkaFactory.hendelseProducer()
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
+    companion object {
+        private val LOG = LoggerFactory.getLogger(RepubliserHendelseProducer::class.java)
+        private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
+    }
+
     internal fun send(consumerRecord: ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>) {
-        val hendelseRecord = ProducerRecord(PGI_HENDELSE_REPUBLISERING_TOPIC, consumerRecord.key(), toHendelse(consumerRecord))
+        val hendelseRecord =
+            ProducerRecord(PGI_HENDELSE_REPUBLISERING_TOPIC, consumerRecord.key(), toHendelse(consumerRecord))
         producer.send(hendelseRecord).get()
-        LOG.warn("Republiserer ${hendelseRecord.value()} to $PGI_HENDELSE_REPUBLISERING_TOPIC".maskFnr())
+        LOG.info("Republiserer hendelse")
+        SECURE_LOG.info("Republiserer ${hendelseRecord.value()} to $PGI_HENDELSE_REPUBLISERING_TOPIC")
     }
 
     internal fun close() {
@@ -38,9 +44,5 @@ internal class RepubliserHendelseProducer(kafkaFactory: KafkaFactory) {
             consumerRecord.key().getGjelderPeriode(),
             HendelseMetadata(consumerRecord.value().getMetaData().getRetries())
         )
-    }
-
-    companion object {
-        private val LOG = LoggerFactory.getLogger(RepubliserHendelseProducer::class.java)
     }
 }
