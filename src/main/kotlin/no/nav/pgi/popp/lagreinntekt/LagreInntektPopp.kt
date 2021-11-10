@@ -76,7 +76,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_OK").inc()
-        LOG.info("""Successfully added to POPP. ${response.logString()}. For pgi: $pgi""".maskFnr())
+        LOG.info("Successfully added to POPP. (Status: ${response.statusCode()}) For sekvensnummer: ${pgi.getMetaData().getSekvensnummer()}")
         SECURE_LOG.info("Successfully added to POPP. ${response.logString()}. For pgi: $pgi")
     }
 
