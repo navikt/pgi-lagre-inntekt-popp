@@ -88,8 +88,8 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt?) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_InnntektAar_Validation").inc()
-        LOG.info("""Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi """.maskFnr())
-        SECURE_LOG.info("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi ")
+        LOG.info("""Inntektaar is not valid for pgi. Inntekt will be descarded. ${response.logString()}. For pgi: $pgi """.maskFnr())
+        SECURE_LOG.info("Inntektaar is not valid for pgi. Inntekt will be descarded.. ${response.logString()}. For pgi: $pgi ")
     }
 
     private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
