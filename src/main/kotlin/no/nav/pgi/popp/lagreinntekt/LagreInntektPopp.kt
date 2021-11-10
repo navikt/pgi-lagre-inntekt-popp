@@ -76,32 +76,32 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_OK").inc()
-        LOG.info("Successfully added to POPP")
+        LOG.info("""Successfully added to POPP. ${response.logString()}. For pgi: $pgi""".maskFnr())
         SECURE_LOG.info("Successfully added to POPP. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_Pid_Validation").inc()
-        LOG.warn("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate")
-        SECURE_LOG.warn(("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi"))
+        LOG.warn("""Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi""".maskFnr())
+        SECURE_LOG.warn("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt?) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_InnntektAar_Validation").inc()
-        LOG.info("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi.")
-        SECURE_LOG.info(("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi "))
+        LOG.info("""Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi """.maskFnr())
+        SECURE_LOG.info("Failed when adding to POPP. Inntekt will be descarded. Inntektaar is not valid for pgi. ${response.logString()}. For pgi: $pgi ")
     }
 
     private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_Republish").inc()
-        LOG.warn("Failed when adding to POPP. Initiating republishing.")
-        SECURE_LOG.warn(("Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi"))
+        LOG.warn("""Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr())
+        SECURE_LOG.warn("Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_ShutDown").inc()
-        LOG.error("Failed when adding to POPP. Initiating shutdown.")
-        SECURE_LOG.error(("Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi "))
+        LOG.error("""Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi """.maskFnr())
+        SECURE_LOG.error("Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi ")
     }
 }
 
