@@ -40,7 +40,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
             if (delayRequestsToPopp) LOG.info("More than one of the same fnr in polled records, delaying calls to popp for ${inntektRecords.size} records")
             inntektRecords.forEach { inntektRecord ->
                 if (delayRequestsToPopp) Thread.sleep(30L)
-                LOG.info("Starter lagring i POPP. {\"sekvensnummer\": ${inntektRecord.value().getMetaData().getSekvensnummer()}}")
+                LOG.info("Kaller POPP for lagring av pgi. {\"sekvensnummer\": ${inntektRecord.value().getMetaData().getSekvensnummer()}}")
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
                 when {
                     response.statusCode() == 200 -> logSuccessfulRequestToPopp(response, inntektRecord.value())
