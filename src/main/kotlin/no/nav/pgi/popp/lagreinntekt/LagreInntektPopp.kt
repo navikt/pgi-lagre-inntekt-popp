@@ -40,6 +40,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
             if (delayRequestsToPopp) LOG.info("More than one of the same fnr in polled records, delaying calls to popp for ${inntektRecords.size} records")
             inntektRecords.forEach { inntektRecord ->
                 if (delayRequestsToPopp) Thread.sleep(30L)
+                LOG.info("Starter lagring i POPP. {\"sekvensnummer\": ${inntektRecord.value().getMetaData().getSekvensnummer()}}")
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
                 when {
                     response.statusCode() == 200 -> logSuccessfulRequestToPopp(response, inntektRecord.value())
@@ -76,8 +77,8 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_OK").inc()
-        LOG.info("Successfully added to POPP. (Status: ${response.statusCode()}) For sekvensnummer: ${pgi.getMetaData().getSekvensnummer()}")
-        SECURE_LOG.info("Successfully added to POPP. ${response.logString()}. For pgi: $pgi")
+        LOG.info("Lagret OK i POPP. (Status: ${response.statusCode()}) {\"sekvensnummer\": ${pgi.getMetaData().getSekvensnummer()}}")
+        SECURE_LOG.info("Lagret OK i POPP. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
