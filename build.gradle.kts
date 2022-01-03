@@ -13,7 +13,7 @@ val micrometerVersion = "1.8.1"
 val logbackClassicVersion = "1.2.9"
 val logstashLogbackEncoder = "5.2"
 val slf4jVersion = "1.7.30"
-val log4jVersion = "2.17.0"
+val log4jVersion = "2.17.1"
 
 val junitJupiterVersion = "5.8.2"
 val wiremockVersion = "2.27.2"
