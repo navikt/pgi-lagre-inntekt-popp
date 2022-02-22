@@ -11,7 +11,8 @@ import kotlin.system.exitProcess
 fun main() {
     val application = Application()
     try {
-        application.startLagreInntektPopp()
+        while(true) Thread.sleep(500)
+        //application.startLagreInntektPopp()
     } catch (e: Exception) {
         application.stop()
     } finally {
