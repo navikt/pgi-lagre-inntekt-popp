@@ -27,6 +27,7 @@ jobs:
         env:
           NAME: pgi-lagre-inntekt-popp
         run: |
+          echo "ghcr.io"/"$GITHUB_REPOSITORY"/"$NAME" > .docker_image_ghcr
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME" > .docker_image
           echo "$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" > .docker_tag
       - name: Build Docker image
@@ -39,14 +40,15 @@ jobs:
         run: |
           echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
           echo "IMAGE=$(cat .docker_image):$(cat .docker_tag)" >> $GITHUB_ENV
+          echo "IMAGE_LOCATION=$(cat .docker_image_ghcr):$(cat .docker_tag)" >> $GITHUB_ENV
       - name: Push Docker image
         run: "docker push $(cat .docker_image):$(cat .docker_tag)"
 
-      # Deploy to GCP dev
-      - name: Deploy pgi-lagre-inntekt-popp (dev-gcp)
+      # Deploy to GCP prod
+      - name: Deploy pgi-lagre-inntekt-popp (prod-gcp)
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: nais-gcp-prod.yaml
-          IMAGE: ${{ env.IMAGE }}
+          IMAGE: ${{ env.IMAGE_LOCATION }}
