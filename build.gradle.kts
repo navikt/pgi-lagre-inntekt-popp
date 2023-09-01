@@ -112,3 +112,4 @@ tasks.withType<Test> {
         exceptionFormat = FULL
     }
 }
+
