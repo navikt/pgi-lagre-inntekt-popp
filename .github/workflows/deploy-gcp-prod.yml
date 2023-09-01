@@ -9,6 +9,9 @@ jobs:
   deploy-to-dev:
     name: Deploy to prod-gcp
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       # Checkout
       - uses: actions/checkout@v2
