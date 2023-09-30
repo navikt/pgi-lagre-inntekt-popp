@@ -6,24 +6,25 @@ val confluentVersion = "5.5.1"
 val ktorVersion = "1.3.2-1.4.0-rc"
 val msal4jVersion = "1.8.0"
 
-val ktorSupportVersion = "0.0.19"
+val ktorSupportVersion = "0.0.24"
 val pgiSchemaVersion = "0.0.7"
 
-val micrometerVersion = "1.8.1"
-val logbackClassicVersion = "1.2.9"
+val micrometerVersion = "1.11.4"
+val logbackClassicVersion = "1.4.11"
 val logstashLogbackEncoder = "5.2"
 val slf4jVersion = "1.7.30"
 val log4jVersion = "2.17.1"
 
-val junitJupiterVersion = "5.8.2"
+val junitJupiterVersion = "5.10.0"
 val wiremockVersion = "2.27.2"
 val kafkaEmbeddedEnvVersion = "2.5.0"
 
 group = "no.nav.pgi"
 
 plugins {
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.serialization") version "1.6.10"
+    kotlin("jvm") version "1.9.10"
+    kotlin("plugin.serialization") version "1.9.10"
+    id("com.github.ben-manes.versions") version "0.48.0"
 }
 
 java {
