@@ -11,9 +11,9 @@ val pgiSchemaVersion = "0.0.7"
 
 val micrometerVersion = "1.11.4"
 val logbackClassicVersion = "1.4.11"
-val logstashLogbackEncoder = "5.2"
-val slf4jVersion = "1.7.30"
-val log4jVersion = "2.17.1"
+val logstashLogbackEncoder = "5.2" // todo: fails if upgraded
+val slf4jVersion = "2.0.9"
+val log4jVersion = "2.20.0"
 
 val junitJupiterVersion = "5.10.0"
 val wiremockVersion = "2.27.2"
