@@ -1,10 +1,10 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kafkaVersion = "2.5.0"
+val kafkaVersion = "2.8.2"
 val confluentVersion = "5.5.1"
 val ktorVersion = "1.3.2-1.4.0-rc"
-val msal4jVersion = "1.8.0"
+val msal4jVersion = "1.8.1"
 
 val ktorSupportVersion = "0.0.24"
 val pgiSchemaVersion = "0.0.7"
