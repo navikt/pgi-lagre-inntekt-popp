@@ -24,7 +24,7 @@ group = "no.nav.pgi"
 plugins {
     kotlin("jvm") version "1.9.10"
     kotlin("plugin.serialization") version "1.9.10"
-    id("com.github.ben-manes.versions") version "0.48.0"
+    id("com.github.ben-manes.versions") version "0.49.0"
 }
 
 java {
@@ -34,7 +34,6 @@ java {
 }
 
 repositories {
-    jcenter()
     mavenCentral()
     maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
@@ -99,6 +98,7 @@ tasks.named<Jar>("jar") {
 
     doLast {
         configurations.runtimeClasspath.get().forEach {
+            val buildDir = layout.buildDirectory.get()
             val file = File("$buildDir/libs/${it.name}")
             if (!file.exists())
                 it.copyTo(file)
@@ -113,4 +113,3 @@ tasks.withType<Test> {
         exceptionFormat = FULL
     }
 }
-
