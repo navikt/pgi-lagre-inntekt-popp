@@ -19,6 +19,15 @@ val junitJupiterVersion = "5.10.0"
 val wiremockVersion = "2.27.2"
 val kafkaEmbeddedEnvVersion = "2.5.0"
 
+val jacksonVersion = "2.15.2"
+val guavaVersion = "32.1.2-jre"
+val httpClientVersion = "4.5.14"
+val gsonVersion = "2.10.1"
+val commonsCompressVersion = "1.24.0"
+val commonsCodecVersion = "1.16.0"
+val commonsIoVersion = "2.14.0"
+val jsonVersion = "20230618"
+
 group = "no.nav.pgi"
 
 plugins {
@@ -72,6 +81,16 @@ dependencies {
 
     implementation("com.microsoft.azure:msal4j:$msal4jVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
+
+    // Overstyrer noen transitive avhengigheter (mest pga sikkerhet)
+    // implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion") -- breaks kafka
+    implementation("com.google.guava:guava:$guavaVersion")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("org.apache.commons:commons-compress:$commonsCompressVersion")
+    implementation("commons-codec:commons-codec:$commonsCodecVersion")
+    implementation("commons-io:commons-io:$commonsIoVersion")
+    implementation("org.json:json:$jsonVersion")
+    testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
