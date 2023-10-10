@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kafkaVersion = "2.8.2"
 val confluentVersion = "5.5.1"
-val ktorVersion = "1.3.2-1.4.0-rc"
+val ktorVersion = "1.5.4"
 val msal4jVersion = "1.8.1"
 
 val ktorSupportVersion = "0.0.24"
