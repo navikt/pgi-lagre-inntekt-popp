@@ -19,7 +19,7 @@ val junitJupiterVersion = "5.10.0"
 val wiremockVersion = "2.27.2"
 val kafkaEmbeddedEnvVersion = "2.5.0"
 
-val jacksonVersion = "2.15.2"
+// val jacksonVersion = "2.15.2"
 val guavaVersion = "32.1.2-jre"
 val httpClientVersion = "4.5.14"
 val gsonVersion = "2.10.1"
@@ -27,6 +27,8 @@ val commonsCompressVersion = "1.24.0"
 val commonsCodecVersion = "1.16.0"
 val commonsIoVersion = "2.14.0"
 val jsonVersion = "20230618"
+val snakeYamlVersion = "1.33" // har sikkerhetshull, men kan ikke oppdatere videre til 2.x pga spring
+val snappyJavaVersion = "1.1.10.5"
 
 group = "no.nav.pgi"
 
@@ -90,6 +92,8 @@ dependencies {
     implementation("commons-codec:commons-codec:$commonsCodecVersion")
     implementation("commons-io:commons-io:$commonsIoVersion")
     implementation("org.json:json:$jsonVersion")
+    implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion")
+    implementation("org.yaml:snakeyaml:$snakeYamlVersion")
     testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
