@@ -26,7 +26,7 @@ val gsonVersion = "2.10.1"
 val commonsCompressVersion = "1.24.0"
 val commonsCodecVersion = "1.16.0"
 val commonsIoVersion = "2.14.0"
-val jsonVersion = "20230618"
+val jsonVersion = "20231013"
 val snakeYamlVersion = "1.33" // har sikkerhetshull, men kan ikke oppdatere videre til 2.x pga spring
 val snappyJavaVersion = "1.1.10.5"
 
