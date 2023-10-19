@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kafkaVersion = "2.8.2"
+val kafkaVersion = "3.6.0"
 val confluentVersion = "5.5.1"
 val ktorVersion = "1.5.4"
 val msal4jVersion = "1.8.1"
@@ -9,7 +9,7 @@ val msal4jVersion = "1.8.1"
 val ktorSupportVersion = "0.0.24"
 val pgiSchemaVersion = "0.0.7"
 
-val micrometerVersion = "1.11.4"
+val micrometerVersion = "1.11.5"
 val logbackClassicVersion = "1.4.11"
 val logstashLogbackEncoder = "5.2" // todo: fails if upgraded
 val slf4jVersion = "2.0.9"
@@ -20,13 +20,13 @@ val wiremockVersion = "2.27.2"
 val kafkaEmbeddedEnvVersion = "2.5.0"
 
 // val jacksonVersion = "2.15.2"
-val guavaVersion = "32.1.2-jre"
+val guavaVersion = "32.1.3-jre"
 val httpClientVersion = "4.5.14"
 val gsonVersion = "2.10.1"
 val commonsCompressVersion = "1.24.0"
 val commonsCodecVersion = "1.16.0"
 val commonsIoVersion = "2.14.0"
-val jsonVersion = "20230618"
+val jsonVersion = "20231013"
 val snakeYamlVersion = "1.33" // har sikkerhetshull, men kan ikke oppdatere videre til 2.x pga spring
 val snappyJavaVersion = "1.1.10.5"
 
