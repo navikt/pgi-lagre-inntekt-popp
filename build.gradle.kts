@@ -10,7 +10,7 @@ val ktorSupportVersion = "0.0.24"
 val pgiSchemaVersion = "0.0.7"
 
 val micrometerVersion = "1.11.5"
-val logbackClassicVersion = "1.4.11"
+val logbackClassicVersion = "1.4.12"
 val logstashLogbackEncoder = "5.2" // todo: fails if upgraded
 val slf4jVersion = "2.0.9"
 val log4jVersion = "2.20.0"
