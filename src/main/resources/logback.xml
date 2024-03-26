@@ -17,10 +17,6 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <logger name="no.nav.pgi.popp.lagreinntekt" level="DEBUG" additivity="false">
-        <appender-ref ref="STDOUT_JSON" />
-    </logger>
-
     <logger name="tjenestekall" level="DEBUG" additivity="false">
         <appender-ref ref="secureLog" />
     </logger>
