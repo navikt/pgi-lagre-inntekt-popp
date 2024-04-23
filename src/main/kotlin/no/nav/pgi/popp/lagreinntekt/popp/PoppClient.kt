@@ -1,13 +1,10 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
 import no.nav.pensjon.samhandling.env.getVal
-import no.nav.pensjon.samhandling.maskfnr.maskFnr
-import no.nav.pgi.popp.lagreinntekt.LagreInntektPopp
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient.AadToken
 import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -15,7 +12,6 @@ import java.net.http.HttpResponse
 import javax.ws.rs.core.UriBuilder
 
 internal const val PGI_PATH = "/popp/api/inntekt/pgi"
-private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
 
 internal class PoppClient(
     environment: Map<String, String>,
@@ -50,8 +46,3 @@ internal class PoppClient(
         private const val POPP_URL = "POPP_URL"
     }
 }
-
-internal fun createTraceString(pensjonsgivendeInntekt: PensjonsgivendeInntekt) =
-    createTraceString(pensjonsgivendeInntekt.getMetaData().getSekvensnummer())
-
-internal fun createTraceString(sekvensnummer: Long?) = """ ("sekvensnummer": $sekvensnummer)"""

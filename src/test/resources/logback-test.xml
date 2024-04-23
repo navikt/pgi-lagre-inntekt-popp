@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <appender name="STDOUT_PLAIN" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>[%d, %-5p, %c:%L, %t] - %mdc %m%n</pattern>
-        </encoder>
+    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <logger name="no.nav.pgi.popp.lagreinntekt" level="DEBUG" />
+    <logger name="no.nav.pgi.popp.lagreinntekt" level="INFO" />
 
-    <root level="WARN">
-        <appender-ref ref="STDOUT_PLAIN" />
+    <root level="INFO">
+        <appender-ref ref="STDOUT_JSON" />
     </root>
 </configuration>

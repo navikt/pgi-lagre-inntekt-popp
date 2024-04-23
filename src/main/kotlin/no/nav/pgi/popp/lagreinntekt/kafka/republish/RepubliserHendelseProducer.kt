@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt.kafka.republish
 
+import net.logstash.logback.marker.Markers
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_REPUBLISERING_TOPIC
 import no.nav.samordning.pgi.schema.Hendelse
@@ -25,8 +26,8 @@ internal class RepubliserHendelseProducer(kafkaFactory: KafkaFactory) {
         val hendelseRecord =
             ProducerRecord(PGI_HENDELSE_REPUBLISERING_TOPIC, consumerRecord.key(), toHendelse(consumerRecord))
         producer.send(hendelseRecord).get()
-        LOG.info("Republiserer hendelse")
-        SECURE_LOG.info("Republiserer ${hendelseRecord.value()} to $PGI_HENDELSE_REPUBLISERING_TOPIC")
+        LOG.info(Markers.append("sekvensnummer", hendelseRecord.value().getSekvensnummer()),"Republiserer hendelse. Sekvensnummer: ${hendelseRecord.value().getSekvensnummer()} Retries: ${hendelseRecord.value().getMetaData().getRetries()}")
+        SECURE_LOG.info(Markers.append("sekvensnummer", hendelseRecord.value().getSekvensnummer()), "Republiserer hendelse. Sekvensnummer: ${hendelseRecord.value().getSekvensnummer()} Retries: ${hendelseRecord.value().getMetaData().getRetries()} Values: ${hendelseRecord.value()} to $PGI_HENDELSE_REPUBLISERING_TOPIC")
     }
 
     internal fun close() {

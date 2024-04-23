@@ -1,6 +1,7 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import io.prometheus.client.Counter
+import net.logstash.logback.marker.Markers
 import no.nav.pensjon.samhandling.maskfnr.maskFnr
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
@@ -40,7 +41,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
             if (delayRequestsToPopp) LOG.info("More than one of the same fnr in polled records, delaying calls to popp for ${inntektRecords.size} records")
             inntektRecords.forEach { inntektRecord ->
                 if (delayRequestsToPopp) Thread.sleep(30L)
-                LOG.info("Kaller POPP for lagring av pgi. {\"sekvensnummer\": ${inntektRecord.value().getMetaData().getSekvensnummer()}}")
+                LOG.info(Markers.append("sekvensnummer", inntektRecord.value().getMetaData().getSekvensnummer()), "Kaller POPP for lagring av pgi. Sekvensnummer: ${inntektRecord.value().getMetaData().getSekvensnummer()}")
                 val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
                 when {
                     response.statusCode() == 200 -> logSuccessfulRequestToPopp(response, inntektRecord.value())
@@ -77,32 +78,32 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_OK").inc()
-        LOG.info("Lagret OK i POPP. (Status: ${response.statusCode()}) {\"sekvensnummer\": ${pgi.getMetaData().getSekvensnummer()}}")
-        SECURE_LOG.info("Lagret OK i POPP. ${response.logString()}. For pgi: $pgi")
+        LOG.info(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Lagret OK i POPP. (Status: ${response.statusCode()}) Sekvensnummer: ${pgi.getMetaData().getSekvensnummer()}")
+        SECURE_LOG.info(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Lagret OK i POPP. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_Pid_Validation").inc()
-        LOG.warn("""Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi""".maskFnr())
-        SECURE_LOG.warn("Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi")
+        LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi""".maskFnr())
+        SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi")
     }
 
-    private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt?) {
+    private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_InnntektAar_Validation").inc()
-        LOG.info("""Inntektaar is not valid for pgi. Inntekt will be descarded. ${response.logString()}. For pgi: $pgi """.maskFnr())
-        SECURE_LOG.info("Inntektaar is not valid for pgi. Inntekt will be descarded.. ${response.logString()}. For pgi: $pgi ")
+        LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Inntektaar is not valid for pgi. Inntekt will be descarded. ${response.logString()}. For pgi: $pgi """.maskFnr())
+        SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Inntektaar is not valid for pgi. Inntekt will be descarded.. ${response.logString()}. For pgi: $pgi ")
     }
 
     private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_Republish").inc()
-        LOG.warn("""Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr())
-        SECURE_LOG.warn("Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi")
+        LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr())
+        SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_ShutDown").inc()
-        LOG.error("""Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi """.maskFnr())
-        SECURE_LOG.error("Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi ")
+        LOG.error(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi """.maskFnr())
+        SECURE_LOG.error(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi ")
     }
 }
 

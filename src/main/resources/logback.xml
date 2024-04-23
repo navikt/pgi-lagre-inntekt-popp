@@ -17,11 +17,11 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <logger name="tjenestekall" level="DEBUG" additivity="false">
+    <logger name="tjenestekall" level="INFO" additivity="false">
         <appender-ref ref="secureLog" />
     </logger>
 
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="STDOUT_JSON" />
     </root>
 </configuration>
