@@ -47,7 +47,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
                     response.statusCode() == 200 -> logSuccessfulRequestToPopp(response, inntektRecord.value())
                     response.statusCode() == 400 && response errorMessage "PGI_001_PID_VALIDATION_FAILED" -> logPidValidationFailed(response, inntektRecord.value())
                     response.statusCode() == 400 && response errorMessage "PGI_002_INNTEKT_AAR_VALIDATION_FAILED" -> logInntektAarValidationFailed(response, inntektRecord.value())
-                    response.statusCode() == 409 -> {
+                    response.statusCode() == 409 && response errorMessage "Bruker eksisterer ikke i PEN" -> {
                         logRepublishingFailedInntekt(response, inntektRecord.value())
                         republiserHendelseProducer.send(inntektRecord)
                     }
@@ -96,8 +96,8 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
 
     private fun logRepublishingFailedInntekt(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         pgiPoppRespnseCounter.labels("${response.statusCode()}_Republish").inc()
-        LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr())
-        SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi")
+        LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr())
+        SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {

@@ -26,11 +26,11 @@ internal class PoppMockServer {
     init {
         poppApiMockServer.start()
 
-        mockResponseFromPopp(FNR_NR2_409, aResponse().withStatus(409))
-        mockResponseFromPopp(FNR_NR1_409, aResponse().withStatus(409))
-        mockResponseFromPopp(FNR_NR3_409, aResponse().withStatus(409))
-        mockResponseFromPopp(FNR_NR4_409, aResponse().withStatus(409))
-        mockResponseFromPopp(FNR_NR5_409, aResponse().withStatus(409))
+        mockResponseFromPopp(FNR_NR2_409, aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
+        mockResponseFromPopp(FNR_NR1_409, aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
+        mockResponseFromPopp(FNR_NR3_409, aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
+        mockResponseFromPopp(FNR_NR4_409, aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
+        mockResponseFromPopp(FNR_NR5_409, aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
 
         mockResponseFromPopp(FNR_NR1_200, ok())
         mockResponseFromPopp(FNR_NR2_200, ok())
@@ -68,7 +68,7 @@ internal class PoppMockServer {
         poppApiMockServer.stubFor(
             post(urlPathEqualTo(PGI_PATH))
                 .atPriority(10)
-                .willReturn(aResponse().withStatus(409))
+                .willReturn(aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
         )
     }
 
