@@ -185,7 +185,7 @@ internal class LagrePgiRequestMapperTest {
 
 private fun LagrePgiRequest.getPgiBelop(inntektType: InntektType) = pgiList.find { it.inntektType == inntektType }?.belop
 
-private fun LagrePgiRequest.countPgiWithDate(date: String) = pgiList.filter { pgi -> pgi.datoForFastsetting == date }.count()
+private fun LagrePgiRequest.countPgiWithDate(date: String) = pgiList.count { pgi -> pgi.datoForFastsetting == date }
 
 private fun PensjonsgivendeInntekt.getPensjonsgivendeInntekt(skatteOrdning: Skatteordning): PensjonsgivendeInntektPerOrdning =
     getPensjonsgivendeInntekt().find { it.getSkatteordning() == skatteOrdning }!!
