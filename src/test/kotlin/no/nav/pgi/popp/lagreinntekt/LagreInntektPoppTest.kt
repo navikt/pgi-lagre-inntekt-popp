@@ -100,8 +100,8 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
-    fun `Republishes hendelse to consumer when 409 is returned from popp`() {
-        poppMockServer.`Mock 409 conflict`()
+    fun `Republishes hendelse to consumer when 409 Bruker ekisterer ikke i PEN is returned from popp`() {
+        poppMockServer.`Mock 409 Bruker eksisterer ikke i PEN`()
         val pgiRecords = createPgiRecords(10, 12)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
@@ -113,8 +113,21 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
+    fun `Republishes hendelse to consumer when 409 Fant ikke person is returned from popp`() {
+        poppMockServer.`Mock 409 Fant ikke person`()
+        val pgiRecords = createPgiRecords(13, 16)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        lagreInntektPopp.start(loopForever = false)
+
+        val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
+        assertEquals(4, republishedHendelser.size)
+        assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
+    }
+
+    @Test
     fun `Republishes hendelse should map retries and sekvensnummer from metadata`() {
-        poppMockServer.`Mock 409 conflict`()
+        poppMockServer.`Mock 409 Bruker eksisterer ikke i PEN`()
         val pgiRecord = createPgiRecords(1, 1).first()
 
         kafkaMockFactory.addRecord(pgiRecord)
@@ -128,7 +141,7 @@ internal class LagreInntektPoppTest {
 
     @Test
     fun `Republishes hendelse should map fnr, periode and key from key`() {
-        poppMockServer.`Mock 409 conflict`()
+        poppMockServer.`Mock 409 Bruker eksisterer ikke i PEN`()
         val pgiRecord = createPgiRecords(1, 1).first()
 
         kafkaMockFactory.addRecord(pgiRecord)
