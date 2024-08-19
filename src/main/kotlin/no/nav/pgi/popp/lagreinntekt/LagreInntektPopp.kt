@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 import java.net.http.HttpResponse
 import java.util.concurrent.atomic.AtomicBoolean
 
-private val pgiPoppRespnseCounter = Counter.build()
+private val pgiPoppResponseCounter = Counter.build()
     .name("pgi_lagre_inntekt_popp_response_counter")
     .labelNames("statusCode")
     .help("Count response status codes from popp")
@@ -86,25 +86,25 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
     }
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_OK").inc()
+        pgiPoppResponseCounter.labels("${response.statusCode()}_OK").inc()
         LOG.info(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Lagret OK i POPP. (Status: ${response.statusCode()}) Sekvensnummer: ${pgi.getMetaData().getSekvensnummer()}")
         SECURE_LOG.info(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Lagret OK i POPP. ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_Pid_Validation").inc()
+        pgiPoppResponseCounter.labels("${response.statusCode()}_Pid_Validation").inc()
         LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi""".maskFnr())
         SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi")
     }
 
     private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_InnntektAar_Validation").inc()
+        pgiPoppResponseCounter.labels("${response.statusCode()}_InnntektAar_Validation").inc()
         LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Inntektaar is not valid for pgi. Inntekt will be descarded. ${response.logString()}. For pgi: $pgi """.maskFnr())
         SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Inntektaar is not valid for pgi. Inntekt will be descarded.. ${response.logString()}. For pgi: $pgi ")
     }
 
     private fun logWarningBrukerEksistereIkkeIPenRepublishing(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_Republish").inc()
+        pgiPoppResponseCounter.labels("${response.statusCode()}_Republish").inc()
         LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr())
         SECURE_LOG.warn(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi")
     }
@@ -116,7 +116,7 @@ internal class LagreInntektPopp(private val poppClient: PoppClient, kafkaFactory
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_ShutDown").inc()
+        pgiPoppResponseCounter.labels("${response.statusCode()}_ShutDown").inc()
         LOG.error(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi """.maskFnr())
         SECURE_LOG.error(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi ")
     }
