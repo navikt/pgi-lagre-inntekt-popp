@@ -39,7 +39,7 @@ object LagrePgiRequestMapper {
             )
         ).filterNullInntekter()
 
-        return if(pgiList.isNotEmpty()) pgiList else defaultPgiListLoenn(pensjonsGivendeInntekt)
+        return pgiList.ifEmpty { defaultPgiListLoenn(pensjonsGivendeInntekt) }
         }
     }
 

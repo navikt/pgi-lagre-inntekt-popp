@@ -21,12 +21,14 @@ internal class PoppClient(
     private val poppHost = environment.getVal(POPP_URL)
     private val poppUrl = UriBuilder.fromPath(poppHost).path(PGI_PATH).build()
 
-    internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): HttpResponse<String> {
-        return httpClient.send(
+    internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): PoppResponse {
+        val response = httpClient.send(
             createPostRequest(poppUrl, toLagrePgiRequest(pgi), pgi.getMetaData().getSekvensnummer()),
             HttpResponse.BodyHandlers.ofString()
         )
+        return PoppResponse.of(response)
     }
+
 
     private fun createPostRequest(poppUrl: URI, lagrePgiRequest: LagrePgiRequest, callId: Long) =
         HttpRequest.newBuilder()
@@ -45,4 +47,30 @@ internal class PoppClient(
     private companion object EnvironmentKey {
         private const val POPP_URL = "POPP_URL"
     }
+
+    sealed class PoppResponse() {
+        data class OK(val httpResponse: HttpResponse<String>) : PoppResponse()
+        data class PidValidationFailed(val httpResponse: HttpResponse<String>) : PoppResponse()
+        data class InntektAarValidationFailed(val httpResponse: HttpResponse<String>) : PoppResponse()
+        data class BrukerEksistererIkkeIPEN(val httpResponse: HttpResponse<String>) : PoppResponse()
+        data class AnnenKonflikt(val httpResponse: HttpResponse<String>) : PoppResponse()
+
+        data class UkjentStatus(val httpResponse: HttpResponse<String>) : PoppResponse()
+
+        companion object {
+            fun of(httpResponse: HttpResponse<String>): PoppResponse {
+                val code = httpResponse.statusCode()
+                fun body(msg: String) = httpResponse.body().contains(msg)
+                return when {
+                    code == 200 -> OK(httpResponse)
+                    code == 400 && body("PGI_001_PID_VALIDATION_FAILED") -> PidValidationFailed(httpResponse)
+                    code == 400 && body("PGI_002_INNTEKT_AAR_VALIDATION_FAILED") -> InntektAarValidationFailed(httpResponse)
+                    code == 409 && body("Bruker eksisterer ikke i PEN") -> BrukerEksistererIkkeIPEN(httpResponse)
+                    code == 409 -> AnnenKonflikt(httpResponse)
+                    else -> UkjentStatus(httpResponse)
+                }
+            }
+        }
+    }
+
 }
