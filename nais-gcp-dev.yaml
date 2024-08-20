@@ -31,10 +31,6 @@ spec:
   readiness:
     path: isReady
     initialDelay: 5
-  observability:
-    autoInstrumentation:
-      enabled: true
-      runtime: java
   replicas:
     min: 1
     max: 1
