@@ -45,7 +45,9 @@ internal class ComponentTest {
     @Test
     fun `application sends inntekter to popp or republishes them to hendelse topic if status 200 or 409`() {
         val inntekter = pensjonsgivendeInntekterWith200FromPopp()
+        println("inntekter: ${inntekter.size}")
         val invalidInntekter = pensjonsgivendeInntekterWith409FromPopp()
+        println("invalid409: ${invalidInntekter.size}")
 
         populateInntektTopic(inntekter + invalidInntekter)
 

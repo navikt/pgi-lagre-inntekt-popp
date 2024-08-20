@@ -1,6 +1,5 @@
 package no.nav.pgi.popp.lagreinntekt
 
-import io.prometheus.client.Counter
 import net.logstash.logback.marker.Markers
 import no.nav.pensjon.samhandling.maskfnr.maskFnr
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
@@ -36,41 +35,14 @@ internal class LagreInntektPopp(
         do try {
             val inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>> =
                 pgiConsumer.pollInntektRecords()
-            val delayRequestsToPopp = inntektRecords.isDuplicates()
-            if (delayRequestsToPopp) LOG.info("More than one of the same fnr in polled records, delaying calls to popp for ${inntektRecords.size} records")
-            inntektRecords.forEach { inntektRecord ->
-                if (delayRequestsToPopp) Thread.sleep(30L)
-                LOG.info(Markers.append("sekvensnummer", inntektRecord.value().getMetaData().getSekvensnummer()), "Kaller POPP for lagring av pgi. Sekvensnummer: ${inntektRecord.value().getMetaData().getSekvensnummer()}")
-                val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
-                when {
-                    response.statusCode() == 200 -> logSuccessfulRequestToPopp(response, inntektRecord.value())
-                    response.statusCode() == 400 && response errorMessage "PGI_001_PID_VALIDATION_FAILED" -> logPidValidationFailed(response, inntektRecord.value())
-                    response.statusCode() == 400 && response errorMessage "PGI_002_INNTEKT_AAR_VALIDATION_FAILED" -> logInntektAarValidationFailed(response, inntektRecord.value())
-                    response.statusCode() == 409 -> {
-                        when {
-                            response errorMessage "Bruker eksisterer ikke i PEN" -> {
-                                // Rettes ofte automatisk i PEN innen få dager. Logges som error i republisering ved mange retries.
-                                logWarningBrukerEksistereIkkeIPenRepublishing(response, inntektRecord.value())
-                                republiserHendelseProducer.send(inntektRecord)
-                            }
-                            else -> {
-                                logErrorRepublishing(response, inntektRecord.value())
-                                republiserHendelseProducer.send(inntektRecord)
-                            }
-                        }
-                    }
-                    else -> {
-                        logShuttingDownDueToUnhandledStatus(response, inntektRecord.value())
-                        throw UnhandledStatusCodePoppException(response)
-                    }
-                }
-            }
+            handleInntektRecords(inntektRecords)
             pgiConsumer.commit()
         } catch (topicAuthorizationException: TopicAuthorizationException) {
             LOG.warn("Kafka credential rotation triggered. Shutting down app")
             throw topicAuthorizationException
         } while (loopForever && !stop.get())
     }
+
 
     private fun handleInntektRecords(inntektRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
         val delayRequestsToPopp = inntektRecords.hasDuplicates()
@@ -87,11 +59,10 @@ internal class LagreInntektPopp(
         if (delayRequestsToPopp) Thread.sleep(30L)
         LOG.info(
             Markers.append("sekvensnummer", inntektRecord.value().getMetaData().getSekvensnummer()),
-            "Kaller POPP for lagring av pgi. Sekvensnummer: ${
-                inntektRecord.value().getMetaData().getSekvensnummer()
-            }"
+            "Kaller POPP for lagring av pgi. Sekvensnummer: ${inntektRecord.value().getMetaData().getSekvensnummer()}"
         )
         val response = poppClient.postPensjonsgivendeInntekt(inntektRecord.value())
+
         when (response) {
             is PoppResponse.OK -> logSuccessfulRequestToPopp(response.httpResponse, inntektRecord.value())
             is PoppResponse.PidValidationFailed -> logPidValidationFailed(
@@ -105,7 +76,14 @@ internal class LagreInntektPopp(
             )
 
             is PoppResponse.BrukerEksistererIkkeIPEN -> {
-                logRepublishingFailedInntekt(response.httpResponse, inntektRecord.value())
+                println("BRUKER EKSISTERER IKKE I PEN ${response.httpResponse.body()}")
+                logWarningBrukerEksistereIkkeIPenRepublishing(response.httpResponse, inntektRecord.value())
+                republiserHendelseProducer.send(inntektRecord)
+            }
+
+            is PoppResponse.AnnenKonflikt -> {
+                println("ANNEN KONFLIKT ${response.httpResponse.body()}")
+                logErrorRepublishing(response.httpResponse, inntektRecord.value())
                 republiserHendelseProducer.send(inntektRecord)
             }
 
@@ -170,8 +148,11 @@ internal class LagreInntektPopp(
         )
     }
 
-    private fun logWarningBrukerEksistereIkkeIPenRepublishing(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppResponseCounter.labels("${response.statusCode()}_Republish").inc()
+    private fun logWarningBrukerEksistereIkkeIPenRepublishing(
+        response: HttpResponse<String>,
+        pgi: PensjonsgivendeInntekt
+    ) {
+        PoppResponseCounter.republish(response.statusCode())
         LOG.warn(
             Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()),
             """Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr()
@@ -183,9 +164,15 @@ internal class LagreInntektPopp(
     }
 
     private fun logErrorRepublishing(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        pgiPoppRespnseCounter.labels("${response.statusCode()}_Republish").inc()
-        LOG.error(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), """Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr())
-        SECURE_LOG.error(Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()), "Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi")
+        PoppResponseCounter.republish(response.statusCode())
+        LOG.error(
+            Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()),
+            """Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr()
+        )
+        SECURE_LOG.error(
+            Markers.append("sekvensnummer", pgi.getMetaData().getSekvensnummer()),
+            "Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi"
+        )
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
