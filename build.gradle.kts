@@ -57,7 +57,7 @@ repositories {
             password = System.getenv("GITHUB_TOKEN")
         }
     }
-    maven("https://maven.pkg.github.com/navikt/pgi-schema") {
+    maven("https://maven.pkg.github.com/navikt/pgi-domain") {
         credentials {
             username = System.getenv("GITHUB_ACTOR")
             password = System.getenv("GITHUB_TOKEN")
