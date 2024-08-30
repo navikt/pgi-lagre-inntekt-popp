@@ -1,7 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt.kafka.testenvironment
 
 
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
 import no.nav.common.KafkaEnvironment
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_HENDELSE_REPUBLISERING_TOPIC
@@ -30,7 +29,6 @@ class KafkaTestEnvironment {
 
     internal fun commonTestConfig() = mapOf(
             BOOTSTRAP_SERVERS_CONFIG to kafkaTestEnvironment.brokersURL,
-            SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl
     )
 
     internal fun tearDown() = kafkaTestEnvironment.tearDown()

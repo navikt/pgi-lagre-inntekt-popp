@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 
-private val mapper = ObjectMapper().registerModule(KotlinModule())
+private val mapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class LagrePgiRequestTest {

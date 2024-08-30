@@ -1,10 +1,10 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
+import no.nav.pgi.domain.PensjonsgivendeInntekt
+import no.nav.pgi.domain.PensjonsgivendeInntektMetadata
+import no.nav.pgi.domain.PensjonsgivendeInntektPerOrdning
+import no.nav.pgi.domain.Skatteordning
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntektMetadata
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
-import no.nav.samordning.pgi.schema.Skatteordning
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -21,9 +21,9 @@ internal class LagrePgiRequestMapperTest {
         val pensjonsgivendeInntekt = pensjonsgivendeInntekt()
         val lagrePgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt())
 
-        assertEquals(pensjonsgivendeInntekt.getNorskPersonidentifikator(), lagrePgiRequest.personIdentifikator)
-        assertEquals(pensjonsgivendeInntekt.getInntektsaar().toInt(), lagrePgiRequest.inntektsaar)
-        assertEquals(pensjonsgivendeInntekt.getMetaData().getSekvensnummer(), lagrePgiRequest.sekvensnummer)
+        assertEquals(pensjonsgivendeInntekt.norskPersonidentifikator, lagrePgiRequest.personIdentifikator)
+        assertEquals(pensjonsgivendeInntekt.inntektsaar.toInt(), lagrePgiRequest.inntektsaar)
+        assertEquals(pensjonsgivendeInntekt.metaData.sekvensnummer, lagrePgiRequest.sekvensnummer)
 
         val pensjonsgivendeInntektFastland = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.FASTLAND)
         assertPensjonsgivendeInntektFastlandToPgiMapping(pensjonsgivendeInntektFastland, lagrePgiRequest)
@@ -31,7 +31,8 @@ internal class LagrePgiRequestMapperTest {
         val pensjonsgivendeInntektSvalbard = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.SVALBARD)
         assertPensjonsgivendeInntektSvalbardToPgiMapping(pensjonsgivendeInntektSvalbard, lagrePgiRequest)
 
-        val pensjonsgivendeInntektKSL = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.KILDESKATT_PAA_LOENN)
+        val pensjonsgivendeInntektKSL =
+            pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.KILDESKATT_PAA_LOENN)
         assertPensjonsgivendeInntektKildeskattPaaLoennToPgiMapping(pensjonsgivendeInntektKSL, lagrePgiRequest)
     }
 
@@ -42,13 +43,18 @@ internal class LagrePgiRequestMapperTest {
 
         val pensjonsgivendeInntektFastland = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.FASTLAND)
         assertEquals(1, lagrePgiRequest.pgiList.size)
-        assertEquals(pensjonsgivendeInntektFastland.getPensjonsgivendeInntektAvLoennsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN))
+        assertEquals(
+            pensjonsgivendeInntektFastland.pensjonsgivendeInntektAvLoennsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN)
+        )
     }
 
     @Test
     fun `maps from PensjonsgivendeInntekt to LagrePgiRequest when FastlandsInntektLoenn has only null inntekter and SvalbardInntekt has BarePensjonsdel`() {
-        val skatteOrdningFastland = PensjonsgivendeInntektPerOrdning(Skatteordning.FASTLAND, fastsettingDatoFastland, null, null, null, null)
-        val skatteOrdningSvalbard = PensjonsgivendeInntektPerOrdning(Skatteordning.SVALBARD, fastsettingDatoFastland, 0L, 100L, null, null)
+        val skatteOrdningFastland =
+            PensjonsgivendeInntektPerOrdning(Skatteordning.FASTLAND, fastsettingDatoFastland, null, null, null, null)
+        val skatteOrdningSvalbard =
+            PensjonsgivendeInntektPerOrdning(Skatteordning.SVALBARD, fastsettingDatoFastland, 0L, 100L, null, null)
         val skatteordninger = listOf(skatteOrdningFastland, skatteOrdningSvalbard)
         val pensjonsgivendeInntekter = pensjonsgivendeInntekt(skatteordninger)
 
@@ -61,19 +67,29 @@ internal class LagrePgiRequestMapperTest {
         val defaultInntekt = 0L
         assertEquals(defaultInntekt, lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN))
 
-        assertEquals(pensjonsgivendeInntektSvalbard.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel(), lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN_PD))
+        assertEquals(
+            pensjonsgivendeInntektSvalbard.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel,
+            lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN_PD)
+        )
         assertNull(lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN))
     }
 
     @Test
     fun `maps from PensjonsgivendeInntekt to LagrePgiRequest when only FastlandsInntektLoenn and BarePensjonsdel has Belop 2`() {
-        val pensjonsgivendeInntekt = pensjonsgivendeInntekt(Skatteordning.SVALBARD, loenn = 100L, loennBp = 200L, fff = 0L)
+        val pensjonsgivendeInntekt =
+            pensjonsgivendeInntekt(Skatteordning.SVALBARD, loenn = 100L, loennBp = 200L, fff = 0L)
         val lagrePgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt)
 
         val pensjonsgivendeInntektFastland = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.SVALBARD)
         assertEquals(2, lagrePgiRequest.pgiList.size)
-        assertEquals(pensjonsgivendeInntektFastland.getPensjonsgivendeInntektAvLoennsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN))
-        assertEquals(pensjonsgivendeInntektFastland.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel(), lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN_PD))
+        assertEquals(
+            pensjonsgivendeInntektFastland.pensjonsgivendeInntektAvLoennsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN)
+        )
+        assertEquals(
+            pensjonsgivendeInntektFastland.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel,
+            lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN_PD)
+        )
     }
 
     @Test
@@ -87,33 +103,79 @@ internal class LagrePgiRequestMapperTest {
 
     @Test
     fun `when no sekvensnummer 0 should be used`() {
-        val pensjonsgivendeInntekt = pensjonsgivendeInntekt(Skatteordning.SVALBARD, metadata = PensjonsgivendeInntektMetadata())
+        val pensjonsgivendeInntekt =
+            pensjonsgivendeInntekt(Skatteordning.SVALBARD, metadata = PensjonsgivendeInntektMetadata(0, 0))
         val lagrePgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt)
 
         assertEquals(0L, lagrePgiRequest.sekvensnummer)
     }
 
-    private fun assertPensjonsgivendeInntektFastlandToPgiMapping(pgiFastland: PensjonsgivendeInntektPerOrdning, lagrePgiRequest: LagrePgiRequest) {
-        assertEquals(pgiFastland.getPensjonsgivendeInntektAvLoennsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN))
-        assertEquals(pgiFastland.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel(), lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN_PD))
-        assertEquals(pgiFastland.getPensjonsgivendeInntektAvNaeringsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_NAERING))
-        assertEquals(pgiFastland.getPensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage(), lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_NAERING_FFF))
+    private fun assertPensjonsgivendeInntektFastlandToPgiMapping(
+        pgiFastland: PensjonsgivendeInntektPerOrdning,
+        lagrePgiRequest: LagrePgiRequest
+    ) {
+        assertEquals(
+            pgiFastland.pensjonsgivendeInntektAvLoennsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN)
+        )
+        assertEquals(
+            pgiFastland.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel,
+            lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN_PD)
+        )
+        assertEquals(
+            pgiFastland.pensjonsgivendeInntektAvNaeringsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_NAERING)
+        )
+        assertEquals(
+            pgiFastland.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+            lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_NAERING_FFF)
+        )
         assertEquals(4, lagrePgiRequest.countPgiWithDate(fastsettingDatoFastland))
     }
 
-    private fun assertPensjonsgivendeInntektSvalbardToPgiMapping(pgiSvalbard: PensjonsgivendeInntektPerOrdning, lagrePgiRequest: LagrePgiRequest) {
-        assertEquals(pgiSvalbard.getPensjonsgivendeInntektAvLoennsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN))
-        assertEquals(pgiSvalbard.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel(), lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN_PD))
-        assertEquals(pgiSvalbard.getPensjonsgivendeInntektAvNaeringsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_NAERING))
-        assertEquals(pgiSvalbard.getPensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage(), lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_NAERING_FFF))
+    private fun assertPensjonsgivendeInntektSvalbardToPgiMapping(
+        pgiSvalbard: PensjonsgivendeInntektPerOrdning,
+        lagrePgiRequest: LagrePgiRequest
+    ) {
+        assertEquals(
+            pgiSvalbard.pensjonsgivendeInntektAvLoennsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN)
+        )
+        assertEquals(
+            pgiSvalbard.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel,
+            lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN_PD)
+        )
+        assertEquals(
+            pgiSvalbard.pensjonsgivendeInntektAvNaeringsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_NAERING)
+        )
+        assertEquals(
+            pgiSvalbard.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+            lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_NAERING_FFF)
+        )
         assertEquals(4, lagrePgiRequest.countPgiWithDate(fastsettingDatoSvalbard))
     }
 
-    private fun assertPensjonsgivendeInntektKildeskattPaaLoennToPgiMapping(pgiKildeskattPaaLoenn: PensjonsgivendeInntektPerOrdning, lagrePgiRequest: LagrePgiRequest) {
-        assertEquals(pgiKildeskattPaaLoenn.getPensjonsgivendeInntektAvLoennsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_LOENN))
-        assertEquals(pgiKildeskattPaaLoenn.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel(), lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_LOENN_PD))
-        assertEquals(pgiKildeskattPaaLoenn.getPensjonsgivendeInntektAvNaeringsinntekt(), lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_NAERING))
-        assertEquals(pgiKildeskattPaaLoenn.getPensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage(), lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_NAERING_FFF))
+    private fun assertPensjonsgivendeInntektKildeskattPaaLoennToPgiMapping(
+        pgiKildeskattPaaLoenn: PensjonsgivendeInntektPerOrdning,
+        lagrePgiRequest: LagrePgiRequest
+    ) {
+        assertEquals(
+            pgiKildeskattPaaLoenn.pensjonsgivendeInntektAvLoennsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_LOENN)
+        )
+        assertEquals(
+            pgiKildeskattPaaLoenn.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel,
+            lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_LOENN_PD)
+        )
+        assertEquals(
+            pgiKildeskattPaaLoenn.pensjonsgivendeInntektAvNaeringsinntekt,
+            lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_NAERING)
+        )
+        assertEquals(
+            pgiKildeskattPaaLoenn.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+            lagrePgiRequest.getPgiBelop(InntektType.KSL_PGI_NAERING_FFF)
+        )
         assertEquals(4, lagrePgiRequest.countPgiWithDate(fastsettingDatoKildeskattPaaLoenn))
     }
 
@@ -179,13 +241,14 @@ internal class LagrePgiRequestMapperTest {
             "12345678901",
             2020,
             pgiPerOrdningList,
-            PensjonsgivendeInntektMetadata()
+            PensjonsgivendeInntektMetadata(0, 0)
         )
 }
 
-private fun LagrePgiRequest.getPgiBelop(inntektType: InntektType) = pgiList.find { it.inntektType == inntektType }?.belop
+private fun LagrePgiRequest.getPgiBelop(inntektType: InntektType) =
+    pgiList.find { it.inntektType == inntektType }?.belop
 
 private fun LagrePgiRequest.countPgiWithDate(date: String) = pgiList.count { pgi -> pgi.datoForFastsetting == date }
 
 private fun PensjonsgivendeInntekt.getPensjonsgivendeInntekt(skatteOrdning: Skatteordning): PensjonsgivendeInntektPerOrdning =
-    getPensjonsgivendeInntekt().find { it.getSkatteordning() == skatteOrdning }!!
+    pensjonsgivendeInntekt.find { it.skatteordning == skatteOrdning }!!

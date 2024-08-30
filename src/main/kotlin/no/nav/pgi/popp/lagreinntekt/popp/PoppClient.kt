@@ -1,10 +1,10 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
 import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pgi.domain.PensjonsgivendeInntekt
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient.AadToken
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -23,7 +23,7 @@ internal class PoppClient(
 
     internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): PoppResponse {
         val response = httpClient.send(
-            createPostRequest(poppUrl, toLagrePgiRequest(pgi), pgi.getMetaData().getSekvensnummer()),
+            createPostRequest(poppUrl, toLagrePgiRequest(pgi), pgi.metaData.sekvensnummer),
             HttpResponse.BodyHandlers.ofString()
         )
         return PoppResponse.of(response)

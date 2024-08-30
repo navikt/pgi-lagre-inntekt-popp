@@ -1,19 +1,22 @@
 package no.nav.pgi.popp.lagreinntekt.kafka.testenvironment
 
-import io.confluent.kafka.serializers.KafkaAvroSerializer
+import no.nav.pgi.domain.HendelseKey
+import no.nav.pgi.domain.PensjonsgivendeInntekt
+import no.nav.pgi.domain.serialization.PgiDomainSerializer
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
-import no.nav.samordning.pgi.schema.HendelseKey
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringSerializer
 
 internal class InntektTestProducer(commonKafkaConfig: Map<String, String>) {
 
-    private val inntektTestProducer = KafkaProducer<HendelseKey, PensjonsgivendeInntekt>(commonKafkaConfig + inntektTestProducerConfig())
+    private val inntektTestProducer = KafkaProducer<String, String>(commonKafkaConfig + inntektTestProducerConfig())
 
     internal fun produceToInntektTopic(hendelseKey: HendelseKey, pensjonsgivendeInntekt: PensjonsgivendeInntekt) {
-        val record = ProducerRecord(PGI_INNTEKT_TOPIC, hendelseKey, pensjonsgivendeInntekt)
+        val key = PgiDomainSerializer().toJson(hendelseKey)
+        val value = PgiDomainSerializer().toJson(pensjonsgivendeInntekt)
+        val record = ProducerRecord(PGI_INNTEKT_TOPIC, key, value)
         inntektTestProducer.send(record).get()
     }
 
@@ -22,8 +25,8 @@ internal class InntektTestProducer(commonKafkaConfig: Map<String, String>) {
     }
 
     private fun inntektTestProducerConfig() = mapOf(
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
             ProducerConfig.ACKS_CONFIG to "all",
             ProducerConfig.RETRIES_CONFIG to Integer.MAX_VALUE
     )

@@ -2,8 +2,6 @@ package no.nav.pgi.popp.lagreinntekt.kafka.inntekt
 
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.PGI_INNTEKT_TOPIC
-import no.nav.samordning.pgi.schema.HendelseKey
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -13,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 private val TIMEOUT_DURATION = Duration.ofSeconds(4)
 
 internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
-    private val consumer: Consumer<HendelseKey, PensjonsgivendeInntekt> = kafkaFactory.pensjonsgivendeInntektConsumer()
+    private val consumer: Consumer<String, String> = kafkaFactory.pensjonsgivendeInntektConsumer()
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
     internal fun pollInntektRecords() =
@@ -32,7 +30,7 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
 
     internal fun isClosed() = closed.get()
 
-    private fun logNumberOfRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<HendelseKey, PensjonsgivendeInntekt>>) {
+    private fun logNumberOfRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<String, String>>) {
         if (consumerRecords.isNotEmpty()) LOG.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
     }
 
