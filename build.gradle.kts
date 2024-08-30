@@ -66,6 +66,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.glassfish.jersey.core:jersey-client:2.30")// TODO: versjonsvariabel)
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1") // TODO: versjonsvariabel
 
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
