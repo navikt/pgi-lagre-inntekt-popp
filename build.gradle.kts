@@ -18,7 +18,7 @@ val log4jVersion = "2.20.0"
 
 val junitJupiterVersion = "5.11.0"
 val wiremockVersion = "2.27.2"
-val kafkaEmbeddedEnvVersion = "2.5.0"
+val kafkaEmbeddedEnvVersion = "3.2.8"
 
 val jacksonVersion = "2.17.2"
 val guavaVersion = "32.1.3-jre"
