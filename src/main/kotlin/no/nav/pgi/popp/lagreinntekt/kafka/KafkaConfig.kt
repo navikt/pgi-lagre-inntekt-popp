@@ -35,9 +35,6 @@ internal class KafkaConfig(environment: Map<String, String> = System.getenv(), p
 
     internal companion object EnvironmentKeys {
         const val BOOTSTRAP_SERVERS = "KAFKA_BROKERS"
-        const val SCHEMA_REGISTRY = "KAFKA_SCHEMA_REGISTRY"
-        const val SCHEMA_REGISTRY_USERNAME = "KAFKA_SCHEMA_REGISTRY_USER"
-        const val SCHEMA_REGISTRY_PASSWORD = "KAFKA_SCHEMA_REGISTRY_PASSWORD"
     }
 
     internal interface SecurityStrategy {

@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
+import jakarta.ws.rs.core.UriBuilder
 import no.nav.pgi.domain.PensjonsgivendeInntekt
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient
@@ -9,7 +10,6 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import javax.ws.rs.core.UriBuilder
 
 internal const val PGI_PATH = "/popp/api/inntekt/pgi"
 

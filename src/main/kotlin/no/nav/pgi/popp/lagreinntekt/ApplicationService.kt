@@ -1,6 +1,5 @@
 package no.nav.pgi.popp.lagreinntekt
 
-import no.nav.pensjon.samhandling.naisserver.naisServer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
@@ -23,7 +22,6 @@ internal class ApplicationService(
     kafkaFactory: KafkaFactory = KafkaInntektFactory(),
     env: Map<String, String> = System.getenv(),
 ) {
-    private val naisServer = naisServer()
     private val poppClient = PoppClient(env)
     private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
     private var started = AtomicBoolean(false)
@@ -31,7 +29,6 @@ internal class ApplicationService(
 
     init {
         addShutdownHook()
-        naisServer.start()
     }
 
     private companion object {
@@ -51,8 +48,7 @@ internal class ApplicationService(
     }
 
     internal fun tearDown() {
-        LOG.info("Closing naisServer and lagreInntektPopp")
-        naisServer.stop(500, 500)
+        LOG.info("Closing lagreInntektPopp")
         lagreInntektPopp.closeKafka()
     }
 

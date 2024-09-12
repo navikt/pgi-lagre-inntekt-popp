@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kafkaVersion = "3.6.0"
+val kafkaVersion = "3.7.1"
 val confluentVersion = "5.5.1"
 val ktorVersion = "1.6.8"
 val msal4jVersion = "1.8.1"
@@ -17,8 +17,8 @@ val slf4jVersion = "2.0.9"
 val log4jVersion = "2.20.0"
 
 val junitJupiterVersion = "5.10.3" // kan ikke være 5.11 pga problem med spring-boot-plugin'en
-val wiremockVersion = "2.27.2"
-val kafkaEmbeddedEnvVersion = "3.2.8"
+val wiremockVersion = "3.9.1"
+val kafkaEmbeddedEnvVersion = "3.2.4"
 
 val jacksonVersion = "2.17.2"
 val guavaVersion = "32.1.3-jre"
@@ -32,6 +32,9 @@ val snakeYamlVersion = "1.33" // har sikkerhetshull, men kan ikke oppdatere vide
 val snappyJavaVersion = "1.1.10.6"
 
 val assertJVersion = "3.26.3"
+
+val springBootVersion = "3.3.3"
+val jerseyVersion = "3.1.8"
 
 group = "no.nav.pgi"
 
@@ -50,7 +53,7 @@ java {
     }
 }
 
-// apply(plugin = "io.spring.dependency-management")
+apply(plugin = "io.spring.dependency-management")
 
 repositories {
     mavenCentral()
@@ -71,23 +74,20 @@ repositories {
 }
 
 dependencies {
-    implementation("org.glassfish.jersey.core:jersey-client:2.30")// TODO: versjonsvariabel)
-    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1") // TODO: versjonsvariabel
+    implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
+//    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1") // TODO: versjonsvariabel
 
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-
-    implementation("io.ktor:ktor-jackson:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
-    implementation("no.nav.pensjonsamhandling:pensjon-samhandling-ktor-support:$ktorSupportVersion")
 
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
     implementation("no.nav.pgi:pgi-domain:$pgiDomainVersion")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-//    implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackClassicVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoder")
@@ -116,11 +116,21 @@ dependencies {
 
     testImplementation("org.assertj:assertj-core:$assertJVersion")
 
-    testImplementation("com.github.tomakehurst:wiremock:$wiremockVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion") {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")
     }
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+
+    testImplementation("org.wiremock:wiremock-jetty12:$wiremockVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    testImplementation(("org.glassfish.jersey.core:jersey-server:$jerseyVersion"))
+    testImplementation(("org.glassfish.jersey.core:jersey-common:$jerseyVersion"))
+    testImplementation(("org.glassfish.jersey.core:jersey-client:$jerseyVersion"))
+    testImplementation(("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"))
+    testImplementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
+
 }
 
 tasks.withType<KotlinCompile> {

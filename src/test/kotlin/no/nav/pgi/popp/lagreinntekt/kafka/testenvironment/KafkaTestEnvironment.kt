@@ -9,7 +9,7 @@ import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 
 class KafkaTestEnvironment {
     private val kafkaTestEnvironment: KafkaEnvironment = KafkaEnvironment(
-            withSchemaRegistry = true,
+            withSchemaRegistry = false,
             topicNames = listOf(PGI_INNTEKT_TOPIC, PGI_HENDELSE_REPUBLISERING_TOPIC)
     )
 
@@ -17,14 +17,8 @@ class KafkaTestEnvironment {
         kafkaTestEnvironment.start()
     }
 
-    private val schemaRegistryUrl: String
-        get() = kafkaTestEnvironment.schemaRegistry!!.url
-
     internal fun testEnvironment() = mapOf(
             KafkaConfig.BOOTSTRAP_SERVERS to kafkaTestEnvironment.brokersURL,
-            KafkaConfig.SCHEMA_REGISTRY to schemaRegistryUrl,
-            KafkaConfig.SCHEMA_REGISTRY_USERNAME to "mrOpenSource",
-            KafkaConfig.SCHEMA_REGISTRY_PASSWORD to "opensourcedPassword"
     )
 
     internal fun commonTestConfig() = mapOf(
