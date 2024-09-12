@@ -14,7 +14,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.slf4j.LoggerFactory
 import java.net.http.HttpResponse
-import java.util.concurrent.atomic.AtomicBoolean
 
 
 internal class LagreInntektPopp(
@@ -25,25 +24,21 @@ internal class LagreInntektPopp(
     private val pgiConsumer = PensjonsgivendeInntektConsumer(kafkaFactory)
     private val republiserHendelseProducer = RepubliserHendelseProducer(kafkaFactory)
 
-    private var stop: AtomicBoolean = AtomicBoolean(false)
-
     private companion object {
         private val LOG = LoggerFactory.getLogger(LagreInntektPopp::class.java)
         private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
     }
 
-    internal fun processInntektLoop(loopForever: Boolean = true) {
-        do try {
-            val inntektRecords: List<ConsumerRecord<String, String>> =
-                pgiConsumer.pollInntektRecords()
+    internal fun processInntektRecords() {
+         try {
+            val inntektRecords = pgiConsumer.pollInntektRecords()
             handleInntektRecords(inntektRecords)
             pgiConsumer.commit()
         } catch (topicAuthorizationException: TopicAuthorizationException) {
             LOG.warn("Kafka credential rotation triggered. Shutting down app")
             throw topicAuthorizationException
-        } while (loopForever && !stop.get())
+        }
     }
-
 
     private fun handleInntektRecords(inntektRecords: List<ConsumerRecord<String, String>>) {
         val delayRequestsToPopp = inntektRecords.hasDuplicates()
@@ -97,11 +92,6 @@ internal class LagreInntektPopp(
                 throw UnhandledStatusCodePoppException(response.httpResponse)
             }
         }
-    }
-
-    internal fun stop() {
-        LOG.info("stopping LagreInntektPopp")
-        stop.set(true)
     }
 
     internal fun isClosed() = pgiConsumer.isClosed() && republiserHendelseProducer.isClosed()

@@ -9,12 +9,17 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 
 fun serviceMain() {
+    val applicationStatus = ApplicationStatus().setStarted()
     val application = ApplicationService(
         // TODO: Midlertidig
-        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry()))
+        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+        applicationStatus = applicationStatus,
     )
     try {
-        application.startLagreInntektPopp()
+        do {
+            application.startLagreInntektPopp()
+        } while (!applicationStatus.isStopped())
+        application.tearDown()
     } catch (e: Exception) {
         application.stop()
     } finally {
@@ -24,35 +29,30 @@ fun serviceMain() {
 
 internal class ApplicationService(
     poppResponseCounter: PoppResponseCounter,
+    private val applicationStatus: ApplicationStatus,
     kafkaFactory: KafkaFactory = KafkaInntektFactory(),
     env: Map<String, String> = System.getenv(),
 ) {
+    private var stop: AtomicBoolean = AtomicBoolean(false)
+
     private val poppClient = PoppClient(env)
     private val lagreInntektPopp = LagreInntektPopp(
         poppResponseCounter = poppResponseCounter,
         poppClient,
         kafkaFactory
     )
-    private var started = AtomicBoolean(false)
 
 
     init {
         addShutdownHook()
     }
 
-    private companion object {
-        private val LOG = LoggerFactory.getLogger(ApplicationService::class.java)
-        private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
-    }
-
     internal fun startLagreInntektPopp(loopForever: Boolean = true) {
         try {
-            started.set(true)
-            lagreInntektPopp.processInntektLoop(loopForever)
+            lagreInntektPopp.processInntektRecords()
         } catch (e: Throwable) {
             LOG.error(e.message)
-        } finally {
-            tearDown()
+            applicationStatus.setStopped()
         }
     }
 
@@ -62,8 +62,8 @@ internal class ApplicationService(
     }
 
     internal fun stop() {
-        LOG.info("Stopping naisServer and lagreInntektPopp")
-        lagreInntektPopp.stop()
+        LOG.info("Stopping lagreInntektPopp")
+        stop.set(true)
         Thread.sleep(3000)
         if (!lagreInntektPopp.isClosed()) {
             LOG.info("Failed to stop lagreInntektPopp")
@@ -81,5 +81,10 @@ internal class ApplicationService(
                 tearDown()
             }
         })
+    }
+
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(ApplicationService::class.java)
+        private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
     }
 }

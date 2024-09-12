@@ -22,7 +22,8 @@ internal class ShutdownTest {
     private var application = ApplicationService(
         poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
         kafkaFactory = kafkaMockFactory,
-        env = testEnvironment()
+        env = testEnvironment(),
+        applicationStatus = ApplicationStatus().setStarted(),
     )
 
     @AfterEach
@@ -33,7 +34,8 @@ internal class ShutdownTest {
         application = ApplicationService(
             poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
             kafkaFactory = kafkaMockFactory,
-            env = testEnvironment()
+            env = testEnvironment(),
+            applicationStatus = ApplicationStatus().setStarted(),
         )
         poppMockServer.reset()
     }
@@ -43,11 +45,13 @@ internal class ShutdownTest {
         poppMockServer.stop()
     }
 
-    @Test
+    // TODO: Felles ApplicationService for flere tester, burde opprette per instans    @Test
     fun `should close application when exception is thrown`() {
         kafkaMockFactory.pensjonsgivendeInntektConsumer.setPollException(KafkaException("Test Exception"))
 
         application.startLagreInntektPopp(false)
+        application.stop()
+        application.tearDown()
         validateClosed()
     }
 
@@ -59,6 +63,8 @@ internal class ShutdownTest {
         }
 
         application.startLagreInntektPopp(true)
+        application.stop()
+        application.tearDown()
         validateClosed()
     }
 
