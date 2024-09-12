@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
@@ -8,7 +9,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 
 fun serviceMain() {
-    val application = ApplicationService()
+    val application = ApplicationService(
+        // TODO: Midlertidig
+        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry()))
+    )
     try {
         application.startLagreInntektPopp()
     } catch (e: Exception) {
@@ -19,11 +23,16 @@ fun serviceMain() {
 }
 
 internal class ApplicationService(
+    poppResponseCounter: PoppResponseCounter,
     kafkaFactory: KafkaFactory = KafkaInntektFactory(),
     env: Map<String, String> = System.getenv(),
 ) {
     private val poppClient = PoppClient(env)
-    private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
+    private val lagreInntektPopp = LagreInntektPopp(
+        poppResponseCounter = poppResponseCounter,
+        poppClient,
+        kafkaFactory
+    )
     private var started = AtomicBoolean(false)
 
 

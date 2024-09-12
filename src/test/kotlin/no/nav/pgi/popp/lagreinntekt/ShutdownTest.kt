@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -18,14 +19,22 @@ internal class ShutdownTest {
 
     private val poppMockServer = PoppMockServer()
     private var kafkaMockFactory = KafkaMockFactory()
-    private var application = ApplicationService(kafkaMockFactory, testEnvironment())
+    private var application = ApplicationService(
+        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+        kafkaFactory = kafkaMockFactory,
+        env = testEnvironment()
+    )
 
     @AfterEach
     fun afterEach() {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
         application.tearDown()
-        application = ApplicationService(kafkaMockFactory, testEnvironment())
+        application = ApplicationService(
+            poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+            kafkaFactory = kafkaMockFactory,
+            env = testEnvironment()
+        )
         poppMockServer.reset()
     }
 

@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.pgi.domain.*
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
@@ -27,12 +28,23 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ComponentTest {
     private val kafkaTestEnvironment = KafkaTestEnvironment()
-    private val kafkaFactory = KafkaInntektFactory(KafkaConfig(kafkaTestEnvironment.testEnvironment(), PlaintextStrategy()))
+    private val kafkaFactory = KafkaInntektFactory(
+        KafkaConfig(
+            kafkaTestEnvironment.testEnvironment(),
+            PlaintextStrategy()
+        )
+    )
     private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
-    private val republishedHendelse = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
+    private val republishedHendelse = HendelseTestConsumer(
+        kafkaTestEnvironment.commonTestConfig()
+    )
     private val poppMockServer = PoppMockServer()
     private val poppClient = PoppClient(mapOf("POPP_URL" to POPP_MOCK_URL), TokenProviderMock())
-    private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
+    private val lagreInntektPopp = LagreInntektPopp(
+        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+        poppClient = poppClient,
+        kafkaFactory = kafkaFactory
+    )
 
     @AfterAll
     fun tearDown() {
@@ -63,9 +75,9 @@ internal class ComponentTest {
     }
 
     private fun pensjonsgivendeInntekterWith200FromPopp() = listOf(
-        createPensjonsgivendeInntekt(FNR_NR1_200, 2018, PensjonsgivendeInntektMetadata(0,0)),
-        createPensjonsgivendeInntekt(FNR_NR2_200, 2019, PensjonsgivendeInntektMetadata(0,0)),
-        createPensjonsgivendeInntekt(FNR_NR3_200, 2020, PensjonsgivendeInntektMetadata(0,0))
+        createPensjonsgivendeInntekt(FNR_NR1_200, 2018, PensjonsgivendeInntektMetadata(0, 0)),
+        createPensjonsgivendeInntekt(FNR_NR2_200, 2019, PensjonsgivendeInntektMetadata(0, 0)),
+        createPensjonsgivendeInntekt(FNR_NR3_200, 2020, PensjonsgivendeInntektMetadata(0, 0))
     )
 
     private fun pensjonsgivendeInntekterWith409FromPopp() = listOf(

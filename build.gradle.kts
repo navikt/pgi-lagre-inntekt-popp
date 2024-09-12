@@ -10,7 +10,7 @@ val msal4jVersion = "1.8.1"
 val ktorSupportVersion = "0.0.30"
 val pgiDomainVersion = "0.0.5"
 
-val micrometerVersion = "1.11.5"
+val micrometerVersion = "1.13.3"
 val logbackClassicVersion = "1.4.11"
 val logstashLogbackEncoder = "5.2" // todo: fails if upgraded
 val slf4jVersion = "2.0.9"

@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 internal class LagreInntektPopp(
+    private val poppResponseCounter: PoppResponseCounter,
     private val poppClient: PoppClient,
     kafkaFactory: KafkaFactory = KafkaInntektFactory()
 ) {
@@ -111,7 +112,7 @@ internal class LagreInntektPopp(
     }
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        PoppResponseCounter.ok(response.statusCode())
+        poppResponseCounter.ok(response.statusCode())
         val sekvensnummer = pgi.metaData.sekvensnummer
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         LOG.info(
@@ -125,7 +126,7 @@ internal class LagreInntektPopp(
     }
 
     private fun logPidValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        PoppResponseCounter.pidValidationFailed(response.statusCode())
+        poppResponseCounter.pidValidationFailed(response.statusCode())
         val sekvensnummer = pgi.metaData.sekvensnummer
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         LOG.warn(
@@ -139,7 +140,7 @@ internal class LagreInntektPopp(
     }
 
     private fun logInntektAarValidationFailed(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        PoppResponseCounter.inntektArValidation(response.statusCode())
+        poppResponseCounter.inntektArValidation(response.statusCode())
         val sekvensnummer = pgi.metaData.sekvensnummer
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         LOG.warn(
@@ -156,7 +157,7 @@ internal class LagreInntektPopp(
         response: HttpResponse<String>,
         pgi: PensjonsgivendeInntekt
     ) {
-        PoppResponseCounter.republish(response.statusCode())
+        poppResponseCounter.republish(response.statusCode())
         LOG.warn(
             Markers.append("sekvensnummer", pgi.metaData.sekvensnummer),
             """Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr()
@@ -168,7 +169,7 @@ internal class LagreInntektPopp(
     }
 
     private fun logErrorRepublishing(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        PoppResponseCounter.republish(response.statusCode())
+        poppResponseCounter.republish(response.statusCode())
         LOG.error(
             Markers.append("sekvensnummer", pgi.metaData.sekvensnummer),
             """Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr()
@@ -180,7 +181,7 @@ internal class LagreInntektPopp(
     }
 
     private fun logShuttingDownDueToUnhandledStatus(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        PoppResponseCounter.shutdown(response.statusCode())
+        poppResponseCounter.shutdown(response.statusCode())
         val sekvensnummer = pgi.metaData.sekvensnummer
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         LOG.error(

@@ -1,5 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -21,8 +22,15 @@ internal class LagreInntektPoppTest {
 
     private val poppMockServer = PoppMockServer()
     private var kafkaMockFactory = KafkaMockFactory()
-    private val poppClient = PoppClient(testEnvironment(), TokenProviderMock())
-    private var lagreInntektPopp = LagreInntektPopp(poppClient, kafkaMockFactory)
+    private val poppClient = PoppClient(
+        environment = testEnvironment(),
+        tokenProvider = TokenProviderMock()
+    )
+    private var lagreInntektPopp = LagreInntektPopp(
+        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+        poppClient = poppClient,
+        kafkaFactory = kafkaMockFactory
+    )
 
     companion object {
         private const val RETRIES = 1L
@@ -34,7 +42,11 @@ internal class LagreInntektPoppTest {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
         lagreInntektPopp.stop()
-        lagreInntektPopp = LagreInntektPopp(poppClient, kafkaMockFactory)
+        lagreInntektPopp = LagreInntektPopp(
+            poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+            poppClient = poppClient,
+            kafkaFactory = kafkaMockFactory
+        )
         poppMockServer.reset()
     }
 
@@ -106,7 +118,7 @@ internal class LagreInntektPoppTest {
         lagreInntektPopp.processInntektLoop(loopForever = false)
 
         val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
-        assertEquals(3, republishedHendelser.size)
+        assertThat(republishedHendelser).hasSize(3)
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
 
@@ -119,7 +131,7 @@ internal class LagreInntektPoppTest {
         lagreInntektPopp.processInntektLoop(loopForever = false)
 
         val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
-        assertEquals(4, republishedHendelser.size)
+        assertThat(republishedHendelser).hasSize(4)
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
 
