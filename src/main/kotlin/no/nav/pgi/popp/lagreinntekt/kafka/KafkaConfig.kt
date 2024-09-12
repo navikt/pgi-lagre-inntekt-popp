@@ -1,6 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt.kafka
 
-import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pgi.popp.lagreinntekt.util.getVal
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig

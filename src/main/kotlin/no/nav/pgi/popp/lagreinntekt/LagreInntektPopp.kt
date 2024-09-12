@@ -1,7 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import net.logstash.logback.marker.Markers
-import no.nav.pensjon.samhandling.maskfnr.maskFnr
 import no.nav.pgi.domain.PensjonsgivendeInntekt
 import no.nav.pgi.domain.serialization.PgiDomainSerializer
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
@@ -10,6 +9,7 @@ import no.nav.pgi.popp.lagreinntekt.kafka.inntekt.PensjonsgivendeInntektConsumer
 import no.nav.pgi.popp.lagreinntekt.kafka.republish.RepubliserHendelseProducer
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient.PoppResponse
+import no.nav.pgi.popp.lagreinntekt.util.maskFnr
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.slf4j.LoggerFactory
@@ -31,7 +31,7 @@ internal class LagreInntektPopp(
         private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
     }
 
-    internal fun start(loopForever: Boolean = true) {
+    internal fun processInntektLoop(loopForever: Boolean = true) {
         do try {
             val inntektRecords: List<ConsumerRecord<String, String>> =
                 pgiConsumer.pollInntektRecords()
@@ -56,7 +56,9 @@ internal class LagreInntektPopp(
         delayRequestsToPopp: Boolean,
         inntektRecord: ConsumerRecord<String, String>
     ) {
-        if (delayRequestsToPopp) Thread.sleep(30L)
+        if (delayRequestsToPopp) {
+            Thread.sleep(30L)
+        }
         val pensjonsgivendeInntekt =
             PgiDomainSerializer().fromJson(PensjonsgivendeInntekt::class, inntektRecord.value())
         LOG.info(

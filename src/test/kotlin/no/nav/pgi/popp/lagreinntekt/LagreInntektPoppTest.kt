@@ -51,7 +51,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(1, 3)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
 
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
@@ -63,7 +63,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(5, 6)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
 
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
@@ -74,7 +74,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(100, 102)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
 
         assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
     }
@@ -85,7 +85,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(15, 20)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.start(loopForever = false) }
+        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.processInntektLoop(loopForever = false) }
     }
 
     @Test
@@ -94,7 +94,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(10, 20)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.start(loopForever = false) }
+        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.processInntektLoop(loopForever = false) }
     }
 
     @Test
@@ -103,7 +103,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(10, 12)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
 
         val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
         assertEquals(3, republishedHendelser.size)
@@ -116,7 +116,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(13, 16)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
 
         val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
         assertEquals(4, republishedHendelser.size)
@@ -129,7 +129,7 @@ internal class LagreInntektPoppTest {
         val pgiRecord = createPgiRecords(1, 1).first()
 
         kafkaMockFactory.addRecord(pgiRecord)
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
 
         val republishedHendelseValue =
             PgiDomainSerializer().fromJson(
@@ -148,7 +148,7 @@ internal class LagreInntektPoppTest {
         val pgiRecord = createPgiRecords(1, 1).first()
 
         kafkaMockFactory.addRecord(pgiRecord)
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
 
         val republishedHendelseKey = PgiDomainSerializer().fromJson(
             HendelseKey::class,
@@ -169,7 +169,7 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(10, 20)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.start(loopForever = false) }
+        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.processInntektLoop(loopForever = false) }
     }
 
     @Test
@@ -178,7 +178,7 @@ internal class LagreInntektPoppTest {
             delay(50)
             lagreInntektPopp.stop()
         }
-        lagreInntektPopp.start(loopForever = true)
+        lagreInntektPopp.processInntektLoop(loopForever = true)
 
         assertFalse(kafkaMockFactory.hendelseProducer.closed())
         assertFalse(kafkaMockFactory.pensjonsgivendeInntektConsumer.closed())
@@ -193,7 +193,7 @@ internal class LagreInntektPoppTest {
             lagreInntektPopp.closeKafka()
         }
 
-        lagreInntektPopp.start(loopForever = true)
+        lagreInntektPopp.processInntektLoop(loopForever = true)
         Thread.sleep(100)
 
         assertTrue(kafkaMockFactory.hendelseProducer.closed())

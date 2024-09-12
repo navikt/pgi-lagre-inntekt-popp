@@ -1,6 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
-import no.nav.pensjon.samhandling.maskfnr.maskFnr
+import no.nav.pgi.popp.lagreinntekt.util.maskFnr
 import java.net.http.HttpResponse
 
 internal class UnhandledStatusCodePoppException(response: HttpResponse<String>) :

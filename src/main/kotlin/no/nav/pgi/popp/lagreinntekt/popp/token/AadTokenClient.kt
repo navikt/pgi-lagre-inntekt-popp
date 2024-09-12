@@ -3,8 +3,8 @@ package no.nav.pgi.popp.lagreinntekt.popp.token
 import com.microsoft.aad.msal4j.ClientCredentialFactory
 import com.microsoft.aad.msal4j.ClientCredentialParameters
 import com.microsoft.aad.msal4j.ConfidentialClientApplication
-import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient.TokenProvider
+import no.nav.pgi.popp.lagreinntekt.util.getVal
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.ZoneId

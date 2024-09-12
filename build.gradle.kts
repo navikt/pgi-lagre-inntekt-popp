@@ -16,7 +16,7 @@ val logstashLogbackEncoder = "5.2" // todo: fails if upgraded
 val slf4jVersion = "2.0.9"
 val log4jVersion = "2.20.0"
 
-val junitJupiterVersion = "5.11.0"
+val junitJupiterVersion = "5.10.3" // kan ikke være 5.11 pga problem med spring-boot-plugin'en
 val wiremockVersion = "2.27.2"
 val kafkaEmbeddedEnvVersion = "3.2.8"
 
@@ -36,8 +36,11 @@ val assertJVersion = "3.26.3"
 group = "no.nav.pgi"
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.serialization") version "2.0.20"
+    val kotlinVersion = "2.0.20"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
+    id("org.springframework.boot") version "3.3.2"
+    id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("com.github.ben-manes.versions") version "0.51.0"
 }
 
@@ -46,6 +49,8 @@ java {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
+
+// apply(plugin = "io.spring.dependency-management")
 
 repositories {
     mavenCentral()
@@ -104,6 +109,7 @@ dependencies {
     implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion")
     implementation("org.yaml:snakeyaml:$snakeYamlVersion")
     testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
+//    testImplementation("org.apache.httpcomponents.client5:httpclient5:$httpClient5Version")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")

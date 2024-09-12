@@ -51,7 +51,7 @@ internal class ComponentTest {
 
         populateInntektTopic(inntekter + invalidInntekter)
 
-        lagreInntektPopp.start(loopForever = false)
+        lagreInntektPopp.processInntektLoop(loopForever = false)
         assertEquals(invalidInntekter.size, republishedHendelse.getRecords().size)
     }
 

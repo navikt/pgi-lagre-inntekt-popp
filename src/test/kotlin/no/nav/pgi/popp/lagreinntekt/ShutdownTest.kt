@@ -21,14 +21,14 @@ internal class ShutdownTest {
 
     private val poppMockServer = PoppMockServer()
     private var kafkaMockFactory = KafkaMockFactory()
-    private var application = Application(kafkaMockFactory, testEnvironment())
+    private var application = ApplicationService(kafkaMockFactory, testEnvironment())
 
     @AfterEach
     fun afterEach() {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
         application.tearDown()
-        application = Application(kafkaMockFactory, testEnvironment())
+        application = ApplicationService(kafkaMockFactory, testEnvironment())
         poppMockServer.reset()
     }
 
