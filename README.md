@@ -27,5 +27,5 @@ Se [pgi-lagre-inntekt-popp grafana dasboard](https://grafana.adeo.no/) TODO: Fik
 [Kibana](https://logs.adeo.no/app/kibana) benyttes til logging. Søk på f.eks. ```application:pgi-les-inntekt-skatt AND envclass:q``` for logginnslag fra preprod.
 
 #### Kontakt
-Kontakt Team Samhandling dersom du har noen spørsmål. Vi finnes blant annet på Slack, i kanalen [#samhandling_pensjonsområdet](https://nav-it.slack.com/archives/CQ08JC3UG)
+Kontakt Team Pensjonsopptjening ved spørsmål, slack: #pensjon-opptjening
 
