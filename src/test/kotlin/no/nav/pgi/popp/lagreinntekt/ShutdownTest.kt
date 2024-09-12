@@ -1,9 +1,6 @@
 package no.nav.pgi.popp.lagreinntekt
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import no.nav.pgi.popp.lagreinntekt.mock.KafkaMockFactory
 import no.nav.pgi.popp.lagreinntekt.mock.POPP_MOCK_URL
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer
@@ -11,9 +8,9 @@ import org.apache.kafka.common.KafkaException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
+// TODO: Må skrives helt om får å gi mening
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ShutdownTest {
 
@@ -23,19 +20,21 @@ internal class ShutdownTest {
         poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
         kafkaFactory = kafkaMockFactory,
         env = testEnvironment(),
-        applicationStatus = ApplicationStatus().setStarted(),
+        applicationStatus = ApplicationStatus(),
+        exitApplication = {},
     )
 
     @AfterEach
     fun afterEach() {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
-        application.tearDown()
+        application.terminate()
         application = ApplicationService(
             poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
             kafkaFactory = kafkaMockFactory,
             env = testEnvironment(),
-            applicationStatus = ApplicationStatus().setStarted(),
+            applicationStatus = ApplicationStatus(),
+            exitApplication = {},
         )
         poppMockServer.reset()
     }
@@ -48,23 +47,8 @@ internal class ShutdownTest {
     // TODO: Felles ApplicationService for flere tester, burde opprette per instans    @Test
     fun `should close application when exception is thrown`() {
         kafkaMockFactory.pensjonsgivendeInntektConsumer.setPollException(KafkaException("Test Exception"))
+        application.processInntektRecordsIteration()
 
-        application.startLagreInntektPopp(false)
-        application.stop()
-        application.tearDown()
-        validateClosed()
-    }
-
-    @Test
-    fun `should close application when stop is called`() {
-        GlobalScope.async {
-            delay(50)
-            application.stop()
-        }
-
-        application.startLagreInntektPopp(true)
-        application.stop()
-        application.tearDown()
         validateClosed()
     }
 

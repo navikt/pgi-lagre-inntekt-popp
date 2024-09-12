@@ -15,7 +15,7 @@ internal class KafkaInntektFactory(private val kafkaConfig: KafkaConfig = KafkaC
     )
 }
 
-internal interface KafkaFactory {
+interface KafkaFactory {
     fun pensjonsgivendeInntektConsumer(): Consumer<String, String>
     fun hendelseProducer(): Producer<String, String>
 }
