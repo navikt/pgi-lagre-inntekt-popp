@@ -41,5 +41,7 @@ spec:
     min: 1
     max: 1
   env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: dev-gcp
     - name: APP_TEAM
       value: pensjonopptjening
