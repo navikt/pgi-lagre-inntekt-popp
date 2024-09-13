@@ -37,8 +37,6 @@ class ApplicationService(
     env: Map<String, String> = System.getenv(),
     private val exitApplication: () -> Unit,
 ) {
-    private var stop: AtomicBoolean = AtomicBoolean(false)
-
     private val poppClient = PoppClient(env)
     private val lagreInntektPopp = LagreInntektPopp(
         poppResponseCounter = poppResponseCounter,
@@ -53,6 +51,7 @@ class ApplicationService(
             LOG.info("runIteration: processing records")
             processInntektRecordsIteration()
         } else {
+            LOG.info("runIteration: terminating")
             terminate()
         }
     }

@@ -21,6 +21,7 @@ class Configuration {
     fun applicationService(
         meterRegistry: MeterRegistry,
     ): ApplicationService {
+        LOG.info("Created ApplicationService")
         return ApplicationService(
             applicationStatus = ApplicationStatus(),
             poppResponseCounter = PoppResponseCounter(Counters(meterRegistry)),
