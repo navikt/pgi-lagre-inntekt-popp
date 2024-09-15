@@ -3,6 +3,7 @@ package no.nav.pgi.popp.lagreinntekt
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
+import no.nav.pgi.popp.lagreinntekt.util.maskFnr
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 
@@ -26,18 +27,18 @@ class ApplicationService(
         if (applicationStatus.isActive()) {
             processInntektRecordsIteration()
         } else {
-            LOG.info("runIteration: terminating")
+            log.info("runIteration: terminating")
             terminate()
         }
     }
 
     fun terminate() {
-        LOG.info("Application is stopping: Closing kafka topics")
+        log.info("Application is stopping: Closing kafka topics")
         try {
             lagreInntektPopp.closeKafka()
         } catch (e: Exception) {
             if (!lagreInntektPopp.isClosed()) {
-                LOG.info("Failed to stop lagreInntektPopp, trying again")
+                log.info("Failed to stop lagreInntektPopp, trying again")
                 Thread.sleep(3000)
                 lagreInntektPopp.closeKafka()
             }
@@ -50,13 +51,14 @@ class ApplicationService(
         try {
             lagreInntektPopp.processInntektRecords()
         } catch (e: Throwable) {
-            LOG.error(e.message)
+            log.error(e.message?.maskFnr())
+            secureLog.error(e.message, e)
             applicationStatus.setStopped()
         }
     }
 
     private companion object {
-        private val LOG = LoggerFactory.getLogger(ApplicationService::class.java)
-        private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
+        private val log = LoggerFactory.getLogger(ApplicationService::class.java)
+        private val secureLog = LoggerFactory.getLogger("tjenestekall")
     }
 }

@@ -20,20 +20,20 @@ class Configuration {
     fun applicationService(
         meterRegistry: MeterRegistry,
     ): ApplicationService {
-        LOG.info("Created ApplicationService")
+        log.info("Created ApplicationService")
         return ApplicationService(
             applicationStatus = ApplicationStatus(),
             poppResponseCounter = PoppResponseCounter(meterRegistry),
             exitApplication = {
-                LOG.info("Exiting through injected callback")
+                log.info("Exiting through injected callback")
                 exitProcess(0)
             }
         )
     }
 
     private companion object {
-        private val LOG = LoggerFactory.getLogger(Configuration::class.java)
-        private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
+        private val log = LoggerFactory.getLogger(Configuration::class.java)
+        private val secureLog = LoggerFactory.getLogger("tjenestekall")
     }
 
 }

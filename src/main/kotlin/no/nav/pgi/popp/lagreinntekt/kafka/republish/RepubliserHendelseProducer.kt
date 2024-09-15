@@ -19,8 +19,8 @@ internal class RepubliserHendelseProducer(kafkaFactory: KafkaFactory) {
     private var closed: AtomicBoolean = AtomicBoolean(false)
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(RepubliserHendelseProducer::class.java)
-        private val SECURE_LOG = LoggerFactory.getLogger("tjenestekall")
+        private val log = LoggerFactory.getLogger(RepubliserHendelseProducer::class.java)
+        private val secureLog = LoggerFactory.getLogger("tjenestekall")
     }
 
     internal fun send(consumerRecord: ConsumerRecord<String, String>) {
@@ -32,13 +32,13 @@ internal class RepubliserHendelseProducer(kafkaFactory: KafkaFactory) {
                 PgiDomainSerializer().toJson(value)
             )
         producer.send(hendelseRecord).get()
-        LOG.info(
+        log.info(
             Markers.append("sekvensnummer", value.sekvensnummer),
             "Republiserer hendelse. Sekvensnummer: ${
                 value.sekvensnummer
             } Retries: ${value.metaData.retries}"
         )
-        SECURE_LOG.info(
+        secureLog.info(
             Markers.append("sekvensnummer", value.sekvensnummer),
             "Republiserer hendelse. Sekvensnummer: ${
                 value.sekvensnummer
@@ -49,7 +49,7 @@ internal class RepubliserHendelseProducer(kafkaFactory: KafkaFactory) {
     }
 
     internal fun close() {
-        LOG.info("Closing ${RepubliserHendelseProducer::class.simpleName}")
+        log.info("Closing ${RepubliserHendelseProducer::class.simpleName}")
         producer.close()
         closed.set(true)
     }

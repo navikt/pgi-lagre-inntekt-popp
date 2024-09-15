@@ -5,6 +5,7 @@ import no.nav.pgi.domain.PensjonsgivendeInntektMetadata
 import no.nav.pgi.domain.PensjonsgivendeInntektPerOrdning
 import no.nav.pgi.domain.Skatteordning
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -42,7 +43,7 @@ internal class LagrePgiRequestMapperTest {
         val lagrePgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt)
 
         val pensjonsgivendeInntektFastland = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.FASTLAND)
-        assertEquals(1, lagrePgiRequest.pgiList.size)
+        assertThat(lagrePgiRequest.pgiList).hasSize(1)
         assertEquals(
             pensjonsgivendeInntektFastland.pensjonsgivendeInntektAvLoennsinntekt,
             lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN)
@@ -62,7 +63,7 @@ internal class LagrePgiRequestMapperTest {
 
         val pensjonsgivendeInntektSvalbard = pensjonsgivendeInntekter.getPensjonsgivendeInntekt(Skatteordning.SVALBARD)
 
-        assertEquals(2, lagrePgiRequest.pgiList.size)
+        assertThat(lagrePgiRequest.pgiList).hasSize(2)
 
         val defaultInntekt = 0L
         assertEquals(defaultInntekt, lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN))
@@ -81,7 +82,7 @@ internal class LagrePgiRequestMapperTest {
         val lagrePgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt)
 
         val pensjonsgivendeInntektFastland = pensjonsgivendeInntekt.getPensjonsgivendeInntekt(Skatteordning.SVALBARD)
-        assertEquals(2, lagrePgiRequest.pgiList.size)
+        assertThat(lagrePgiRequest.pgiList).hasSize(2)
         assertEquals(
             pensjonsgivendeInntektFastland.pensjonsgivendeInntektAvLoennsinntekt,
             lagrePgiRequest.getPgiBelop(InntektType.SVA_PGI_LOENN)
@@ -97,7 +98,7 @@ internal class LagrePgiRequestMapperTest {
         val pensjonsgivendeInntekt = pensjonsgivendeInntekt(Skatteordning.FASTLAND, fff = 0L)
         val lagrePgiRequest = toLagrePgiRequest(pensjonsgivendeInntekt)
 
-        assertEquals(1, lagrePgiRequest.pgiList.size)
+        assertThat(lagrePgiRequest.pgiList).hasSize(1)
         assertEquals(0L, lagrePgiRequest.getPgiBelop(InntektType.FL_PGI_LOENN))
     }
 

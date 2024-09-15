@@ -79,8 +79,11 @@ internal class LagrePgiRequestTest {
             }
         """
 
-        val jsonRequest = createLagrePgiRequest(pgiList = listOf(createPgi(inntektType = FL_PGI_LOENN, pgiBelop = null)))
-            .toJson()
+        val jsonRequest = createLagrePgiRequest(
+            pgiList = listOf(
+                createPgi(inntektType = FL_PGI_LOENN, pgiBelop = null)
+            )
+        ).toJson()
 
         assertEquals(mapper.readTree(expectedJson), mapper.readTree(jsonRequest))
     }
@@ -90,14 +93,24 @@ internal class LagrePgiRequestTest {
         aar: Int = inntektsAar,
         pgiList: List<Pgi> = listOf(createPgi()),
         sekvensnr: Long = sekvensnummer
-    ) = LagrePgiRequest(personIdentifikator = identifikator, inntektsaar = aar, pgiList = pgiList, sekvensnummer = sekvensnr)
+    ): LagrePgiRequest {
+        return LagrePgiRequest(
+            personIdentifikator = identifikator,
+            inntektsaar = aar,
+            pgiList = pgiList,
+            sekvensnummer = sekvensnr
+        )
+    }
 
     private fun createPgi(
-        inntektType: InntektType = FL_PGI_LOENN, datoForFastSetting: String = datoForFastsetting, pgiBelop: Long? = belop,
-    ) = Pgi(inntektType = inntektType, datoForFastsetting = datoForFastSetting, belop = pgiBelop)
-
-
+        inntektType: InntektType = FL_PGI_LOENN,
+        datoForFastSetting: String = datoForFastsetting,
+        pgiBelop: Long? = belop,
+    ): Pgi {
+        return Pgi(
+            inntektType = inntektType,
+            datoForFastsetting = datoForFastSetting,
+            belop = pgiBelop
+        )
+    }
 }
-
-
-

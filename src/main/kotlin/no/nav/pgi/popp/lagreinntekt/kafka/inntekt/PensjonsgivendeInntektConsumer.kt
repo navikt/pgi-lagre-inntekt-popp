@@ -23,7 +23,7 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
     }
 
     internal fun close() {
-        LOG.info("Closing ${PensjonsgivendeInntektConsumer::class.simpleName}")
+        log.info("Closing ${PensjonsgivendeInntektConsumer::class.simpleName}")
         consumer.close()
         closed.set(true)
     }
@@ -31,10 +31,10 @@ internal class PensjonsgivendeInntektConsumer(kafkaFactory: KafkaFactory) {
     internal fun isClosed() = closed.get()
 
     private fun logNumberOfRecordsPolledFromTopic(consumerRecords: List<ConsumerRecord<String, String>>) {
-        if (consumerRecords.isNotEmpty()) LOG.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
+        if (consumerRecords.isNotEmpty()) log.info("Number of records polled from topic $PGI_INNTEKT_TOPIC: ${consumerRecords.size}")
     }
 
     private companion object {
-        private val LOG = LoggerFactory.getLogger(PensjonsgivendeInntektConsumer::class.java)
+        private val log = LoggerFactory.getLogger(PensjonsgivendeInntektConsumer::class.java)
     }
 }

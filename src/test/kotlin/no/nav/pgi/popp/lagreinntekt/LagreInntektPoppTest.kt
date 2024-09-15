@@ -243,4 +243,6 @@ internal class LagreInntektPoppTest {
     )
 }
 
-private fun PensjonsgivendeInntekt.key() = HendelseKey(norskPersonidentifikator, inntektsaar.toString())
+private fun PensjonsgivendeInntekt.key(): HendelseKey {
+    return HendelseKey(norskPersonidentifikator, inntektsaar.toString())
+}
