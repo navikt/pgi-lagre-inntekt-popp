@@ -1,6 +1,5 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
-import jakarta.ws.rs.core.UriBuilder
 import no.nav.pgi.domain.PensjonsgivendeInntekt
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient
@@ -19,7 +18,7 @@ internal class PoppClient(
 ) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
     private val poppHost = environment.getVal(POPP_URL)
-    private val poppUrl = UriBuilder.fromPath(poppHost).path(PGI_PATH).build()
+    val poppUrl : URI = URI("$poppHost$PGI_PATH")
 
     internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): PoppResponse {
         val response = httpClient.send(
