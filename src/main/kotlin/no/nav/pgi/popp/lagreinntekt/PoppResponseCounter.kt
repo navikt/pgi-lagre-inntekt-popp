@@ -1,24 +1,38 @@
 package no.nav.pgi.popp.lagreinntekt
 
-class PoppResponseCounter(private val counters: Counters) {
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tag
+
+class PoppResponseCounter(private val meterRegistry: MeterRegistry) {
+
+    private fun poppResponses(statusCode: String) : Counter {
+        return meterRegistry.counter(
+            "pgi_lagre_inntekt_popp_response_counter",
+            listOf(
+                Tag.of("statusCode", statusCode),
+                Tag.of("help", "Count response status codes from popp")
+            )
+        )
+    }
 
     fun ok(statusCode: Int) {
-        counters.incrementPoppResponse("${statusCode}_OK")
+        poppResponses("${statusCode}_OK").increment()
     }
 
     fun pidValidationFailed(statusCode: Int) {
-        counters.incrementPoppResponse("${statusCode}_Pid_Validation")
+        poppResponses("${statusCode}_Pid_Validation").increment()
     }
 
     fun inntektArValidation(statusCode: Int) {
-        counters.incrementPoppResponse("${statusCode}_InnntektAar_Validation")
+        poppResponses("${statusCode}_InnntektAar_Validation").increment()
     }
 
     fun republish(statusCode: Int) {
-        counters.incrementPoppResponse("${statusCode}_Republish")
+        poppResponses("${statusCode}_Republish").increment()
     }
 
     fun shutdown(statusCode: Int) {
-        counters.incrementPoppResponse("${statusCode}_Shutdown")
+        poppResponses("${statusCode}_Shutdown").increment()
     }
 }

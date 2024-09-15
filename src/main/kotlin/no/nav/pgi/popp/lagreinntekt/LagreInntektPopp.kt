@@ -61,9 +61,7 @@ internal class LagreInntektPopp(
             Markers.append("sekvensnummer", pensjonsgivendeInntekt.metaData.sekvensnummer),
             "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer}"
         )
-        val response = poppClient.postPensjonsgivendeInntekt(pensjonsgivendeInntekt)
-
-        when (response) {
+        when (val response = poppClient.postPensjonsgivendeInntekt(pensjonsgivendeInntekt)) {
             is PoppResponse.OK -> logSuccessfulRequestToPopp(response.httpResponse, pensjonsgivendeInntekt)
             is PoppResponse.PidValidationFailed -> logPidValidationFailed(
                 response.httpResponse,

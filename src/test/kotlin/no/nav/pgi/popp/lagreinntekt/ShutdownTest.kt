@@ -17,7 +17,7 @@ internal class ShutdownTest {
     private val poppMockServer = PoppMockServer()
     private var kafkaMockFactory = KafkaMockFactory()
     private var application = ApplicationService(
-        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+        poppResponseCounter = PoppResponseCounter(SimpleMeterRegistry()),
         kafkaFactory = kafkaMockFactory,
         env = testEnvironment(),
         applicationStatus = ApplicationStatus(),
@@ -30,7 +30,7 @@ internal class ShutdownTest {
         kafkaMockFactory = KafkaMockFactory()
         application.terminate()
         application = ApplicationService(
-            poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+            poppResponseCounter = PoppResponseCounter(SimpleMeterRegistry()),
             kafkaFactory = kafkaMockFactory,
             env = testEnvironment(),
             applicationStatus = ApplicationStatus(),

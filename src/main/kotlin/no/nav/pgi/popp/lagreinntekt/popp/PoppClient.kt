@@ -18,7 +18,7 @@ internal class PoppClient(
 ) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
     private val poppHost = environment.getVal(POPP_URL)
-    val poppUrl : URI = URI("$poppHost$PGI_PATH")
+    private val poppUrl : URI = URI("$poppHost$PGI_PATH")
 
     internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): PoppResponse {
         val response = httpClient.send(

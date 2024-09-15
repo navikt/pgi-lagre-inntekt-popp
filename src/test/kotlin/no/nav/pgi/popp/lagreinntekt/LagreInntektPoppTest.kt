@@ -27,7 +27,7 @@ internal class LagreInntektPoppTest {
         tokenProvider = TokenProviderMock()
     )
     private var lagreInntektPopp = LagreInntektPopp(
-        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+        poppResponseCounter = PoppResponseCounter(SimpleMeterRegistry()),
         poppClient = poppClient,
         kafkaFactory = kafkaMockFactory
     )
@@ -42,7 +42,7 @@ internal class LagreInntektPoppTest {
         kafkaMockFactory.close()
         kafkaMockFactory = KafkaMockFactory()
         lagreInntektPopp = LagreInntektPopp(
-            poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+            poppResponseCounter = PoppResponseCounter(SimpleMeterRegistry()),
             poppClient = poppClient,
             kafkaFactory = kafkaMockFactory
         )
@@ -179,7 +179,9 @@ internal class LagreInntektPoppTest {
         val pgiRecords = createPgiRecords(10, 20)
 
         pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
-        assertThrows<UnhandledStatusCodePoppException> { lagreInntektPopp.processInntektRecords() }
+        assertThrows<UnhandledStatusCodePoppException> {
+            lagreInntektPopp.processInntektRecords()
+        }
     }
 
     @Test

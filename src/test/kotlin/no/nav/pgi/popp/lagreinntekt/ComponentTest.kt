@@ -41,7 +41,7 @@ internal class ComponentTest {
     private val poppMockServer = PoppMockServer()
     private val poppClient = PoppClient(mapOf("POPP_URL" to POPP_MOCK_URL), TokenProviderMock())
     private val lagreInntektPopp = LagreInntektPopp(
-        poppResponseCounter = PoppResponseCounter(Counters(SimpleMeterRegistry())),
+        poppResponseCounter = PoppResponseCounter(SimpleMeterRegistry()),
         poppClient = poppClient,
         kafkaFactory = kafkaFactory
     )

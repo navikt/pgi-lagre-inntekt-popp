@@ -3,7 +3,6 @@ package no.nav.pgi.popp.lagreinntekt.util
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.pgi.popp.lagreinntekt.ApplicationService
 import no.nav.pgi.popp.lagreinntekt.ApplicationStatus
-import no.nav.pgi.popp.lagreinntekt.Counters
 import no.nav.pgi.popp.lagreinntekt.PoppResponseCounter
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -24,7 +23,7 @@ class Configuration {
         LOG.info("Created ApplicationService")
         return ApplicationService(
             applicationStatus = ApplicationStatus(),
-            poppResponseCounter = PoppResponseCounter(Counters(meterRegistry)),
+            poppResponseCounter = PoppResponseCounter(meterRegistry),
             exitApplication = {
                 LOG.info("Exiting through injected callback")
                 exitProcess(0)
