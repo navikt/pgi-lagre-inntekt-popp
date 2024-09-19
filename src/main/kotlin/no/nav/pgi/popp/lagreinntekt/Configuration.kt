@@ -1,9 +1,6 @@
-package no.nav.pgi.popp.lagreinntekt.util
+package no.nav.pgi.popp.lagreinntekt
 
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.pgi.popp.lagreinntekt.ApplicationService
-import no.nav.pgi.popp.lagreinntekt.ApplicationStatus
-import no.nav.pgi.popp.lagreinntekt.PoppResponseCounter
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

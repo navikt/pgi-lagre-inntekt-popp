@@ -35,6 +35,7 @@ val assertJVersion = "3.26.3"
 
 val springBootVersion = "3.3.3"
 val jerseyVersion = "3.1.8"
+val springKafkaVersion = "3.2.3"
 
 group = "no.nav.pgi"
 
@@ -77,14 +78,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.kafka:spring-kafka:$springKafkaVersion")
+    testImplementation("org.springframework.kafka:spring-kafka-test:$springKafkaVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-
-//    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1") // TODO: versjonsvariabel
 
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
+//    implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
     implementation("no.nav.pgi:pgi-domain:$pgiDomainVersion")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
@@ -108,7 +109,7 @@ dependencies {
     implementation("org.json:json:$jsonVersion")
     implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion")
     implementation("org.yaml:snakeyaml:$snakeYamlVersion")
-    testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
+//    testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
 //    testImplementation("org.apache.httpcomponents.client5:httpclient5:$httpClient5Version")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
@@ -116,9 +117,11 @@ dependencies {
 
     testImplementation("org.assertj:assertj-core:$assertJVersion")
 
+    /*
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion") {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")
     }
+     */
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 
     testImplementation("org.wiremock:wiremock-jetty12:$wiremockVersion")
