@@ -22,7 +22,6 @@ import no.nav.pgi.popp.lagreinntekt.mock.TokenProviderMock
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 

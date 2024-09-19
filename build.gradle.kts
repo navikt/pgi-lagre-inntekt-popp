@@ -3,15 +3,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kafkaVersion = "3.7.1"
-val confluentVersion = "5.5.1"
-val ktorVersion = "1.6.8"
+// val ktorVersion = "1.6.8"
 val msal4jVersion = "1.8.1"
 
-val ktorSupportVersion = "0.0.30"
 val pgiDomainVersion = "0.0.5"
 
 val micrometerVersion = "1.13.3"
-val logbackClassicVersion = "1.4.11"
+val logbackClassicVersion = "1.4.14"
 val logstashLogbackEncoder = "5.2" // todo: fails if upgraded
 val slf4jVersion = "2.0.9"
 val log4jVersion = "2.20.0"
@@ -21,20 +19,20 @@ val wiremockVersion = "3.9.1"
 val kafkaEmbeddedEnvVersion = "3.2.4"
 
 val jacksonVersion = "2.17.2"
-val guavaVersion = "32.1.3-jre"
+val guavaVersion = "33.3.0-jre"
 val httpClientVersion = "4.5.14"
-val gsonVersion = "2.10.1"
+val gsonVersion = "2.11.0"
 val commonsCompressVersion = "1.24.0"
 val commonsCodecVersion = "1.16.0"
 val commonsIoVersion = "2.14.0"
-val jsonVersion = "20231013"
-val snakeYamlVersion = "1.33" // har sikkerhetshull, men kan ikke oppdatere videre til 2.x pga spring
-val snappyJavaVersion = "1.1.10.6"
+val jsonVersion = "20240303"
+val snappyJavaVersion = "1.1.10.7"
 
 val assertJVersion = "3.26.3"
 
 val springBootVersion = "3.3.3"
 val jerseyVersion = "3.1.8"
+val kotlinxVersion = "1.9.0"
 
 group = "no.nav.pgi"
 
@@ -42,7 +40,7 @@ plugins {
     val kotlinVersion = "2.0.20"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
-    id("org.springframework.boot") version "3.3.2"
+    id("org.springframework.boot") version "3.3.3"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("com.github.ben-manes.versions") version "0.51.0"
 }
@@ -96,7 +94,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
 
     implementation("com.microsoft.azure:msal4j:$msal4jVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+//    implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
     // Overstyrer noen transitive avhengigheter (mest pga sikkerhet)
     // implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion") -- breaks kafka
@@ -107,9 +105,10 @@ dependencies {
     implementation("commons-io:commons-io:$commonsIoVersion")
     implementation("org.json:json:$jsonVersion")
     implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion")
-    implementation("org.yaml:snakeyaml:$snakeYamlVersion")
-    testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
+//    implementation("org.yaml:snakeyaml:$snakeYamlVersion")
+//    testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
 //    testImplementation("org.apache.httpcomponents.client5:httpclient5:$httpClient5Version")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
