@@ -39,7 +39,7 @@ internal class KafkaMockFactory(
     companion object {
         internal const val DEFAULT_PARTITION = 0
 
-        internal fun defaultHendelseProducer() = MockProducer<String, String>(true, StringSerializer(), StringSerializer())
+        internal fun defaultHendelseProducer() = MockProducer(true, StringSerializer(), StringSerializer())
 
         internal fun defaultPensjonsgivendeInntektConsumer() =
             MockConsumer<String, String>(OffsetResetStrategy.EARLIEST)

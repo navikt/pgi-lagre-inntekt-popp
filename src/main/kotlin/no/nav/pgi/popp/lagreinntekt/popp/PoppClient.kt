@@ -47,7 +47,7 @@ internal class PoppClient(
         private const val POPP_URL = "POPP_URL"
     }
 
-    sealed class PoppResponse() {
+    sealed class PoppResponse {
         data class OK(val httpResponse: HttpResponse<String>) : PoppResponse()
         data class PidValidationFailed(val httpResponse: HttpResponse<String>) : PoppResponse()
         data class InntektAarValidationFailed(val httpResponse: HttpResponse<String>) : PoppResponse()
@@ -71,5 +71,4 @@ internal class PoppClient(
             }
         }
     }
-
 }

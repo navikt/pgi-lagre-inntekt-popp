@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kafkaVersion = "3.7.1"
-// val ktorVersion = "1.6.8"
 val msal4jVersion = "1.8.1"
 
 val pgiDomainVersion = "0.0.5"
@@ -27,6 +26,8 @@ val commonsCodecVersion = "1.16.0"
 val commonsIoVersion = "2.14.0"
 val jsonVersion = "20240303"
 val snappyJavaVersion = "1.1.10.7"
+val jakartaWsRsVersion = "3.1.0"
+val jakartaBindVersion = "3.0.1"
 
 val assertJVersion = "3.26.3"
 
@@ -73,7 +74,6 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
 
@@ -92,12 +92,8 @@ dependencies {
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
-
     implementation("com.microsoft.azure:msal4j:$msal4jVersion")
-//    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-
-    // Overstyrer noen transitive avhengigheter (mest pga sikkerhet)
-    // implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion") -- breaks kafka
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaWsRsVersion")
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("org.apache.commons:commons-compress:$commonsCompressVersion")
@@ -105,9 +101,8 @@ dependencies {
     implementation("commons-io:commons-io:$commonsIoVersion")
     implementation("org.json:json:$jsonVersion")
     implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion")
-//    implementation("org.yaml:snakeyaml:$snakeYamlVersion")
-//    testImplementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
-//    testImplementation("org.apache.httpcomponents.client5:httpclient5:$httpClient5Version")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
@@ -127,8 +122,7 @@ dependencies {
     testImplementation(("org.glassfish.jersey.core:jersey-common:$jerseyVersion"))
     testImplementation(("org.glassfish.jersey.core:jersey-client:$jerseyVersion"))
     testImplementation(("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"))
-    testImplementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
-    implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
+    testImplementation("jakarta.xml.bind:jakarta.xml.bind-api:$jakartaBindVersion")
 
 }
 
