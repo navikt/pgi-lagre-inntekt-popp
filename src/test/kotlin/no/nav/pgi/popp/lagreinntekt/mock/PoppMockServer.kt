@@ -60,7 +60,11 @@ internal class PoppMockServer {
         poppApiMockServer.stubFor(
             post(urlPathEqualTo(PGI_PATH))
                 .atPriority(10)
-                .willReturn(aResponse().withStatus(400).withBody(body))
+                .willReturn(
+                    aResponse()
+                        .withStatus(400)
+                        .withBody(body)
+                )
         )
     }
 
@@ -68,7 +72,11 @@ internal class PoppMockServer {
         poppApiMockServer.stubFor(
             post(urlPathEqualTo(PGI_PATH))
                 .atPriority(10)
-                .willReturn(aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(409)
+                        .withBody("Bruker eksisterer ikke i PEN")
+                )
         )
     }
 
@@ -76,7 +84,11 @@ internal class PoppMockServer {
         poppApiMockServer.stubFor(
             post(urlPathEqualTo(PGI_PATH))
                 .atPriority(10)
-                .willReturn(aResponse().withStatus(409).withBody("Fant ikke person"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(409)
+                        .withBody("Fant ikke person")
+                )
         )
     }
 

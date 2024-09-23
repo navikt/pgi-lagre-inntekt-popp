@@ -32,5 +32,5 @@ internal enum class InntektType {
     SVA_PGI_NAERING_FFF
 }
 
-private val mapper = ObjectMapper().registerModule(KotlinModule())
+private val mapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
 internal fun LagrePgiRequest.toJson() = mapper.writeValueAsString(this)

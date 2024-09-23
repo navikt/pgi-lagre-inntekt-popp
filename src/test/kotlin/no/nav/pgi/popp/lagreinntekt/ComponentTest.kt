@@ -1,5 +1,7 @@
 package no.nav.pgi.popp.lagreinntekt
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.pgi.domain.*
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaConfig
 import no.nav.pgi.popp.lagreinntekt.kafka.KafkaInntektFactory
 import no.nav.pgi.popp.lagreinntekt.kafka.testenvironment.HendelseTestConsumer
@@ -18,21 +20,34 @@ import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_409
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_409
 import no.nav.pgi.popp.lagreinntekt.mock.TokenProviderMock
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
-import no.nav.samordning.pgi.schema.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ComponentTest {
     private val kafkaTestEnvironment = KafkaTestEnvironment()
-    private val kafkaFactory = KafkaInntektFactory(KafkaConfig(kafkaTestEnvironment.testEnvironment(), PlaintextStrategy()))
+    private val kafkaFactory = KafkaInntektFactory(
+        KafkaConfig(
+            kafkaTestEnvironment.testEnvironment(),
+            PlaintextStrategy()
+        )
+    )
     private val inntektTestProducer: InntektTestProducer = InntektTestProducer(kafkaTestEnvironment.commonTestConfig())
-    private val republishedHendelse = HendelseTestConsumer(kafkaTestEnvironment.commonTestConfig())
+    private val republishedHendelse = HendelseTestConsumer(
+        kafkaTestEnvironment.commonTestConfig()
+    )
     private val poppMockServer = PoppMockServer()
-    private val poppClient = PoppClient(mapOf("POPP_URL" to POPP_MOCK_URL), TokenProviderMock())
-    private val lagreInntektPopp = LagreInntektPopp(poppClient, kafkaFactory)
+    private val poppClient = PoppClient(
+        environment = mapOf(pair = "POPP_URL" to POPP_MOCK_URL),
+        tokenProvider = TokenProviderMock()
+    )
+    private val lagreInntektPopp = LagreInntektPopp(
+        poppResponseCounter = PoppResponseCounter(SimpleMeterRegistry()),
+        poppClient = poppClient,
+        kafkaFactory = kafkaFactory
+    )
 
     @AfterAll
     fun tearDown() {
@@ -45,27 +60,25 @@ internal class ComponentTest {
     @Test
     fun `application sends inntekter to popp or republishes them to hendelse topic if status 200 or 409`() {
         val inntekter = pensjonsgivendeInntekterWith200FromPopp()
-        println("inntekter: ${inntekter.size}")
         val invalidInntekter = pensjonsgivendeInntekterWith409FromPopp()
-        println("invalid409: ${invalidInntekter.size}")
 
         populateInntektTopic(inntekter + invalidInntekter)
 
-        lagreInntektPopp.start(loopForever = false)
-        assertEquals(invalidInntekter.size, republishedHendelse.getRecords().size)
+        lagreInntektPopp.processInntektRecords()
+        assertThat(republishedHendelse.getRecords()).hasSameSizeAs(invalidInntekter)
     }
 
     private fun populateInntektTopic(inntekter: List<PensjonsgivendeInntekt>) {
         inntekter.forEach {
-            val hendelseKey = HendelseKey(it.getNorskPersonidentifikator(), it.getInntektsaar().toString())
+            val hendelseKey = HendelseKey(it.norskPersonidentifikator, it.inntektsaar.toString())
             inntektTestProducer.produceToInntektTopic(hendelseKey, it)
         }
     }
 
     private fun pensjonsgivendeInntekterWith200FromPopp() = listOf(
-        createPensjonsgivendeInntekt(FNR_NR1_200, 2018, PensjonsgivendeInntektMetadata()),
-        createPensjonsgivendeInntekt(FNR_NR2_200, 2019, PensjonsgivendeInntektMetadata()),
-        createPensjonsgivendeInntekt(FNR_NR3_200, 2020, PensjonsgivendeInntektMetadata())
+        createPensjonsgivendeInntekt(FNR_NR1_200, 2018, PensjonsgivendeInntektMetadata(0, 0)),
+        createPensjonsgivendeInntekt(FNR_NR2_200, 2019, PensjonsgivendeInntektMetadata(0, 0)),
+        createPensjonsgivendeInntekt(FNR_NR3_200, 2020, PensjonsgivendeInntektMetadata(0, 0))
     )
 
     private fun pensjonsgivendeInntekterWith409FromPopp() = listOf(

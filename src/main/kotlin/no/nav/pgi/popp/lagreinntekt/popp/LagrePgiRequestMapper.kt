@@ -1,41 +1,42 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntektPerOrdning
-import no.nav.samordning.pgi.schema.Skatteordning
+import no.nav.pgi.domain.PensjonsgivendeInntekt
+import no.nav.pgi.domain.PensjonsgivendeInntektPerOrdning
+import no.nav.pgi.domain.Skatteordning
+
 
 object LagrePgiRequestMapper {
 
     internal fun toLagrePgiRequest(pensjonsgivendeInntekt: PensjonsgivendeInntekt): LagrePgiRequest {
         return LagrePgiRequest(
-            personIdentifikator = pensjonsgivendeInntekt.getNorskPersonidentifikator(),
-            inntektsaar = pensjonsgivendeInntekt.getInntektsaar().toInt(),
-            pgiList = pensjonsgivendeInntekt.getPensjonsgivendeInntekt().map { toPgiList(it) }.flatten(),
-            sekvensnummer = pensjonsgivendeInntekt.getMetaData().getSekvensnummer()
+            personIdentifikator = pensjonsgivendeInntekt.norskPersonidentifikator,
+            inntektsaar = pensjonsgivendeInntekt.inntektsaar.toInt(),
+            pgiList = pensjonsgivendeInntekt.pensjonsgivendeInntekt.map { toPgiList(it) }.flatten(),
+            sekvensnummer = pensjonsgivendeInntekt.metaData.sekvensnummer
         )
     }
 
     private fun toPgiList(pensjonsGivendeInntekt: PensjonsgivendeInntektPerOrdning): List<Pgi> {
         val pgiList = listOf(
             toPgi(
-                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
-                pensjonsGivendeInntekt.getDatoForFastsetting(),
-                pensjonsGivendeInntekt.getPensjonsgivendeInntektAvLoennsinntekt()
+                createInntektType(pensjonsGivendeInntekt.skatteordning, PgiTypeUtenOrdning.PGI_LOENN),
+                pensjonsGivendeInntekt.datoForFastsetting,
+                pensjonsGivendeInntekt.pensjonsgivendeInntektAvLoennsinntekt
             ),
             toPgi(
-                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN_PD),
-                pensjonsGivendeInntekt.getDatoForFastsetting(),
-                pensjonsGivendeInntekt.getPensjonsgivendeInntektAvLoennsinntektBarePensjonsdel()
+                createInntektType(pensjonsGivendeInntekt.skatteordning, PgiTypeUtenOrdning.PGI_LOENN_PD),
+                pensjonsGivendeInntekt.datoForFastsetting,
+                pensjonsGivendeInntekt.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel
             ),
             toPgi(
-                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_NAERING),
-                pensjonsGivendeInntekt.getDatoForFastsetting(),
-                pensjonsGivendeInntekt.getPensjonsgivendeInntektAvNaeringsinntekt()
+                createInntektType(pensjonsGivendeInntekt.skatteordning, PgiTypeUtenOrdning.PGI_NAERING),
+                pensjonsGivendeInntekt.datoForFastsetting,
+                pensjonsGivendeInntekt.pensjonsgivendeInntektAvNaeringsinntekt
             ),
             toPgi(
-                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_NAERING_FFF),
-                pensjonsGivendeInntekt.getDatoForFastsetting(),
-                pensjonsGivendeInntekt.getPensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage()
+                createInntektType(pensjonsGivendeInntekt.skatteordning, PgiTypeUtenOrdning.PGI_NAERING_FFF),
+                pensjonsGivendeInntekt.datoForFastsetting,
+                pensjonsGivendeInntekt.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
             )
         ).filterNullInntekter()
 
@@ -51,8 +52,8 @@ object LagrePgiRequestMapper {
     private fun defaultPgiListLoenn(pensjonsGivendeInntekt: PensjonsgivendeInntektPerOrdning) =
         listOf(
             toPgi(
-                createInntektType(pensjonsGivendeInntekt.getSkatteordning(), PgiTypeUtenOrdning.PGI_LOENN),
-                pensjonsGivendeInntekt.getDatoForFastsetting(),
+                createInntektType(pensjonsGivendeInntekt.skatteordning, PgiTypeUtenOrdning.PGI_LOENN),
+                pensjonsGivendeInntekt.datoForFastsetting,
                 0L
             )
         )

@@ -3,13 +3,13 @@ package no.nav.pgi.popp.lagreinntekt.popp.token
 import com.microsoft.aad.msal4j.ClientCredentialFactory
 import com.microsoft.aad.msal4j.ClientCredentialParameters
 import com.microsoft.aad.msal4j.ConfidentialClientApplication
-import no.nav.pensjon.samhandling.env.getVal
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient.TokenProvider
+import no.nav.pgi.popp.lagreinntekt.util.getVal
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-private val LOG = LoggerFactory.getLogger(AadTokenClient::class.java)
+private val log = LoggerFactory.getLogger(AadTokenClient::class.java)
 
 internal class AadTokenClient(environment: Map<String, String>) : TokenProvider {
     private val clientId = environment.getVal(CLIENT_ID)
@@ -32,7 +32,7 @@ internal class AadTokenClient(environment: Map<String, String>) : TokenProvider 
     private fun getAadToken(): AadToken {
         val clientCredentialParameters = ClientCredentialParameters.builder(scopes).build()
         val authenticationResult = confidentialClientApplication.acquireToken(clientCredentialParameters).get()
-        LOG.info("Fetching new AadToken")
+        log.info("Fetching new AadToken")
         return AadToken(
             authenticationResult.accessToken(),
             authenticationResult.expiresOnDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()

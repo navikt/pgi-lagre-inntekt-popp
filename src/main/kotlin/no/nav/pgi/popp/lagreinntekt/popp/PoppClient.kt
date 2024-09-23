@@ -1,15 +1,14 @@
 package no.nav.pgi.popp.lagreinntekt.popp
 
-import no.nav.pensjon.samhandling.env.getVal
+import no.nav.pgi.domain.PensjonsgivendeInntekt
 import no.nav.pgi.popp.lagreinntekt.popp.LagrePgiRequestMapper.toLagrePgiRequest
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient
 import no.nav.pgi.popp.lagreinntekt.popp.token.AadTokenClient.AadToken
-import no.nav.samordning.pgi.schema.PensjonsgivendeInntekt
+import no.nav.pgi.popp.lagreinntekt.util.getVal
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import javax.ws.rs.core.UriBuilder
 
 internal const val PGI_PATH = "/popp/api/inntekt/pgi"
 
@@ -19,11 +18,11 @@ internal class PoppClient(
 ) {
     private val httpClient: HttpClient = HttpClient.newHttpClient()
     private val poppHost = environment.getVal(POPP_URL)
-    private val poppUrl = UriBuilder.fromPath(poppHost).path(PGI_PATH).build()
+    private val poppUrl : URI = URI("$poppHost$PGI_PATH")
 
     internal fun postPensjonsgivendeInntekt(pgi: PensjonsgivendeInntekt): PoppResponse {
         val response = httpClient.send(
-            createPostRequest(poppUrl, toLagrePgiRequest(pgi), pgi.getMetaData().getSekvensnummer()),
+            createPostRequest(poppUrl, toLagrePgiRequest(pgi), pgi.metaData.sekvensnummer),
             HttpResponse.BodyHandlers.ofString()
         )
         return PoppResponse.of(response)
@@ -48,7 +47,7 @@ internal class PoppClient(
         private const val POPP_URL = "POPP_URL"
     }
 
-    sealed class PoppResponse() {
+    sealed class PoppResponse {
         data class OK(val httpResponse: HttpResponse<String>) : PoppResponse()
         data class PidValidationFailed(val httpResponse: HttpResponse<String>) : PoppResponse()
         data class InntektAarValidationFailed(val httpResponse: HttpResponse<String>) : PoppResponse()
@@ -72,5 +71,4 @@ internal class PoppClient(
             }
         }
     }
-
 }
