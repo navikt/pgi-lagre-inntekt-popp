@@ -59,6 +59,6 @@ class ApplicationService(
 
     private companion object {
         private val log = LoggerFactory.getLogger(ApplicationService::class.java)
-        private val secureLog = LoggerFactory.getLogger("tjenestekall")
+        private val secureLog = LoggerFactory.getLogger("team")
     }
 }

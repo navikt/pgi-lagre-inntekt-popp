@@ -26,7 +26,7 @@ internal class LagreInntektPopp(
 
     private companion object {
         private val log = LoggerFactory.getLogger(LagreInntektPopp::class.java)
-        private val secureLog = LoggerFactory.getLogger("tjenestekall")
+        private val secureLog = LoggerFactory.getLogger("team")
     }
 
     internal fun processInntektRecords() {

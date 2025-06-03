@@ -20,7 +20,7 @@ internal class RepubliserHendelseProducer(kafkaFactory: KafkaFactory) {
 
     companion object {
         private val log = LoggerFactory.getLogger(RepubliserHendelseProducer::class.java)
-        private val secureLog = LoggerFactory.getLogger("tjenestekall")
+        private val secureLog = LoggerFactory.getLogger("team")
     }
 
     internal fun send(consumerRecord: ConsumerRecord<String, String>) {

@@ -30,7 +30,7 @@ class Configuration {
 
     private companion object {
         private val log = LoggerFactory.getLogger(Configuration::class.java)
-        private val secureLog = LoggerFactory.getLogger("tjenestekall")
+        private val secureLog = LoggerFactory.getLogger("team")
     }
 
 }

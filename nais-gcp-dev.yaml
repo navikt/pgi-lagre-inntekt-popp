@@ -8,8 +8,6 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
-  secureLogs:
-    enabled: true
   azure:
     application:
       enabled: true
@@ -20,6 +18,9 @@ spec:
     pool: nav-dev
   accessPolicy:
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: pensjon-popp.dev-fss-pub.nais.io
   liveness:
@@ -37,6 +38,10 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
   replicas:
     min: 1
     max: 1
