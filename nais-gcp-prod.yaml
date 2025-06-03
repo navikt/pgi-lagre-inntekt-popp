@@ -16,10 +16,10 @@ spec:
   kafka:
     pool: nav-prod
   accessPolicy:
-    rules:
-      - application: logging
-        namespace: nais-system
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: pensjon-popp.prod-fss-pub.nais.io
   liveness:
