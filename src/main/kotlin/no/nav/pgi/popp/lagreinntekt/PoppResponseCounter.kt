@@ -15,9 +15,18 @@ class PoppResponseCounter(private val meterRegistry: MeterRegistry) {
             )
         )
     }
+    private fun pgiLagretInntektForInntektsårCounter(inntektsaar: Long) : Counter {
+        return meterRegistry.counter(
+            "pgi_lagre_inntekt_popp_by_year_counter",
+            listOf(
+                Tag.of("inntektsaar", inntektsaar.toString()),
+                Tag.of("help", "Count lagret inntekt per inntektsår i popp")
+            )
+        )
+    }
 
-    fun ok(statusCode: Int) {
-        poppResponses("${statusCode}_OK").increment()
+    fun lagretOkForInntektsår(inntektsaar: Long) {
+        pgiLagretInntektForInntektsårCounter(inntektsaar).increment()
     }
 
     fun pidValidationFailed(statusCode: Int) {

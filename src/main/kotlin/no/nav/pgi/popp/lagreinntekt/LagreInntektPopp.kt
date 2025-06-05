@@ -59,7 +59,8 @@ internal class LagreInntektPopp(
             PgiDomainSerializer().fromJson(PensjonsgivendeInntekt::class, inntektRecord.value())
         log.info(
             Markers.append("sekvensnummer", pensjonsgivendeInntekt.metaData.sekvensnummer),
-            "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer}"
+            "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer}" +
+                    "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}"
         )
         when (val response = poppClient.postPensjonsgivendeInntekt(pensjonsgivendeInntekt)) {
             is PoppResponse.OK -> logSuccessfulRequestToPopp(response.httpResponse, pensjonsgivendeInntekt)
@@ -98,12 +99,12 @@ internal class LagreInntektPopp(
     }
 
     private fun logSuccessfulRequestToPopp(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
-        poppResponseCounter.ok(response.statusCode())
+        poppResponseCounter.lagretOkForInntektsår(pgi.inntektsaar)
         val sekvensnummer = pgi.metaData.sekvensnummer
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         log.info(
             marker,
-            "Lagret OK i POPP. (Status: ${response.statusCode()}) Sekvensnummer: $sekvensnummer"
+            "Lagret OK i POPP. (Status: ${response.statusCode()}) InntektsÅr: ${pgi.inntektsaar} Sekvensnummer: $sekvensnummer"
         )
         secureLog.info(
             marker,
