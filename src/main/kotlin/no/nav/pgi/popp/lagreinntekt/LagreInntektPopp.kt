@@ -59,7 +59,7 @@ internal class LagreInntektPopp(
             PgiDomainSerializer().fromJson(PensjonsgivendeInntekt::class, inntektRecord.value())
         log.info(
             Markers.append("sekvensnummer", pensjonsgivendeInntekt.metaData.sekvensnummer),
-            "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer}" +
+            "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer} " +
                     "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}"
         )
         when (val response = poppClient.postPensjonsgivendeInntekt(pensjonsgivendeInntekt)) {
