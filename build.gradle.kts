@@ -58,12 +58,6 @@ repositories {
     mavenCentral()
     maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
-    maven("https://maven.pkg.github.com/navikt/pensjon-samhandling-ktor-support") {
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
-    }
     maven("https://maven.pkg.github.com/navikt/pgi-domain") {
         credentials {
             username = System.getenv("GITHUB_ACTOR")
