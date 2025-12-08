@@ -57,8 +57,14 @@ internal class LagreInntektPopp(
         }
         val pensjonsgivendeInntekt =
             PgiDomainSerializer().fromJson(PensjonsgivendeInntekt::class, inntektRecord.value())
+        val marker = Markers.append("sekvensnummer", pensjonsgivendeInntekt.metaData.sekvensnummer)
         log.info(
-            Markers.append("sekvensnummer", pensjonsgivendeInntekt.metaData.sekvensnummer),
+            marker,
+            "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer} " +
+                    "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}"
+        )
+        secureLog.info(
+            marker,
             "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer} " +
                     "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}"
         )
@@ -108,7 +114,7 @@ internal class LagreInntektPopp(
         )
         secureLog.info(
             marker,
-            "Lagret OK i POPP. ${response.logString()}. For pgi: $pgi"
+            "Lagret OK i POPP. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer"
         )
     }
 
@@ -118,11 +124,11 @@ internal class LagreInntektPopp(
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         log.warn(
             marker,
-            """Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi""".maskFnr()
+            """Failed when adding to POPP. Inntekt will be discarded. Pid did not validate ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer""".maskFnr()
         )
         secureLog.warn(
             marker,
-            "Failed when adding to POPP. Inntekt will be descarded. Pid did not validate ${response.logString()}. For pgi: $pgi"
+            "Failed when adding to POPP. Inntekt will be discarded. Pid did not validate ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer"
         )
     }
 
@@ -132,11 +138,11 @@ internal class LagreInntektPopp(
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         log.warn(
             marker,
-            """Inntektaar is not valid for pgi. Inntekt will be descarded. ${response.logString()}. For pgi: $pgi """.maskFnr()
+            """Inntektaar is not valid for pgi. Inntekt will be discarded. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer """.maskFnr()
         )
         secureLog.warn(
             marker,
-            "Inntektaar is not valid for pgi. Inntekt will be descarded.. ${response.logString()}. For pgi: $pgi "
+            "Inntektaar is not valid for pgi. Inntekt will be discarded.. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer "
         )
     }
 
@@ -145,25 +151,29 @@ internal class LagreInntektPopp(
         pgi: PensjonsgivendeInntekt
     ) {
         poppResponseCounter.republish(response.statusCode())
+        val sekvensnummer = pgi.metaData.sekvensnummer
+        val marker = Markers.append("sekvensnummer", sekvensnummer)
         log.warn(
-            Markers.append("sekvensnummer", pgi.metaData.sekvensnummer),
-            """Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr()
+            marker,
+            """Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer""".maskFnr()
         )
         secureLog.warn(
-            Markers.append("sekvensnummer", pgi.metaData.sekvensnummer),
-            "Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi"
+            marker,
+            "Failed when adding to POPP. Bruker eksisterer ikke i PEN. Initiating republishing. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer"
         )
     }
 
     private fun logErrorRepublishing(response: HttpResponse<String>, pgi: PensjonsgivendeInntekt) {
         poppResponseCounter.republish(response.statusCode())
+        val sekvensnummer = pgi.metaData.sekvensnummer
+        val marker = Markers.append("sekvensnummer", sekvensnummer)
         log.error(
-            Markers.append("sekvensnummer", pgi.metaData.sekvensnummer),
-            """Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi""".maskFnr()
+            marker,
+            """Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer""".maskFnr()
         )
         secureLog.error(
-            Markers.append("sekvensnummer", pgi.metaData.sekvensnummer),
-            "Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi"
+            marker,
+            "Failed when adding to POPP. Initiating republishing. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer"
         )
     }
 
@@ -173,11 +183,11 @@ internal class LagreInntektPopp(
         val marker = Markers.append("sekvensnummer", sekvensnummer)
         log.error(
             marker,
-            """Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi """.maskFnr()
+            """Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer """.maskFnr()
         )
         secureLog.error(
             marker,
-            "Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi "
+            "Failed when adding to POPP. Initiating shutdown. ${response.logString()}. For pgi: $pgi. Sekvensnummer: $sekvensnummer "
         )
     }
 }
