@@ -53,6 +53,8 @@ internal class PoppClient(
         data class InntektAarValidationFailed(val httpResponse: HttpResponse<String>) : PoppResponse()
         data class BrukerEksistererIkkeIPEN(val httpResponse: HttpResponse<String>) : PoppResponse()
         data class AnnenKonflikt(val httpResponse: HttpResponse<String>) : PoppResponse()
+        data class I_BrukIkkeFunnetPdl(val httpResponse: HttpResponse<String>) : PoppResponse()
+        data class FailedWhenCallingOtherBackgroundSystem(val httpResponse: HttpResponse<String>) : PoppResponse()
 
         data class UkjentStatus(val httpResponse: HttpResponse<String>) : PoppResponse()
 
@@ -65,7 +67,9 @@ internal class PoppClient(
                     code == 400 && body("PGI_001_PID_VALIDATION_FAILED") -> PidValidationFailed(httpResponse)
                     code == 400 && body("PGI_002_INNTEKT_AAR_VALIDATION_FAILED") -> InntektAarValidationFailed(httpResponse)
                     code == 409 && body("Bruker eksisterer ikke i PEN") -> BrukerEksistererIkkeIPEN(httpResponse)
+                    code == 409 && body("Folkeregisteridentifikator I_BRUK ikke funnet i response fra PDL") -> I_BrukIkkeFunnetPdl(httpResponse)
                     code == 409 -> AnnenKonflikt(httpResponse)
+                    code == 500 && body ("Failed when calling other background system") -> FailedWhenCallingOtherBackgroundSystem(httpResponse)
                     else -> UkjentStatus(httpResponse)
                 }
             }

@@ -60,13 +60,13 @@ internal class LagreInntektPopp(
         val marker = Markers.append("sekvensnummer", pensjonsgivendeInntekt.metaData.sekvensnummer)
         log.info(
             marker,
-            "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer} " +
-                    "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}"
+            "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer}. " +
+                    "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}. PensjonsgivendeInntekt: ${pensjonsgivendeInntekt.pensjonsgivendeInntekt.toString().maskFnr()}"
         )
         secureLog.info(
             marker,
             "Kaller POPP for lagring av pgi. Sekvensnummer: ${pensjonsgivendeInntekt.metaData.sekvensnummer} " +
-                    "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}"
+                    "Inntektsår: ${pensjonsgivendeInntekt.inntektsaar}. PensjonsgivendeInntekt: ${pensjonsgivendeInntekt.pensjonsgivendeInntekt}"
         )
         when (val response = poppClient.postPensjonsgivendeInntekt(pensjonsgivendeInntekt)) {
             is PoppResponse.OK -> logSuccessfulRequestToPopp(response.httpResponse, pensjonsgivendeInntekt)
@@ -85,7 +85,18 @@ internal class LagreInntektPopp(
                 republiserHendelseProducer.send(inntektRecord)
             }
 
+            is PoppResponse.I_BrukIkkeFunnetPdl -> {
+                logWarningBrukerEksistereIkkeIPenRepublishing(response.httpResponse, pensjonsgivendeInntekt)
+                republiserHendelseProducer.send(inntektRecord)
+            }
+
             is PoppResponse.AnnenKonflikt -> {
+                logErrorRepublishing(response.httpResponse, pensjonsgivendeInntekt)
+                republiserHendelseProducer.send(inntektRecord)
+            }
+
+            //Potensiell beregningsfeil i PREG, fødselsår eller ulik beholdning POPP/PEN
+            is PoppResponse.FailedWhenCallingOtherBackgroundSystem -> {
                 logErrorRepublishing(response.httpResponse, pensjonsgivendeInntekt)
                 republiserHendelseProducer.send(inntektRecord)
             }

@@ -21,6 +21,8 @@ internal class PoppMockServer {
         const val FNR_NR3_409 = "33333333333"
         const val FNR_NR4_409 = "44444444444"
         const val FNR_NR5_409 = "55555555555"
+        const val FNR_NR6_409_PDL = "66666666666"
+        const val FNR_NR7_500_BACKGROUND_SYSTEM = "77777777777"
     }
 
     init {
@@ -31,6 +33,8 @@ internal class PoppMockServer {
         mockResponseFromPopp(FNR_NR3_409, aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
         mockResponseFromPopp(FNR_NR4_409, aResponse().withStatus(409).withBody("Bruker eksisterer ikke i PEN"))
         mockResponseFromPopp(FNR_NR5_409, aResponse().withStatus(409).withBody("Fant ikke person"))
+        mockResponseFromPopp(FNR_NR6_409_PDL, aResponse().withStatus(409).withBody("Folkeregisteridentifikator I_BRUK ikke funnet i response fra PDL"))
+        mockResponseFromPopp(FNR_NR7_500_BACKGROUND_SYSTEM, aResponse().withStatus(500).withBody("Failed when calling other background system"))
 
         mockResponseFromPopp(FNR_NR1_200, ok())
         mockResponseFromPopp(FNR_NR2_200, ok())
@@ -88,6 +92,30 @@ internal class PoppMockServer {
                     aResponse()
                         .withStatus(409)
                         .withBody("Fant ikke person")
+                )
+        )
+    }
+
+    internal fun `Mock 409 I_BRUK ikke funnet i PDL`() {
+        poppApiMockServer.stubFor(
+            post(urlPathEqualTo(PGI_PATH))
+                .atPriority(10)
+                .willReturn(
+                    aResponse()
+                        .withStatus(409)
+                        .withBody("Folkeregisteridentifikator I_BRUK ikke funnet i response fra PDL")
+                )
+        )
+    }
+
+    internal fun `Mock 500 Failed when calling other background system`() {
+        poppApiMockServer.stubFor(
+            post(urlPathEqualTo(PGI_PATH))
+                .atPriority(10)
+                .willReturn(
+                    aResponse()
+                        .withStatus(500)
+                        .withBody("Failed when calling other background system")
                 )
         )
     }

@@ -18,6 +18,8 @@ import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_200
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR3_409
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR4_409
 import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR5_409
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR6_409_PDL
+import no.nav.pgi.popp.lagreinntekt.mock.PoppMockServer.Companion.FNR_NR7_500_BACKGROUND_SYSTEM
 import no.nav.pgi.popp.lagreinntekt.mock.TokenProviderMock
 import no.nav.pgi.popp.lagreinntekt.popp.PoppClient
 import org.assertj.core.api.Assertions.assertThat
@@ -86,7 +88,9 @@ internal class ComponentTest {
         createPensjonsgivendeInntekt(FNR_NR2_409, 2018, PensjonsgivendeInntektMetadata(3, 4)),
         createPensjonsgivendeInntekt(FNR_NR3_409, 2019, PensjonsgivendeInntektMetadata(5, 6)),
         createPensjonsgivendeInntekt(FNR_NR4_409, 2019, PensjonsgivendeInntektMetadata(7, 8)),
-        createPensjonsgivendeInntekt(FNR_NR5_409, 2020, PensjonsgivendeInntektMetadata(9, 10))
+        createPensjonsgivendeInntekt(FNR_NR5_409, 2020, PensjonsgivendeInntektMetadata(9, 10)),
+        createPensjonsgivendeInntekt(FNR_NR6_409_PDL, 2020, PensjonsgivendeInntektMetadata(11, 12)),
+        createPensjonsgivendeInntekt(FNR_NR7_500_BACKGROUND_SYSTEM, 2020, PensjonsgivendeInntektMetadata(13, 14))
     )
 
     private fun createPensjonsgivendeInntekt(

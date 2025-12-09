@@ -134,6 +134,32 @@ internal class LagreInntektPoppTest {
     }
 
     @Test
+    fun `Republishes hendelse to consumer when 409 I_BRUK ikke funnet i PDL is returned from popp`() {
+        poppMockServer.`Mock 409 I_BRUK ikke funnet i PDL`()
+        val pgiRecords = createPgiRecords(13, 16)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        lagreInntektPopp.processInntektRecords()
+
+        val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
+        assertThat(republishedHendelser).hasSize(4)
+        assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
+    }
+
+    @Test
+    fun `Republishes hendelse to consumer when 500 Failed when calling other background system is returned from popp`() {
+        poppMockServer.`Mock 500 Failed when calling other background system`()
+        val pgiRecords = createPgiRecords(13, 16)
+
+        pgiRecords.forEach { kafkaMockFactory.addRecord(it) }
+        lagreInntektPopp.processInntektRecords()
+
+        val republishedHendelser = kafkaMockFactory.hendelseProducer.history()
+        assertThat(republishedHendelser).hasSize(4)
+        assertEquals(pgiRecords.last().offset() + 1, kafkaMockFactory.committedOffset())
+    }
+
+    @Test
     fun `Republishes hendelse should map retries and sekvensnummer from metadata`() {
         poppMockServer.`Mock 409 Bruker eksisterer ikke i PEN`()
         val pgiRecord = createPgiRecords(1, 1).first()
