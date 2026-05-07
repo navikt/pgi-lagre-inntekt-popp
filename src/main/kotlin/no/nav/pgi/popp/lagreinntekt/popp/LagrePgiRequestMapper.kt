@@ -11,7 +11,7 @@ object LagrePgiRequestMapper {
         return LagrePgiRequest(
             personIdentifikator = pensjonsgivendeInntekt.norskPersonidentifikator,
             inntektsaar = pensjonsgivendeInntekt.inntektsaar.toInt(),
-            pgiList = pensjonsgivendeInntekt.pensjonsgivendeInntekt.map { toPgiList(it) }.flatten(),
+            pgiList = pensjonsgivendeInntekt.pensjonsgivendeInntekt.flatMap { toPgiList(it) },
             sekvensnummer = pensjonsgivendeInntekt.metaData.sekvensnummer
         )
     }
